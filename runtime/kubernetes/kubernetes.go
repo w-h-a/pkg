@@ -1,10 +1,15 @@
 package kubernetes
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+	"path"
 
 	"github.com/w-h-a/pkg/runtime"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 const (
@@ -12,7 +17,11 @@ const (
 )
 
 var (
-	ErrReadNamespace = errors.New("failed to read namespace from service account secret")
+	ErrReadServiceAccount = errors.New("failed to read service account")
+	ErrReadNamespace      = errors.New("failed to read namespace from service account")
+	ErrResourceNotFound   = errors.New("resource not found")
+	ErrDecode             = errors.New("failed to decode response")
+	ErrUnknown            = errors.New("unknown error")
 )
 
 type kubernetesRuntime struct {
@@ -88,12 +97,60 @@ func (k *kubernetesRuntime) String() string {
 }
 
 func (k *kubernetesRuntime) get(resource *Resource, labels map[string]string) error {
-
-	return nil
+	return newRequest(&k.options).
+		get().
+		setResource(resource.Kind).
+		setParams(&params{labelSelector: labels}).
+		do().
+		decode(resource.Value)
 }
 
 func NewRuntime(opts ...runtime.RuntimeOption) runtime.Runtime {
 	options := runtime.NewRuntimeOptions(opts...)
+
+	if len(options.Host) == 0 {
+		options.Host = "https://" + os.Getenv("KUBERNETES_SERVICE_HOST") + ":" + os.Getenv("KUBERNETES_SERVICE_PORT")
+	}
+
+	fileInfo, err := os.Stat(serviceAccountPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if fileInfo == nil || !fileInfo.IsDir() {
+		log.Fatal(ErrReadServiceAccount)
+	}
+
+	if len(options.Namespace) == 0 {
+		ns, err := DetectNamespace()
+		if err != nil {
+			log.Fatal(err)
+		}
+		options.Namespace = ns
+	}
+
+	if options.BearerToken == "" {
+		token, err := os.ReadFile(path.Join(serviceAccountPath, "token"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		options.BearerToken = string(token)
+	}
+
+	cert, err := CertPoolFromFile(path.Join(serviceAccountPath, "ca.crt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if options.Client == nil {
+		c := &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig:    &tls.Config{RootCAs: cert},
+				DisableCompression: true,
+			},
+		}
+		options.Client = c
+	}
 
 	k := &kubernetesRuntime{
 		options: options,

@@ -8,22 +8,22 @@ import (
 type RuntimeOption func(o *RuntimeOptions)
 
 type RuntimeOptions struct {
-	Namespace   string
 	Host        string
+	Namespace   string
 	BearerToken string
 	Client      *http.Client
 	Context     context.Context
 }
 
-func RuntimeWithNamespace(n string) RuntimeOption {
-	return func(o *RuntimeOptions) {
-		o.Namespace = n
-	}
-}
-
 func RuntimeWithHost(h string) RuntimeOption {
 	return func(o *RuntimeOptions) {
 		o.Host = h
+	}
+}
+
+func RuntimeWithNamespace(n string) RuntimeOption {
+	return func(o *RuntimeOptions) {
+		o.Namespace = n
 	}
 }
 

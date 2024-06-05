@@ -11,4 +11,4 @@
 | security  | TBD              | auth and encryption        |
 | server    | grpc             | build backend servers      |
 | store     | cockroach, redis | data persistence           |
-| telemetry | TBD              | logs, metrics, and traces  |
+| telemetry | memory           | logs, metrics, and traces  |

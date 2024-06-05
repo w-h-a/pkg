@@ -25,3 +25,7 @@ test:
 .PHONY: proto-health
 proto-health:
 	protoc proto/health/*.proto --go_out=paths=source_relative:. --proto_path=.
+
+.PHONY: proto-greeter
+proto-greeter:
+	protoc examples/greeter/proto/*.proto --go_out=paths=source_relative:. --proto_path=.

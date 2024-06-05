@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/w-h-a/pkg/examples/greeter/proto";
+
+// domain
+
+// greet request/response
+message GreetRequest {
+    string name = 1;
+}
+
+message GreetResponse {
+    string msg = 1;
+}

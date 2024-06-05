@@ -9,12 +9,13 @@ import (
 
 func TestLogger(t *testing.T) {
 	size := 100
-	service := "namespace-service"
+	
+	service := "service.namespace"
 
 	logger = NewLog(LogWithSize(size))
 	require.Equal(t, size, logger.(*defaultLog).buffer.Options().Size)
 
-	SetServiceName(service)
+	SetName(service)
 
 	Info("foobar")
 

@@ -47,7 +47,7 @@ func SetPrefix(p string) {
 	prefix = p
 }
 
-func SetServiceName(name string) {
+func SetName(name string) {
 	prefix = fmt.Sprintf("[%s]", name)
 }
 

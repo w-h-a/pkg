@@ -5,7 +5,7 @@ import (
 
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/client/grpcclient"
-	"github.com/w-h-a/pkg/proto/health"
+	"github.com/w-h-a/pkg/proto/runtime"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
@@ -55,21 +55,21 @@ func call() {
 	)
 
 	req := grpcClient.NewRequest(
-		client.RequestWithNamespace("app"),
-		client.RequestWithName("greeter"),
-		client.RequestWithMethod("Health.Log"),
+		client.RequestWithNamespace("default"),
+		client.RequestWithName("runtime"),
+		client.RequestWithMethod("Runtime.Get"),
 		client.RequestWithUnmarshaledRequest(
-			&health.LogRequest{
-				Count: int64(10),
+			&runtime.GetRequest{
+
 			},
 		),
 	)
 
-	rsp := &health.LogResponse{}
+	rsp := &runtime.GetResponse{}
 
 	if err := grpcClient.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:8080")); err != nil {
 		log.Fatalf("failed to make call: %v", err)
 	}
 
-	log.Infof("SUCCESS: %v", rsp.Records)
+	log.Infof("SUCCESS: %+v", rsp.Services)
 }

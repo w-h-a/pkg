@@ -9,7 +9,7 @@ import (
 
 func TestLogger(t *testing.T) {
 	size := 100
-	
+
 	service := "service.namespace"
 
 	logger = NewLog(LogWithSize(size))

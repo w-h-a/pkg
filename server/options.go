@@ -82,7 +82,6 @@ type RequestOptions struct {
 	Name               string
 	Method             string
 	ContentType        string
-	MarshaledRequest   []byte
 	UnmarshaledRequest interface{}
 }
 
@@ -107,12 +106,6 @@ func RequestWithMethod(m string) RequestOption {
 func RequestWithContentType(ct string) RequestOption {
 	return func(o *RequestOptions) {
 		o.ContentType = ct
-	}
-}
-
-func RequestWithMarshaledRequest(b []byte) RequestOption {
-	return func(o *RequestOptions) {
-		o.MarshaledRequest = b
 	}
 }
 

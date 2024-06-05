@@ -190,8 +190,6 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 		return errorutils.InternalServerError("client", err.Error())
 	}
 
-	var e error
-
 	grpcDialOptions := []grpc.DialOption{
 		c.withCreds(address),
 		grpc.WithDefaultCallOptions(
@@ -205,6 +203,8 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 	}
 
 	ch := make(chan error, 1)
+
+	var e error
 
 	go func() {
 		grpcCallOptions := []grpc.CallOption{

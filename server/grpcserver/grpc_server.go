@@ -18,7 +18,6 @@ import (
 	"github.com/w-h-a/pkg/server/grpcserver/controllers"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
-	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -156,16 +155,6 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
-	marshaler, err := s.newMarshaler(contentType)
-	if err != nil {
-		return errorutils.InternalServerError("server", err.Error())
-	}
-
-	b, err := marshaler.Marshal(req.Interface())
-	if err != nil {
-		return err
-	}
-
 	fn := func(ctx context.Context, request server.Request, response interface{}) (err error) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -205,7 +194,6 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			server.RequestWithName(s.options.Name),
 			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
 			server.RequestWithContentType(contentType),
-			server.RequestWithMarshaledRequest(b),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
 		),
 		rsp.Interface(),
@@ -221,15 +209,6 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	}
 
 	return status.New(statusCode, statusDesc).Err()
-}
-
-func (s *grpcServer) newMarshaler(contentType string) (marshalutils.Marshaler, error) {
-	marshaler, ok := marshalutils.DefaultMarshalers[contentType]
-	if !ok {
-		return nil, fmt.Errorf("unsupported content type: %s", contentType)
-	}
-
-	return marshaler, nil
 }
 
 func (s *grpcServer) start() error {
@@ -291,7 +270,7 @@ func (s *grpcServer) start() error {
 
 		s.server.GracefulStop()
 
-		// finish stopping
+		// signal that we've finished stopping the grpc server
 		ch <- nil
 
 		// TODO: disconnect from broker if we're connected

@@ -6,7 +6,6 @@ type Request interface {
 	Server() string
 	Method() string
 	ContentType() string
-	Marshaled() ([]byte, error)
 	Unmarshaled() interface{}
 	String() string
 }

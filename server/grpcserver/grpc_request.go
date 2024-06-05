@@ -28,10 +28,6 @@ func (r *grpcRequest) ContentType() string {
 	return r.options.ContentType
 }
 
-func (r *grpcRequest) Marshaled() ([]byte, error) {
-	return r.options.MarshaledRequest, nil
-}
-
 func (r *grpcRequest) Unmarshaled() interface{} {
 	return r.options.UnmarshaledRequest
 }

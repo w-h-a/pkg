@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: runtime
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: runtime
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  verbs:
+  - list
+- apiGroups:
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: runtime
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: runtime
+subjects:
+- kind: ServiceAccount
+  name: runtime
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: runtime
+  labels:
+    namespace: default
+    name: runtime
+    version: v1.0.0
+  annotations:
+    name: "runtime.default"
+    version: "v1.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: runtime
+  template:
+    metadata:
+      labels:
+        namespace: default
+        name: runtime
+        version: v1.0.0
+    spec:
+      serviceAccountName: runtime
+      containers:
+      - name: runtime
+        image: github.com/w-h-a/pkg:v1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: runtime-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: runtime
+  namespace: default
+  labels:
+    namespace: default
+    name: runtime
+    version: v1.0.0
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    name: runtime
+    

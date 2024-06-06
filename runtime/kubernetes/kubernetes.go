@@ -64,7 +64,7 @@ func (k *kubernetesRuntime) GetServices(opts ...runtime.GetServicesOption) ([]*r
 	serviceMap := map[string]*runtime.Service{}
 
 	for _, k8Service := range serviceList.Items {
-		namespace := k8Service.Metadata.Namespace
+		namespace := k8Service.Metadata.Labels["namespace"]
 
 		name := k8Service.Metadata.Labels["name"]
 

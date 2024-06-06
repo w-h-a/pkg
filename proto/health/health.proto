@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package health;
+
+option go_package = "github.com/w-h-a/pkg/proto/health";
+
+// domain
+message Record {
+    int64 timestamp = 1;
+    string message = 2;
+    map<string,string> metadata = 3;
+}
+
+// health request/response
+message HealthRequest {}
+
+message HealthResponse {
+    string status = 1;
+}
+
+// log request/response
+message LogRequest {
+    int64 count = 1;
+}
+
+message LogResponse {
+    repeated Record records = 1;
+}

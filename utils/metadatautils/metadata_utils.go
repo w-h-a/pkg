@@ -2,16 +2,29 @@ package metadatautils
 
 import (
 	"context"
+	"strings"
 )
+
+type metadataKey struct{}
 
 type Metadata map[string]string
 
 func NewContext(ctx context.Context, md Metadata) context.Context {
-	return context.WithValue(ctx, "metadata_key", md)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	cp := Metadata{}
+
+	for k, v := range md {
+		cp[strings.ToLower(k)] = v
+	}
+
+	return context.WithValue(ctx, metadataKey{}, cp)
 }
 
 func FromContext(ctx context.Context) (Metadata, bool) {
-	md, ok := ctx.Value("metadata_key").(Metadata)
+	md, ok := ctx.Value(metadataKey{}).(Metadata)
 	if !ok {
 		return nil, ok
 	}
@@ -19,7 +32,7 @@ func FromContext(ctx context.Context) (Metadata, bool) {
 	newMetadata := map[string]string{}
 
 	for k, v := range md {
-		newMetadata[k] = v
+		newMetadata[strings.ToLower(k)] = v
 	}
 
 	return newMetadata, ok
@@ -30,20 +43,20 @@ func MergeContext(ctx context.Context, patch Metadata, overwrite bool) context.C
 		ctx = context.Background()
 	}
 
-	md, _ := ctx.Value("metadata_key").(Metadata)
+	md, _ := ctx.Value(metadataKey{}).(Metadata)
 
 	cp := Metadata{}
 
 	for k, v := range md {
-		cp[k] = v
+		cp[strings.ToLower(k)] = v
 	}
 
 	for k, v := range patch {
-		_, ok := cp[k]
+		_, ok := cp[strings.ToLower(k)]
 		if !ok || overwrite {
-			cp[k] = v
+			cp[strings.ToLower(k)] = v
 		}
 	}
 
-	return context.WithValue(ctx, "metadata_key", cp)
+	return context.WithValue(ctx, metadataKey{}, cp)
 }

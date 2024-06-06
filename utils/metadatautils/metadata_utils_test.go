@@ -16,7 +16,7 @@ func TestContext(t *testing.T) {
 
 	meta, ok := FromContext(ctx)
 	require.True(t, ok)
-	require.Equal(t, md["Foo"], meta["Foo"])
+	require.Equal(t, md["Foo"], meta["foo"])
 	require.Equal(t, 1, len(meta))
 }
 
@@ -39,7 +39,7 @@ func TestMergeContext(t *testing.T) {
 				append:    Metadata{"Baz": "test2"},
 				overwrite: false,
 			},
-			want: Metadata{"Foo": "bar", "Baz": "test1"},
+			want: Metadata{"foo": "bar", "baz": "test1"},
 		},
 		{
 			name: "matching key, overwrite true",
@@ -48,7 +48,7 @@ func TestMergeContext(t *testing.T) {
 				append:    Metadata{"Baz": "test2"},
 				overwrite: true,
 			},
-			want: Metadata{"Foo": "bar", "Baz": "test2"},
+			want: Metadata{"foo": "bar", "baz": "test2"},
 		},
 	}
 

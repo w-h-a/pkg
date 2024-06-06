@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	defaultContentType = "application/grpc"
+	defaultContentType = "application/grpc+proto"
 )
 
 type grpcServer struct {
@@ -77,6 +77,7 @@ func (s *grpcServer) Run() error {
 	ch := make(chan os.Signal, 1)
 
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
 	log.Infof("grpc server received signal %s", <-ch)
 
 	return s.stop()
@@ -294,7 +295,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		rsp.Interface(),
 	); err != nil {
 		// TODO: make the status code better here
-		statusCode = codes.Unknown
+		statusCode = codes.Internal
 		statusDesc = err.Error()
 		return status.New(statusCode, statusDesc).Err()
 	}

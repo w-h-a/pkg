@@ -66,7 +66,7 @@ func call() {
 
 	rsp := &proto.GreetResponse{}
 
-	if err := grpcClient.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:65065")); err != nil {
+	if err := grpcClient.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:53116")); err != nil {
 		log.Fatalf("failed to make call: %v", err)
 	}
 

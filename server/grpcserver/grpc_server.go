@@ -86,6 +86,101 @@ func (s *grpcServer) String() string {
 	return "grpc"
 }
 
+func (s *grpcServer) start() error {
+	s.mtx.RLock()
+	if s.started {
+		s.mtx.RUnlock()
+		return nil
+	}
+	s.mtx.RUnlock()
+
+	if err := controllers.RegisterHealthController(
+		s,
+		controllers.NewHealthController(
+			fmt.Sprintf("%s.%s:%s %s", s.options.Name, s.options.Namespace, s.options.Version, s.options.Id),
+		),
+	); err != nil {
+		return err
+	}
+
+	listener, err := net.Listen("tcp", s.options.Address)
+	if err != nil {
+		return err
+	}
+
+	// make sure the address is right
+	s.mtx.Lock()
+	s.options.Address = listener.Addr().String()
+	s.mtx.Unlock()
+
+	log.Infof("grpc server is listening on %s", listener.Addr().String())
+
+	// TODO: connect to broker if we have subscribers
+
+	go func() {
+		if err := s.server.Serve(listener); err != nil {
+			log.Fatalf("grpc server failed to start: %v", err)
+		}
+	}()
+
+	go func() {
+		tick := time.NewTicker(time.Second * 30)
+
+		var ch chan error
+
+	Loop:
+		for {
+			select {
+			case <-tick.C:
+				// TODO: decide if we need this for some kind of heart beat
+			case ch = <-s.exit:
+				tick.Stop()
+				break Loop
+			}
+		}
+
+		if s.wg != nil {
+			s.wg.Wait()
+		}
+
+		s.server.GracefulStop()
+
+		// signal that we've finished stopping the grpc server
+		ch <- nil
+
+		// TODO: disconnect from broker if we're connected
+	}()
+
+	s.mtx.Lock()
+	s.started = true
+	s.mtx.Unlock()
+
+	return nil
+}
+
+func (s *grpcServer) stop() error {
+	s.mtx.RLock()
+	if !s.started {
+		s.mtx.RUnlock()
+		return nil
+	}
+	s.mtx.RUnlock()
+
+	ch := make(chan error)
+
+	// signal start loop
+	s.exit <- ch
+
+	// wait for errors
+	err := <-ch
+
+	s.mtx.Lock()
+	s.started = false
+	s.mtx.Unlock()
+
+	return err
+}
+
 func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	s.wg.Add(1)
 	defer s.wg.Done()
@@ -209,101 +304,6 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	}
 
 	return status.New(statusCode, statusDesc).Err()
-}
-
-func (s *grpcServer) start() error {
-	s.mtx.RLock()
-	if s.started {
-		s.mtx.RUnlock()
-		return nil
-	}
-	s.mtx.RUnlock()
-
-	if err := controllers.RegisterHealthController(
-		s,
-		controllers.NewHealthController(
-			fmt.Sprintf("%s.%s:%s %s", s.options.Name, s.options.Namespace, s.options.Version, s.options.Id),
-		),
-	); err != nil {
-		return err
-	}
-
-	listener, err := net.Listen("tcp", s.options.Address)
-	if err != nil {
-		return err
-	}
-
-	// make sure the address is right
-	s.mtx.Lock()
-	s.options.Address = listener.Addr().String()
-	s.mtx.Unlock()
-
-	log.Infof("grpc server is listening on %s", listener.Addr().String())
-
-	// TODO: connect to broker if we have subscribers
-
-	go func() {
-		if err := s.server.Serve(listener); err != nil {
-			log.Fatalf("grpc server failed to start: %v", err)
-		}
-	}()
-
-	go func() {
-		tick := time.NewTicker(time.Second * 30)
-
-		var ch chan error
-
-	Loop:
-		for {
-			select {
-			case <-tick.C:
-				// TODO: decide if we need this for some kind of heart beat
-			case ch = <-s.exit:
-				tick.Stop()
-				break Loop
-			}
-		}
-
-		if s.wg != nil {
-			s.wg.Wait()
-		}
-
-		s.server.GracefulStop()
-
-		// signal that we've finished stopping the grpc server
-		ch <- nil
-
-		// TODO: disconnect from broker if we're connected
-	}()
-
-	s.mtx.Lock()
-	s.started = true
-	s.mtx.Unlock()
-
-	return nil
-}
-
-func (s *grpcServer) stop() error {
-	s.mtx.RLock()
-	if !s.started {
-		s.mtx.RUnlock()
-		return nil
-	}
-	s.mtx.RUnlock()
-
-	ch := make(chan error)
-
-	// signal start loop
-	s.exit <- ch
-
-	// wait for errors
-	err := <-ch
-
-	s.mtx.Lock()
-	s.started = false
-	s.mtx.Unlock()
-
-	return err
 }
 
 func NewServer(opts ...server.ServerOption) server.Server {

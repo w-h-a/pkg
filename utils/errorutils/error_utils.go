@@ -37,6 +37,15 @@ func ParseError(errStr string) *Error {
 	return e
 }
 
+func BadRequest(id, format string, a ...interface{}) error {
+	return &Error{
+		Id:     id,
+		Code:   400,
+		Detail: fmt.Sprintf(format, a...),
+		Status: http.StatusText(http.StatusBadRequest),
+	}
+}
+
 func Timeout(id, format string, a ...interface{}) error {
 	return &Error{
 		Id:     id,

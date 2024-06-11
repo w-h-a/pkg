@@ -294,8 +294,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		),
 		rsp.Interface(),
 	); err != nil {
-		// TODO: make the status code better here
-		statusCode = codes.Internal
+		statusCode = ToErrorCode(err)
 		statusDesc = err.Error()
 		return status.New(statusCode, statusDesc).Err()
 	}

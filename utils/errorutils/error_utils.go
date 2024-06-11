@@ -46,6 +46,33 @@ func BadRequest(id, format string, a ...interface{}) error {
 	}
 }
 
+func Unauthorized(id, format string, a ...interface{}) error {
+	return &Error{
+		Id:     id,
+		Code:   401,
+		Detail: fmt.Sprintf(format, a...),
+		Status: http.StatusText(http.StatusUnauthorized),
+	}
+}
+
+func Forbidden(id, format string, a ...interface{}) error {
+	return &Error{
+		Id:     id,
+		Code:   403,
+		Detail: fmt.Sprintf(format, a...),
+		Status: http.StatusText(http.StatusForbidden),
+	}
+}
+
+func NotFound(id, format string, a ...interface{}) error {
+	return &Error{
+		Id:     id,
+		Code:   404,
+		Detail: fmt.Sprintf(format, a...),
+		Status: http.StatusText(http.StatusNotFound),
+	}
+}
+
 func Timeout(id, format string, a ...interface{}) error {
 	return &Error{
 		Id:     id,

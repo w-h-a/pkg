@@ -24,26 +24,25 @@ func ToControllerHandler(grpcFormattedMethod string) (controller string, handler
 }
 
 func ToErrorCode(err error) codes.Code {
-	statusCode := codes.Unknown
-
-	if e, ok := err.(*errorutils.Error); ok {
-		switch e.Code {
-		case http.StatusBadRequest:
-			statusCode = codes.InvalidArgument
-		case http.StatusUnauthorized:
-			statusCode = codes.Unauthenticated
-		case http.StatusForbidden:
-			statusCode = codes.PermissionDenied
-		case http.StatusNotFound:
-			statusCode = codes.NotFound
-		case http.StatusRequestTimeout:
-			statusCode = codes.DeadlineExceeded
-		case http.StatusInternalServerError:
-			statusCode = codes.Internal
-		}
-
-		return statusCode
+	e, ok := err.(*errorutils.Error)
+	if !ok {
+		return codes.Unknown
 	}
 
-	return statusCode
+	switch e.Code {
+	case http.StatusBadRequest:
+		return codes.InvalidArgument
+	case http.StatusUnauthorized:
+		return codes.Unauthenticated
+	case http.StatusForbidden:
+		return codes.PermissionDenied
+	case http.StatusNotFound:
+		return codes.NotFound
+	case http.StatusRequestTimeout:
+		return codes.DeadlineExceeded
+	case http.StatusInternalServerError:
+		return codes.Internal
+	}
+
+	return codes.Unknown
 }

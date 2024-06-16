@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrUserEmailInUse = errors.New("there is already a user with this email")
+	ErrUserEmailInUse  = errors.New("there is already a user with this email")
+	ErrIncorrectSecret = errors.New("incorrect secret")
 )
 
 type Authn interface {

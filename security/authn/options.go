@@ -4,19 +4,27 @@ import (
 	"context"
 	"time"
 
+	"github.com/w-h-a/pkg/security/token"
 	"github.com/w-h-a/pkg/store"
 )
 
 type AuthnOption func(o *AuthnOptions)
 
 type AuthnOptions struct {
-	Store   store.Store
-	Context context.Context
+	Store         store.Store
+	TokenProvider token.TokenProvider
+	Context       context.Context
 }
 
 func AuthnWithStore(s store.Store) AuthnOption {
 	return func(o *AuthnOptions) {
 		o.Store = s
+	}
+}
+
+func AuthnWithTokenProvider(t token.TokenProvider) AuthnOption {
+	return func(o *AuthnOptions) {
+		o.TokenProvider = t
 	}
 }
 

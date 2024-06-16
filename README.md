@@ -8,8 +8,9 @@
 | broker              | nats                     | asynchronous communication |
 | client              | grpc                     | synchronous communication  |
 | runtime             | kubernetes               | service info               |
-| security/authn      | basic tokens, jwts       | authentication             |
-| security/authz      | TBD                      | authorization              |
+| security/token      | basic tokens, jwts       | token providers            |
+| security/authn      | service                  | build authn middleware     |
+| security/authz      | service                  | build authz middleware     |
 | security/encryption | TBD                      | encryption                 |
 | server              | grpc                     | build backend servers      |
 | store               | cockroach, redis, memory | data persistence           |

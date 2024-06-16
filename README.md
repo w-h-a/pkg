@@ -2,13 +2,16 @@
 
 ## Features
 
-| Package   | Choices          | Use Case                   |
-| --------- | ---------------- | -------------------------- |
-| api       | http             | build gateway servers      |
-| broker    | nats             | asynchronous communication |
-| client    | grpc             | synchronous communication  |
-| runtime   | kubernetes       | service info               |
-| security  | TBD              | auth and encryption        |
-| server    | grpc             | build backend servers      |
-| store     | cockroach, redis | data persistence           |
-| telemetry | memory           | logs, metrics, and traces  |
+| Package             | Choices                  | Use Case                   |
+| ------------------- | ------------------------ | -------------------------- |
+| api                 | http                     | build gateway servers      |
+| broker              | nats                     | asynchronous communication |
+| client              | grpc                     | synchronous communication  |
+| runtime             | kubernetes               | service info               |
+| security/token      | basic tokens, jwts       | token providers            |
+| security/authn      | service                  | build authn middleware     |
+| security/authz      | service                  | build authz middleware     |
+| security/encryption | TBD                      | encryption                 |
+| server              | grpc                     | build backend servers      |
+| store               | cockroach, redis, memory | data persistence           |
+| telemetry           | memory                   | logs, metrics, and traces  |

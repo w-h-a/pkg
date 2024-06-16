@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+	"time"
 
 	"github.com/w-h-a/pkg/store"
 )
@@ -59,6 +60,40 @@ func GenerateWithMetadata(md map[string]string) GenerateOption {
 
 func NewGenerateOptions(opts ...GenerateOption) GenerateOptions {
 	options := GenerateOptions{}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
+type TokenOption func(o *TokenOptions)
+
+// TODO: optionally pass refresh token to get new access token instead of credentials
+type TokenOptions struct {
+	Id     string
+	Secret string
+	Expiry time.Duration
+}
+
+func TokenWithCredentials(id, secret string) TokenOption {
+	return func(o *TokenOptions) {
+		o.Id = id
+		o.Secret = secret
+	}
+}
+
+func TokenWithExpiry(expiry time.Duration) TokenOption {
+	return func(o *TokenOptions) {
+		o.Expiry = expiry
+	}
+}
+
+func NewTokenOptions(opts ...TokenOption) TokenOptions {
+	options := TokenOptions{
+		Expiry: time.Minute,
+	}
 
 	for _, fn := range opts {
 		fn(&options)

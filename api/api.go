@@ -5,7 +5,6 @@ import "net/http"
 type Api interface {
 	Options() ApiOptions
 	Handle(path string, handler http.Handler)
-	Start() error
-	Stop() error
+	Run() error
 	String() string
 }

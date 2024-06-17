@@ -4,7 +4,9 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/gorilla/handlers"
 	"github.com/w-h-a/pkg/api"
@@ -32,7 +34,25 @@ func (a *httpApi) Handle(path string, handler http.Handler) {
 	a.mux.Handle(path, h)
 }
 
-func (a *httpApi) Start() error {
+func (a *httpApi) Run() error {
+	if err := a.start(); err != nil {
+		return err
+	}
+
+	ch := make(chan os.Signal, 1)
+
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+	log.Infof("http api received signal %s", <-ch)
+
+	return a.stop()
+}
+
+func (a *httpApi) String() string {
+	return "http"
+}
+
+func (a *httpApi) start() error {
 	// TODO: tls
 	listener, err := net.Listen("tcp", a.options.Address)
 	if err != nil {
@@ -44,7 +64,7 @@ func (a *httpApi) Start() error {
 	a.options.Address = listener.Addr().String()
 	a.mtx.Unlock()
 
-	log.Infof("gorilla api is listening on %s", listener.Addr().String())
+	log.Infof("http api is listening on %s", listener.Addr().String())
 
 	go http.Serve(listener, a.mux)
 
@@ -56,14 +76,10 @@ func (a *httpApi) Start() error {
 	return nil
 }
 
-func (a *httpApi) Stop() error {
+func (a *httpApi) stop() error {
 	ch := make(chan error)
 	a.exit <- ch
 	return <-ch
-}
-
-func (a *httpApi) String() string {
-	return "http"
 }
 
 func NewApi(opts ...api.ApiOption) api.Api {

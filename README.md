@@ -9,8 +9,7 @@
 | client              | grpc                     | synchronous communication  |
 | runtime             | kubernetes               | service info               |
 | security/token      | basic tokens, jwts       | token providers            |
-| security/authn      | service                  | build authn middleware     |
-| security/authz      | service                  | build authz middleware     |
+| security/auth{n,z}  | service                  | build auth{n,z} middleware |
 | security/encryption | TBD                      | encryption                 |
 | server              | grpc                     | build backend servers      |
 | store               | cockroach, redis, memory | data persistence           |

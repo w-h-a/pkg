@@ -21,7 +21,10 @@ func TestHttpApi(t *testing.T) {
 		fmt.Fprint(w, testResponse)
 	}))
 
-	err := a.Start()
+	server, ok := a.(*httpApi)
+	require.True(t, ok)
+
+	err := server.start()
 	require.NoError(t, err)
 
 	rsp, err := http.Get(fmt.Sprintf("http://%s/", a.Options().Address))
@@ -33,6 +36,6 @@ func TestHttpApi(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, testResponse, string(bytes))
 
-	err = a.Stop()
+	err = server.stop()
 	require.NoError(t, err)
 }

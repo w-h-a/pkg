@@ -249,6 +249,11 @@ func (c *grpcClient) withCreds(_ string) grpc.DialOption {
 	return grpc.WithTransportCredentials(insecure.NewCredentials())
 }
 
+func init() {
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
+}
+
 func NewClient(opts ...client.ClientOption) client.Client {
 	options := client.NewClientOptions(opts...)
 

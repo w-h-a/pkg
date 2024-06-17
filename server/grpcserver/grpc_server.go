@@ -18,9 +18,11 @@ import (
 	"github.com/w-h-a/pkg/server/grpcserver/controllers"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
+	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
@@ -304,6 +306,11 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	}
 
 	return status.New(statusCode, statusDesc).Err()
+}
+
+func init() {
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
 }
 
 func NewServer(opts ...server.ServerOption) server.Server {

@@ -12,7 +12,6 @@ import (
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -246,11 +245,6 @@ func (c *grpcClient) newMarshaler(contentType string) (marshalutils.Marshaler, e
 func (c *grpcClient) withCreds(_ string) grpc.DialOption {
 	// TODO
 	return grpc.WithTransportCredentials(insecure.NewCredentials())
-}
-
-func init() {
-	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
-	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
 }
 
 func NewClient(opts ...client.ClientOption) client.Client {

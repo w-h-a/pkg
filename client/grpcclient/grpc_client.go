@@ -13,6 +13,7 @@ import (
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -234,7 +235,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 	return e
 }
 
-func (c *grpcClient) newMarshaler(contentType string) (marshalutils.Marshaler, error) {
+func (c *grpcClient) newMarshaler(contentType string) (encoding.Codec, error) {
 	marshaler, ok := marshalutils.DefaultMarshalers[contentType]
 	if !ok {
 		return nil, fmt.Errorf("unsupported content type: %s", contentType)

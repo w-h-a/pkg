@@ -180,7 +180,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 
 	header["content-type"] = req.ContentType()
 
-	delete(header, "Connection")
+	delete(header, "connection")
 
 	grpcMetadata := metadata.New(header)
 

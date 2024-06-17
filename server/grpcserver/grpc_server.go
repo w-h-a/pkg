@@ -18,9 +18,11 @@ import (
 	"github.com/w-h-a/pkg/server/grpcserver/controllers"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
+	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
@@ -251,6 +253,16 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
+	marshaler, err := s.newMarshaler(contentType)
+	if err != nil {
+		return errorutils.InternalServerError("server", err.Error())
+	}
+
+	b, err := marshaler.Marshal(req.Interface())
+	if err != nil {
+		return err
+	}
+
 	fn := func(ctx context.Context, request server.Request, response interface{}) (err error) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -291,6 +303,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
 			server.RequestWithContentType(contentType),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
+			server.RequestWithMarshaledRequest(b),
 		),
 		rsp.Interface(),
 	); err != nil {
@@ -306,6 +319,19 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	return status.New(statusCode, statusDesc).Err()
 }
 
+func (s *grpcServer) newMarshaler(contentType string) (encoding.Codec, error) {
+	marshaler, ok := marshalutils.DefaultMarshalers[contentType]
+	if !ok {
+		return nil, fmt.Errorf("unsupported content type: %s", contentType)
+	}
+
+	return marshaler, nil
+}
+
+func init() {
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
+}
 
 func NewServer(opts ...server.ServerOption) server.Server {
 	options := server.NewServerOptions(opts...)

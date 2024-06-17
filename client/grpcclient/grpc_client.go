@@ -12,6 +12,7 @@ import (
 	"github.com/w-h-a/pkg/utils/metadatautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -193,9 +194,6 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 
 	grpcDialOptions := []grpc.DialOption{
 		c.withCreds(address),
-		grpc.WithDefaultCallOptions(
-			grpc.ForceCodec(marshaler),
-		),
 	}
 
 	clientConn, err := grpc.NewClient(address, grpcDialOptions...)
@@ -210,6 +208,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 	go func() {
 		grpcCallOptions := []grpc.CallOption{
 			grpc.ForceCodec(marshaler),
+			grpc.CallContentSubtype(marshaler.Name()),
 		}
 
 		err := clientConn.Invoke(
@@ -233,7 +232,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 	return e
 }
 
-func (c *grpcClient) newMarshaler(contentType string) (marshalutils.Marshaler, error) {
+func (c *grpcClient) newMarshaler(contentType string) (encoding.Codec, error) {
 	marshaler, ok := marshalutils.DefaultMarshalers[contentType]
 	if !ok {
 		return nil, fmt.Errorf("unsupported content type: %s", contentType)
@@ -245,6 +244,11 @@ func (c *grpcClient) newMarshaler(contentType string) (marshalutils.Marshaler, e
 func (c *grpcClient) withCreds(_ string) grpc.DialOption {
 	// TODO
 	return grpc.WithTransportCredentials(insecure.NewCredentials())
+}
+
+func init() {
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
 }
 
 func NewClient(opts ...client.ClientOption) client.Client {

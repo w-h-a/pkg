@@ -32,6 +32,10 @@ func (r *grpcRequest) Unmarshaled() interface{} {
 	return r.options.UnmarshaledRequest
 }
 
+func (r *grpcRequest) Marshaled() []byte {
+	return r.options.MarshaledRequest
+}
+
 func (r *grpcRequest) String() string {
 	return "grpc"
 }

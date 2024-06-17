@@ -7,7 +7,6 @@ import (
 
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/runtime"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
@@ -219,8 +218,6 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 			rsp,
 			grpcCallOptions...,
 		)
-
-		log.Error("CLIENT ERROR: %v", err)
 
 		ch <- err
 	}()

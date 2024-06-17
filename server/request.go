@@ -7,5 +7,6 @@ type Request interface {
 	Method() string
 	ContentType() string
 	Unmarshaled() interface{}
+	Marshaled() []byte
 	String() string
 }

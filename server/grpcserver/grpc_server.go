@@ -306,7 +306,6 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	return status.New(statusCode, statusDesc).Err()
 }
 
-
 func NewServer(opts ...server.ServerOption) server.Server {
 	options := server.NewServerOptions(opts...)
 

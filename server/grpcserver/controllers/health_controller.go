@@ -18,6 +18,7 @@ type healthController struct {
 }
 
 func (c *healthController) Check(ctx context.Context, req *health.HealthRequest, rsp *health.HealthResponse) error {
+	log.Info("RESPONDING TO HEALTH CHECK")
 	rsp.Status = "ok"
 	return nil
 }

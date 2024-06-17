@@ -328,10 +328,10 @@ func (s *grpcServer) newMarshaler(contentType string) (encoding.Codec, error) {
 	return marshaler, nil
 }
 
-// func init() {
-// 	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
-// 	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
-// }
+func init() {
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/json"])
+	encoding.RegisterCodec(marshalutils.DefaultMarshalers["application/proto"])
+}
 
 func NewServer(opts ...server.ServerOption) server.Server {
 	options := server.NewServerOptions(opts...)

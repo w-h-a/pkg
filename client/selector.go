@@ -12,6 +12,6 @@ var (
 
 type Selector interface {
 	Options() SelectorOptions
-	Select(namespace, service string, opts ...SelectOption) (func() (*runtime.Service, error), error)
+	Select(namespace, service string, port int, opts ...SelectOption) (func() (*runtime.Service, error), error)
 	String() string
 }

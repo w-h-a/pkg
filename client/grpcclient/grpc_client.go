@@ -85,7 +85,7 @@ func (c *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 		}
 
 		// TODO: refactor this cruft
-		address := service.Name + "." + service.Namespace
+		address := service.Name + "." + service.Namespace + ":" + fmt.Sprintf("%d", service.Port)
 
 		if len(service.Address) > 0 {
 			address = service.Address
@@ -139,8 +139,8 @@ func (c *grpcClient) String() string {
 
 func (c *grpcClient) next(request client.Request, options client.CallOptions) (func() (*runtime.Service, error), error) {
 	namespace := request.Namespace()
-
 	server := request.Server()
+	port := request.Port()
 
 	// if we have the address already, use that
 	if len(options.Address) > 0 {
@@ -148,13 +148,14 @@ func (c *grpcClient) next(request client.Request, options client.CallOptions) (f
 			return &runtime.Service{
 				Namespace: namespace,
 				Name:      server,
+				Port:      port,
 				Address:   options.Address,
 			}, nil
 		}, nil
 	}
 
 	// otherwise get the details from the selector
-	next, err := c.options.Selector.Select(namespace, server, options.SelectOpts...)
+	next, err := c.options.Selector.Select(namespace, server, port, options.SelectOpts...)
 	if err != nil {
 		if err == client.ErrServiceNotFound {
 			return nil, errorutils.InternalServerError("client", "failed to find %s.%s: %v", server, namespace, err)

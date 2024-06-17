@@ -22,6 +22,10 @@ clean:
 test:
 	go test -v -race -cover ./...
 
+.PHONY: proto-account
+proto-account:
+	protoc proto/account/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-health
 proto-health:
 	protoc proto/health/*.proto --go_out=paths=source_relative:. --proto_path=.

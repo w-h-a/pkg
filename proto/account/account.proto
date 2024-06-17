@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package account;
+
+option go_package = "github.com/w-h-a/pkg/proto/account";
+
+// domain
+message Account {
+    string id = 1;
+    string secret = 2;
+    repeated string roles = 3;
+    map<string, string> metadata = 4;
+}
+
+message Token {
+    string access_token = 1;
+    int64 created = 2;
+    int64 expiry = 3;
+}
+
+// generate request/response
+message GenerateRequest {
+    string id = 1;
+    string secret = 2;
+    repeated string roles = 3;
+    map<string, string> metadata = 4;
+}
+
+message GenerateResponse {
+    Account account = 1;
+}
+
+// token request/response
+message TokenRequest {
+    string id = 1;
+    string secret = 2;
+    int64 token_expiry = 3;
+}
+
+message TokenResponse {
+    Token token = 1;
+}

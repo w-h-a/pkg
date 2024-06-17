@@ -13,11 +13,12 @@ func (s *grpcSelector) Options() client.SelectorOptions {
 	return s.options
 }
 
-func (s *grpcSelector) Select(namespace, service string, opts ...client.SelectOption) (func() (*runtime.Service, error), error) {
+func (s *grpcSelector) Select(namespace, service string, port int, opts ...client.SelectOption) (func() (*runtime.Service, error), error) {
 	return func() (*runtime.Service, error) {
 		return &runtime.Service{
 			Namespace: namespace,
 			Name:      service,
+			Port:      port,
 		}, nil
 	}, nil
 }

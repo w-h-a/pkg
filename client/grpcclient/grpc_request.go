@@ -22,6 +22,10 @@ func (r *grpcRequest) Method() string {
 	return r.options.Method
 }
 
+func (r *grpcRequest) Port() int {
+	return r.options.Port
+}
+
 func (r *grpcRequest) ContentType() string {
 	return r.options.ContentType
 }

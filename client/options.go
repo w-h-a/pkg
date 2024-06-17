@@ -56,6 +56,7 @@ type RequestOption func(o *RequestOptions)
 type RequestOptions struct {
 	Namespace          string
 	Name               string
+	Port               int
 	Method             string
 	ContentType        string
 	UnmarshaledRequest interface{}
@@ -70,6 +71,12 @@ func RequestWithNamespace(n string) RequestOption {
 func RequestWithName(n string) RequestOption {
 	return func(o *RequestOptions) {
 		o.Name = n
+	}
+}
+
+func RequestWithPort(p int) RequestOption {
+	return func(o *RequestOptions) {
+		o.Port = p
 	}
 }
 

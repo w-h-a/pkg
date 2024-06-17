@@ -194,9 +194,6 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 
 	grpcDialOptions := []grpc.DialOption{
 		c.withCreds(address),
-		grpc.WithDefaultCallOptions(
-			grpc.ForceCodec(marshaler),
-		),
 	}
 
 	clientConn, err := grpc.NewClient(address, grpcDialOptions...)
@@ -211,6 +208,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 	go func() {
 		grpcCallOptions := []grpc.CallOption{
 			grpc.ForceCodec(marshaler),
+			grpc.CallContentSubtype(marshaler.Name()),
 		}
 
 		err := clientConn.Invoke(

@@ -40,3 +40,19 @@ message TokenRequest {
 message TokenResponse {
     Token token = 1;
 }
+
+// inspect request/response
+message InspectRequest {
+    string token = 1;
+}
+
+message InspectResponse {
+    Account account = 1;
+}
+
+// list request/response
+message ListRequest {}
+
+message ListResponse {
+    repeated Account accounts = 1;
+}

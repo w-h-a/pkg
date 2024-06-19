@@ -15,5 +15,7 @@ type Authn interface {
 	Options() AuthnOptions
 	Generate(id string, opts ...GenerateOption) (*Account, error)
 	Token(opts ...TokenOption) (*token.Token, error)
+	Inspect(token string) (*Account, error)
+	List() ([]*Account, error)
 	String() string
 }

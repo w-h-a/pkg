@@ -30,6 +30,10 @@ proto-account:
 proto-health:
 	protoc proto/health/*.proto --go_out=paths=source_relative:. --proto_path=.
 
+.PHONY: proto-rule
+proto-rule:
+	protoc proto/rule/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-runtime
 proto-runtime:
 	protoc proto/runtime/*.proto --go_out=paths=source_relative:. --proto_path=.

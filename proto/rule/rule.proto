@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package rule;
+
+option go_package = "github.com/w-h-a/pkg/proto/rule";
+
+// domain
+message Resource {
+    string namespace = 1;
+    string name = 2;
+    string endpoint = 3;
+}
+
+message Rule {
+    string id = 1;
+    string role = 2;
+    Resource resource = 3;
+}
+
+// grant request/response
+message GrantRequest {
+    string role = 1;
+    Resource resource = 2;
+}
+
+message GrantResponse {}
+
+// revoke request/response
+message RevokeRequest {
+    string role = 1;
+    Resource resource = 2;
+}
+
+message RevokeResponse {}
+
+// verify request/response
+message VerifyRequest {
+    repeated string roles = 1;
+    Resource resource = 2;
+}
+
+message VerifyResponse {}
+
+// list request/response
+message ListRequest {}
+
+message ListResponse {
+    repeated Rule rules = 1;
+}

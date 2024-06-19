@@ -44,9 +44,29 @@ func (s *memoryStore) Write(rec *store.Record, opts ...store.WriteOption) error 
 }
 
 func (s *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
-	// TODO: handle opts
+	options := store.NewReadOptions(opts...)
 
 	keys := []string{key}
+
+	if options.Prefix || options.Suffix {
+		opts := []store.ListOption{}
+
+		if options.Prefix {
+			opts = append(opts, store.ListWithPrefix(key))
+		}
+
+		if options.Suffix {
+			opts = append(opts, store.ListWithSuffix(key))
+		}
+
+		// TODO: limit and offset
+		ks, err := s.List(opts...)
+		if err != nil {
+			return nil, err
+		}
+
+		keys = ks
+	}
 
 	records := []*store.Record{}
 
@@ -96,6 +116,34 @@ func (s *memoryStore) read(key string) (*store.Record, error) {
 }
 
 func (s *memoryStore) List(opts ...store.ListOption) ([]string, error) {
+	options := store.NewListOptions(opts...)
+
+	allKeys := s.list(options.Limit, options.Offset)
+
+	if len(options.Prefix) > 0 {
+		prefixKeys := []string{}
+		for _, k := range allKeys {
+			if strings.HasPrefix(k, options.Prefix) {
+				prefixKeys = append(prefixKeys, k)
+			}
+		}
+		allKeys = prefixKeys
+	}
+
+	if len(options.Suffix) > 0 {
+		suffixKeys := []string{}
+		for _, k := range allKeys {
+			if strings.HasSuffix(k, options.Suffix) {
+				suffixKeys = append(suffixKeys, k)
+			}
+		}
+		allKeys = suffixKeys
+	}
+
+	return allKeys, nil
+}
+
+func (s *memoryStore) list(_, _ uint) []string {
 	allItems := s.store.Items()
 
 	allKeys := make([]string, len(allItems))
@@ -113,7 +161,9 @@ func (s *memoryStore) List(opts ...store.ListOption) ([]string, error) {
 		i++
 	}
 
-	return allKeys, nil
+	// TODO: handle limit and offset
+
+	return allKeys
 }
 
 func (s *memoryStore) Delete(key string, opts ...store.DeleteOption) error {

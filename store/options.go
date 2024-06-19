@@ -66,15 +66,15 @@ type ReadOptions struct {
 	Offset uint
 }
 
-func ReadWithPrefix(b bool) ReadOption {
+func ReadWithPrefix() ReadOption {
 	return func(o *ReadOptions) {
-		o.Prefix = b
+		o.Prefix = true
 	}
 }
 
-func ReadWithSuffix(b bool) ReadOption {
+func ReadWithSuffix() ReadOption {
 	return func(o *ReadOptions) {
-		o.Suffix = b
+		o.Suffix = true
 	}
 }
 

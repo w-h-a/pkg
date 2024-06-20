@@ -6,6 +6,10 @@ import (
 	"github.com/w-h-a/pkg/security/token"
 )
 
+const (
+	BearerScheme = "Bearer "
+)
+
 var (
 	ErrUserEmailInUse  = errors.New("there is already a user with this email")
 	ErrIncorrectSecret = errors.New("incorrect secret")

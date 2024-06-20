@@ -2,6 +2,7 @@ package metadatautils
 
 import (
 	"context"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -57,5 +58,36 @@ func TestMergeContext(t *testing.T) {
 			got, _ := FromContext(MergeContext(NewContext(context.TODO(), c.args.existing), c.args.append, c.args.overwrite))
 			require.Equal(t, c.want, got)
 		})
+	}
+}
+
+func TestRequestToContext(t *testing.T) {
+	testData := []struct {
+		request *http.Request
+		expect  Metadata
+	}{
+		{
+			&http.Request{
+				Header: http.Header{
+					"Foo1": []string{"bar"},
+					"Foo2": []string{"bar", "baz"},
+				},
+			},
+			Metadata{
+				"foo1": "bar",
+				"foo2": "bar,baz",
+			},
+		},
+	}
+
+	for _, d := range testData {
+		ctx := RequestToContext(d.request)
+		md, ok := FromContext(ctx)
+		require.True(t, ok)
+
+		for k, v := range d.expect {
+			val := md[k]
+			require.Equal(t, v, val)
+		}
 	}
 }

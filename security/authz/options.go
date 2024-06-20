@@ -10,19 +10,12 @@ type AuthzOption func(o *AuthzOptions)
 
 type AuthzOptions struct {
 	Store   store.Store
-	Rules   []*Rule
 	Context context.Context
 }
 
 func AuthzWithStore(s store.Store) AuthzOption {
 	return func(o *AuthzOptions) {
 		o.Store = s
-	}
-}
-
-func AuthzWithRules(rs ...*Rule) AuthzOption {
-	return func(o *AuthzOptions) {
-		o.Rules = rs
 	}
 }
 

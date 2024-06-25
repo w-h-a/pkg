@@ -20,7 +20,7 @@ clean:
 
 .PHONY: test
 test:
-	go test -v -race -cover ./...
+	go test -v -race ./...
 
 .PHONY: proto-account
 proto-account:
@@ -37,6 +37,10 @@ proto-rule:
 .PHONY: proto-runtime
 proto-runtime:
 	protoc proto/runtime/*.proto --go_out=paths=source_relative:. --proto_path=.
+
+.PHONY: proto-ticket
+proto-ticket:
+	protoc proto/ticket/*.proto --go_out=paths=source_relative:. --proto_path=.
 
 .PHONY: proto-greeter
 proto-greeter:

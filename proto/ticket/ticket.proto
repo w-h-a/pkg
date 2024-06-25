@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package ticket;
+
+option go_package = "github.com/w-h-a/pkg/proto/ticket";
+
+// domain
+message Ticket {
+    string title = 1;
+    string price = 2;
+}
+
+// create request/response
+message CreateRequest {
+    Ticket ticket = 1;
+}
+
+message CreateResponse {}

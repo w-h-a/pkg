@@ -1,6 +1,6 @@
 package mockclient
 
 type Response struct {
-	Response interface{}
-	Err      error
+	Response interface{} `json:"response,omitempty"`
+	Err      error       `json:"err,omitempty"`
 }

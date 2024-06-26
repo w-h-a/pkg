@@ -2,7 +2,6 @@ package mockclient
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -42,15 +41,9 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 	val := reflect.ValueOf(rsp)
 	val = reflect.Indirect(val)
 
-	fmt.Printf("DEBUG 1: %+v", val)
-
 	response := mock.Response
 
-	fmt.Printf("DEBUG 2: %+v", response)
-
 	val.Set(reflect.ValueOf(response))
-
-	fmt.Printf("DEBUG 3: %+v", val)
 
 	return nil
 }

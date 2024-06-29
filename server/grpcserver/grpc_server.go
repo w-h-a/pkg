@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/server"
 	"github.com/w-h-a/pkg/server/grpcserver/controllers"
 	"github.com/w-h-a/pkg/telemetry/log"
@@ -36,6 +37,7 @@ type grpcServer struct {
 	mtx         sync.RWMutex
 	wg          *sync.WaitGroup
 	controllers map[string]*grpcController
+	subscribers map[*grpcSubscriber]broker.Subscriber
 	server      *grpc.Server
 	started     bool
 	exit        chan chan error
@@ -67,6 +69,32 @@ func (s *grpcServer) RegisterController(c server.Controller) error {
 	}
 
 	s.controllers[c.Name()] = controller
+
+	return nil
+}
+
+func (s *grpcServer) NewSubscriber(t string, sub interface{}, opts ...server.SubscriberOption) server.Subscriber {
+	return NewSubscriber(t, sub, opts...)
+}
+
+func (s *grpcServer) RegisterSubscriber(sub server.Subscriber) error {
+	subscriber, ok := sub.(*grpcSubscriber)
+	if !ok {
+		return fmt.Errorf("invalid subscriber: expected *grpcSubscriber")
+	}
+
+	if len(subscriber.handlers) == 0 {
+		return fmt.Errorf("invalid subscriber: no handler functions")
+	}
+
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	if _, ok := s.subscribers[subscriber]; ok {
+		return fmt.Errorf("subscriber %v is already registered", subscriber)
+	}
+
+	s.subscribers[subscriber] = nil
 
 	return nil
 }
@@ -118,7 +146,19 @@ func (s *grpcServer) start() error {
 
 	log.Infof("grpc server is listening on %s", listener.Addr().String())
 
-	// TODO: connect to broker if we have subscribers
+	if len(s.subscribers) > 0 && s.options.Broker != nil {
+		if err := s.options.Broker.Connect(); err != nil {
+			log.Errorf("grpc server failed to connect to broker: %v", err)
+			return err
+		}
+
+		log.Infof("grpc server is connected to [%s] broker at %s", s.options.Broker.String(), s.options.Broker.Address())
+
+		if err := s.subscribe(); err != nil {
+			log.Errorf("grpc server failed to subscribe subscribers: %v", err)
+			return err
+		}
+	}
 
 	go func() {
 		if err := s.server.Serve(listener); err != nil {
@@ -151,12 +191,67 @@ func (s *grpcServer) start() error {
 		// signal that we've finished stopping the grpc server
 		ch <- nil
 
-		// TODO: disconnect from broker if we're connected
+		if s.options.Broker != nil && len(s.subscribers) != 0 {
+			if err := s.unsubscribe(); err != nil {
+				log.Errorf("grpc server failed to unsubscribe subscribers: %v", err)
+			}
+
+			if err := s.options.Broker.Disconnect(); err != nil {
+				log.Errorf("grpc server failed to disconnect from the broker: %v", err)
+			}
+		}
 	}()
 
 	s.mtx.Lock()
 	s.started = true
 	s.mtx.Unlock()
+
+	return nil
+}
+
+func (s *grpcServer) subscribe() error {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	for grpc := range s.subscribers {
+		handler := s.createHandler(grpc, s.options.SubscriberWrappers)
+
+		opts := []broker.SubscribeOption{}
+
+		if !grpc.Options().AutoAck {
+			opts = append(opts, broker.SubscribeWithoutAutoAck())
+		}
+
+		if len(grpc.Options().QueueName) > 0 {
+			opts = append(opts, broker.SubscriberWithQueueName(grpc.Options().QueueName))
+		}
+
+		log.Infof("grpc server subscribing to topic: %s", grpc.Topic())
+
+		sub, err := s.options.Broker.Subscribe(grpc.Topic(), handler, opts...)
+		if err != nil {
+			return err
+		}
+
+		s.subscribers[grpc] = sub
+	}
+
+	return nil
+}
+
+func (s *grpcServer) unsubscribe() error {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	for grpc, sub := range s.subscribers {
+		log.Infof("grpc server unsubscribing from topic: %s", sub.Topic())
+
+		if err := sub.Unsubscribe(); err != nil {
+			return err
+		}
+
+		s.subscribers[grpc] = nil
+	}
 
 	return nil
 }
@@ -214,7 +309,6 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	}
 
 	timeout := md["timeout"]
-	delete(md, "timeout")
 
 	ctx := metadatautils.NewContext(stream.Context(), md)
 
@@ -253,12 +347,14 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
+	// seems like this was necessary, in addition to the init toward the 
+	// bottom of this file, to get grpc to assume the right content type
 	marshaler, err := s.newMarshaler(contentType)
 	if err != nil {
 		return errorutils.InternalServerError("server", err.Error())
 	}
 
-	b, err := marshaler.Marshal(req.Interface())
+	bytes, err := marshaler.Marshal(req.Interface())
 	if err != nil {
 		return err
 	}
@@ -279,9 +375,9 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			reflect.ValueOf(response),
 		}
 
-		results := handler.method.Call(args)
+		vals := handler.method.Call(args)
 
-		if e := results[0].Interface(); e != nil {
+		if e := vals[0].Interface(); e != nil {
 			err = e.(error)
 		}
 
@@ -303,7 +399,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
 			server.RequestWithContentType(contentType),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
-			server.RequestWithMarshaledRequest(b),
+			server.RequestWithMarshaledRequest(bytes),
 		),
 		rsp.Interface(),
 	); err != nil {
@@ -317,6 +413,103 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	}
 
 	return status.New(statusCode, statusDesc).Err()
+}
+
+func (s *grpcServer) createHandler(subscriber *grpcSubscriber, subWrappers []server.SubscriberWrapper) broker.Handler {
+	return func(pub broker.Publication) (err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Infof("panic recovered: %v", r)
+				log.Info(string(debug.Stack()))
+				err = errorutils.InternalServerError("server", "panic recovered: %v", r)
+			}
+		}()
+
+		message := pub.Message()
+		if message.Header == nil {
+			message.Header = map[string]string{}
+		}
+
+		md := metadatautils.Metadata{}
+		for k, v := range message.Header {
+			md[k] = v
+		}
+
+		contentType := defaultContentType
+		if ct, ok := md["content-type"]; ok {
+			contentType = ct
+		}
+
+		ctx := metadatautils.NewContext(context.Background(), md)
+
+		var marshaler marshalutils.Marshaler
+		marshaler, err = s.newMarshaler(contentType)
+		if err != nil {
+			return
+		}
+
+		results := make(chan error, len(subscriber.handlers))
+
+		for i := 0; i < len(subscriber.handlers); i++ {
+			handler := subscriber.handlers[i]
+
+			payload := reflect.New(handler.payloadType.Elem())
+
+			err = marshaler.Unmarshal(message.Body, payload.Interface())
+			if err != nil {
+				return
+			}
+
+			fn := func(ctx context.Context, pub server.Publication) (err error) {
+				args := []reflect.Value{
+					subscriber.receiver,
+					reflect.ValueOf(ctx),
+					reflect.ValueOf(pub.Unmarshaled()),
+				}
+
+				vals := handler.method.Call(args)
+
+				if e := vals[0].Interface(); e != nil {
+					err = e.(error)
+				}
+
+				return err
+			}
+
+			for i := len(subWrappers); i > 0; i-- {
+				fn = subWrappers[i-1](fn)
+			}
+
+			s.wg.Add(1)
+			go func() {
+				defer s.wg.Done()
+				e := fn(
+					ctx,
+					NewPublication(
+						server.PublicationWithTopic(subscriber.topic),
+						server.PublicationWithContentType(contentType),
+						server.PublicationWithUnmarshaledPayload(payload.Interface()),
+					),
+				)
+				results <- e
+			}()
+		}
+
+		errors := []string{}
+
+		for i := 0; i < len(subscriber.handlers); i++ {
+			if e := <-results; e != nil {
+				errors = append(errors, e.Error())
+			}
+		}
+
+		if len(errors) > 0 {
+			err = fmt.Errorf("subscriber error: %s", strings.Join(errors, "\n"))
+			log.Errorf("subscriber errors: %v", err)
+		}
+
+		return
+	}
 }
 
 func (s *grpcServer) newMarshaler(contentType string) (encoding.Codec, error) {
@@ -341,6 +534,7 @@ func NewServer(opts ...server.ServerOption) server.Server {
 		mtx:         sync.RWMutex{},
 		wg:          &sync.WaitGroup{},
 		controllers: map[string]*grpcController{},
+		subscribers: map[*grpcSubscriber]broker.Subscriber{},
 		exit:        make(chan chan error),
 	}
 

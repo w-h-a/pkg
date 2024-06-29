@@ -1,6 +1,10 @@
 package server
 
-import "context"
+import (
+	"context"
+
+	"github.com/w-h-a/pkg/broker"
+)
 
 type ServerOption func(o *ServerOptions)
 
@@ -11,7 +15,9 @@ type ServerOptions struct {
 	Version            string
 	Address            string
 	Metadata           map[string]string
+	Broker             broker.Broker
 	ControllerWrappers []ControllerWrapper
+	SubscriberWrappers []SubscriberWrapper
 	Context            context.Context
 }
 
@@ -51,9 +57,21 @@ func ServerWithMetadata(md map[string]string) ServerOption {
 	}
 }
 
+func ServerWithBroker(b broker.Broker) ServerOption {
+	return func(o *ServerOptions) {
+		o.Broker = b
+	}
+}
+
 func WrapController(ws ...ControllerWrapper) ServerOption {
 	return func(o *ServerOptions) {
 		o.ControllerWrappers = append(o.ControllerWrappers, ws...)
+	}
+}
+
+func WrapSubscriber(ws ...SubscriberWrapper) ServerOption {
+	return func(o *ServerOptions) {
+		o.SubscriberWrappers = append(o.SubscriberWrappers, ws...)
 	}
 }
 
@@ -132,6 +150,73 @@ func NewRequestOptions(opts ...RequestOption) RequestOptions {
 	return options
 }
 
+type PublicationOption func(o *PublicationOptions)
+
+type PublicationOptions struct {
+	Topic              string
+	ContentType        string
+	UnmarshaledPayload interface{}
+}
+
+func PublicationWithTopic(t string) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.Topic = t
+	}
+}
+
+func PublicationWithContentType(ct string) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.ContentType = ct
+	}
+}
+
+func PublicationWithUnmarshaledPayload(v interface{}) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.UnmarshaledPayload = v
+	}
+}
+
+func NewPublicationOptions(opts ...PublicationOption) PublicationOptions {
+	options := PublicationOptions{}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
 type ControllerOption func(o *ControllerOptions)
 
 type ControllerOptions struct{}
+
+type SubscriberOption func(o *SubscriberOptions)
+
+type SubscriberOptions struct {
+	AutoAck   bool
+	QueueName string
+}
+
+func SubscriberWithoutAutoAck() SubscriberOption {
+	return func(o *SubscriberOptions) {
+		o.AutoAck = false
+	}
+}
+
+func SubscriberWithQueueName(n string) SubscriberOption {
+	return func(o *SubscriberOptions) {
+		o.QueueName = n
+	}
+}
+
+func NewSubscriberOptions(opts ...SubscriberOption) SubscriberOptions {
+	options := SubscriberOptions{
+		AutoAck: true,
+	}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}

@@ -16,7 +16,7 @@ func (r *grpcRequest) Namespace() string {
 	return r.options.Namespace
 }
 
-func (r *grpcRequest) Server() string {
+func (r *grpcRequest) Service() string {
 	return r.options.Name
 }
 

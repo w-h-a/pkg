@@ -74,7 +74,7 @@ func SubscribeWithoutAutoAck() SubscribeOption {
 	}
 }
 
-func SubscriberWithQueueName(n string) SubscribeOption {
+func SubscribeWithQueueName(n string) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.QueueName = n
 	}

@@ -223,7 +223,7 @@ func (s *grpcServer) subscribe() error {
 		}
 
 		if len(grpc.Options().QueueName) > 0 {
-			opts = append(opts, broker.SubscriberWithQueueName(grpc.Options().QueueName))
+			opts = append(opts, broker.SubscribeWithQueueName(grpc.Options().QueueName))
 		}
 
 		log.Infof("grpc server subscribing to topic: %s", grpc.Topic())

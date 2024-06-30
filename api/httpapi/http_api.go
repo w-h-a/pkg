@@ -16,8 +16,8 @@ import (
 type httpApi struct {
 	options api.ApiOptions
 	mux     *http.ServeMux
-	mtx     sync.RWMutex
 	exit    chan chan error
+	mtx     sync.RWMutex
 }
 
 func (a *httpApi) Options() api.ApiOptions {
@@ -88,8 +88,8 @@ func NewApi(opts ...api.ApiOption) api.Api {
 	a := &httpApi{
 		options: options,
 		mux:     http.NewServeMux(),
-		mtx:     sync.RWMutex{},
 		exit:    make(chan chan error),
+		mtx:     sync.RWMutex{},
 	}
 
 	return a

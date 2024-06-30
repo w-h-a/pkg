@@ -29,7 +29,7 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 	c.mtx.RLock()
 	defer c.mtx.RUnlock()
 
-	mock, ok := c.responses[req.Server()+":"+req.Method()]
+	mock, ok := c.responses[req.Service()+":"+req.Method()]
 	if !ok {
 		return errorutils.NotFound("mock.client", "service not found")
 	}

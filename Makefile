@@ -5,8 +5,8 @@ tidy:
 .PHONY: style
 style:
 	goimports -l -w ./api
-	goimports -l -w ./broker
 	goimports -l -w ./client
+	goimports -l -w ./events
 	goimports -l -w ./runtime
 	goimports -l -w ./security
 	goimports -l -w ./server

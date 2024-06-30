@@ -5,8 +5,8 @@
 | Package   | Examples         | Use Case                          |
 | --------- | ---------------- | --------------------------------- |
 | api       | http             | build gateway servers             |
-| broker    | nats             | asynchronous communication        |
 | client    | grpc             | synchronous communication         |
+| events    | TBD              | asynchronous communication        |
 | runtime   | kubernetes       | service info                      |
 | security  | jwts, TBD        | token provisioning and encryption |
 | server    | grpc             | build backend servers             |

@@ -33,12 +33,12 @@ var (
 
 type grpcServer struct {
 	options     server.ServerOptions
-	mtx         sync.RWMutex
-	wg          *sync.WaitGroup
-	controllers map[string]*grpcController
 	server      *grpc.Server
+	controllers map[string]*grpcController
 	started     bool
 	exit        chan chan error
+	mtx         sync.RWMutex
+	wg          *sync.WaitGroup
 }
 
 func (s *grpcServer) Options() server.ServerOptions {
@@ -118,8 +118,6 @@ func (s *grpcServer) start() error {
 
 	log.Infof("grpc server is listening on %s", listener.Addr().String())
 
-	// TODO: connect to broker if we have subscribers
-
 	go func() {
 		if err := s.server.Serve(listener); err != nil {
 			log.Fatalf("grpc server failed to start: %v", err)
@@ -150,8 +148,6 @@ func (s *grpcServer) start() error {
 
 		// signal that we've finished stopping the grpc server
 		ch <- nil
-
-		// TODO: disconnect from broker if we're connected
 	}()
 
 	s.mtx.Lock()
@@ -214,7 +210,6 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	}
 
 	timeout := md["timeout"]
-	delete(md, "timeout")
 
 	ctx := metadatautils.NewContext(stream.Context(), md)
 
@@ -253,12 +248,14 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
+	// this is necessary in addition to the init toward the
+	// bottom to get grpc to assume the right content type
 	marshaler, err := s.newMarshaler(contentType)
 	if err != nil {
 		return errorutils.InternalServerError("server", err.Error())
 	}
 
-	b, err := marshaler.Marshal(req.Interface())
+	bytes, err := marshaler.Marshal(req.Interface())
 	if err != nil {
 		return err
 	}
@@ -279,9 +276,9 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			reflect.ValueOf(response),
 		}
 
-		results := handler.method.Call(args)
+		vals := handler.method.Call(args)
 
-		if e := results[0].Interface(); e != nil {
+		if e := vals[0].Interface(); e != nil {
 			err = e.(error)
 		}
 
@@ -303,7 +300,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
 			server.RequestWithContentType(contentType),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
-			server.RequestWithMarshaledRequest(b),
+			server.RequestWithMarshaledRequest(bytes),
 		),
 		rsp.Interface(),
 	); err != nil {
@@ -338,10 +335,10 @@ func NewServer(opts ...server.ServerOption) server.Server {
 
 	s := &grpcServer{
 		options:     options,
-		mtx:         sync.RWMutex{},
-		wg:          &sync.WaitGroup{},
 		controllers: map[string]*grpcController{},
 		exit:        make(chan chan error),
+		mtx:         sync.RWMutex{},
+		wg:          &sync.WaitGroup{},
 	}
 
 	grpcOptions := []grpc.ServerOption{

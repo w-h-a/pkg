@@ -14,6 +14,8 @@ type Server interface {
 	Options() ServerOptions
 	NewController(c interface{}, opts ...ControllerOption) Controller
 	RegisterController(c Controller) error
+	NewSubscriber(t string, sub interface{}, opts ...SubscriberOption) Subscriber
+	RegisterSubscriber(sub Subscriber) error
 	Run() error
 	String() string
 }

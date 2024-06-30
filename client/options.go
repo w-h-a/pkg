@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"time"
+
+	"github.com/w-h-a/pkg/broker"
 )
 
 type ClientOption func(o *ClientOptions)
@@ -11,6 +13,7 @@ type ClientOptions struct {
 	ContentType    string
 	CallOptions    CallOptions
 	Selector       Selector
+	Broker         broker.Broker
 	ClientWrappers []ClientWrapper
 	Context        context.Context
 }
@@ -24,6 +27,12 @@ func ClientWithContentType(ct string) ClientOption {
 func ClientWithSelector(s Selector) ClientOption {
 	return func(o *ClientOptions) {
 		o.Selector = s
+	}
+}
+
+func ClientWithBroker(b broker.Broker) ClientOption {
+	return func(o *ClientOptions) {
+		o.Broker = b
 	}
 }
 
@@ -100,6 +109,42 @@ func RequestWithUnmarshaledRequest(v interface{}) RequestOption {
 
 func NewRequestOptions(opts ...RequestOption) RequestOptions {
 	options := RequestOptions{}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
+type PublicationOption func(o *PublicationOptions)
+
+type PublicationOptions struct {
+	Topic              string
+	ContentType        string
+	UnmarshaledPayload interface{}
+}
+
+func PublicationWithTopic(t string) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.Topic = t
+	}
+}
+
+func PublicationWithContentType(ct string) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.ContentType = ct
+	}
+}
+
+func PublicationWithUnmarshaledPayload(v interface{}) PublicationOption {
+	return func(o *PublicationOptions) {
+		o.UnmarshaledPayload = v
+	}
+}
+
+func NewPublicationOptions(opts ...PublicationOption) PublicationOptions {
+	options := PublicationOptions{}
 
 	for _, fn := range opts {
 		fn(&options)

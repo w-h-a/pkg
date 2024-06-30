@@ -3,7 +3,7 @@ package server
 type Request interface {
 	Options() RequestOptions
 	Namespace() string
-	Server() string
+	Service() string
 	Method() string
 	ContentType() string
 	Unmarshaled() interface{}

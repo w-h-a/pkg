@@ -3,8 +3,10 @@ package grpcclient
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
+	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/runtime"
 	"github.com/w-h-a/pkg/utils/errorutils"
@@ -22,6 +24,7 @@ var (
 
 type grpcClient struct {
 	options client.ClientOptions
+	once    *sync.Once
 }
 
 func (c *grpcClient) Options() client.ClientOptions {
@@ -75,7 +78,7 @@ func (c *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 
 		namespace := req.Namespace()
 
-		server := req.Server()
+		server := req.Service()
 
 		service, err := next()
 		if err != nil {
@@ -134,13 +137,51 @@ func (c *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 	return e
 }
 
+func (c *grpcClient) NewPublication(opts ...client.PublicationOption) client.Publication {
+	return NewPublication(opts...)
+}
+
+func (c *grpcClient) Publish(ctx context.Context, pub client.Publication) error {
+	header := map[string]string{}
+
+	md, ok := metadatautils.FromContext(ctx)
+	if ok {
+		for k, v := range md {
+			header[k] = v
+		}
+	}
+
+	header["content-type"] = pub.ContentType()
+
+	marshaler, err := c.newMarshaler(pub.ContentType())
+	if err != nil {
+		return errorutils.InternalServerError("client", err.Error())
+	}
+
+	bytes, err := marshaler.Marshal(pub.Unmarshaled())
+	if err != nil {
+		return errorutils.InternalServerError("client", err.Error())
+	}
+
+	c.once.Do(func() {
+		c.options.Broker.Connect()
+	})
+
+	message := &broker.Message{
+		Header: header,
+		Body:   bytes,
+	}
+
+	return c.options.Broker.Publish(pub.Topic(), message)
+}
+
 func (c *grpcClient) String() string {
 	return "grpc"
 }
 
 func (c *grpcClient) next(request client.Request, options client.CallOptions) (func() (*runtime.Service, error), error) {
 	namespace := request.Namespace()
-	server := request.Server()
+	name := request.Service()
 	port := request.Port()
 
 	// if we have the address already, use that
@@ -148,7 +189,7 @@ func (c *grpcClient) next(request client.Request, options client.CallOptions) (f
 		return func() (*runtime.Service, error) {
 			return &runtime.Service{
 				Namespace: namespace,
-				Name:      server,
+				Name:      name,
 				Port:      port,
 				Address:   options.Address,
 			}, nil
@@ -156,12 +197,12 @@ func (c *grpcClient) next(request client.Request, options client.CallOptions) (f
 	}
 
 	// otherwise get the details from the selector
-	next, err := c.options.Selector.Select(namespace, server, port, options.SelectOpts...)
+	next, err := c.options.Selector.Select(namespace, name, port, options.SelectOpts...)
 	if err != nil {
 		if err == client.ErrServiceNotFound {
-			return nil, errorutils.InternalServerError("client", "failed to find %s.%s: %v", server, namespace, err)
+			return nil, errorutils.InternalServerError("client", "failed to find %s.%s: %v", name, namespace, err)
 		}
-		return nil, errorutils.InternalServerError("client", "failed to select %s.%s: %v", server, namespace, err)
+		return nil, errorutils.InternalServerError("client", "failed to select %s.%s: %v", name, namespace, err)
 	}
 
 	return next, nil
@@ -264,6 +305,7 @@ func NewClient(opts ...client.ClientOption) client.Client {
 
 	g := &grpcClient{
 		options: options,
+		once:    &sync.Once{},
 	}
 
 	// need this for wrapping

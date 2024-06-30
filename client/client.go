@@ -22,5 +22,7 @@ type Client interface {
 	Options() ClientOptions
 	NewRequest(opts ...RequestOption) Request
 	Call(ctx context.Context, req Request, rsp interface{}, opts ...CallOption) error
+	NewPublication(opts ...PublicationOption) Publication
+	Publish(ctx context.Context, pub Publication) error
 	String() string
 }

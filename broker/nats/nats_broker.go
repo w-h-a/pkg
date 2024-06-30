@@ -10,14 +10,14 @@ import (
 )
 
 type natsBroker struct {
-	options     broker.BrokerOptions
-	natsOptions client.Options
-	addrs       []string
-	connected   bool
-	connection  *client.Conn
-	drain       bool
-	close       chan error
-	mtx         sync.RWMutex
+	options            broker.BrokerOptions
+	natsOptions        client.Options
+	addrs              []string
+	connected          bool
+	connection         *client.Conn
+	gracefulDisconnect bool
+	close              chan error
+	mtx                sync.RWMutex
 }
 
 func (b *natsBroker) Options() broker.BrokerOptions {
@@ -83,7 +83,7 @@ func (b *natsBroker) Disconnect() error {
 	b.mtx.Lock()
 	defer b.mtx.Unlock()
 
-	if b.drain {
+	if b.gracefulDisconnect {
 		b.connection.Drain()
 		b.close <- nil
 	}
@@ -190,7 +190,7 @@ func (b *natsBroker) configure() error {
 	b.addrs = b.setAddrs()
 
 	if graceful, ok := GetGracefulDisconnectFromContext(b.options.Context); ok && graceful {
-		b.drain = true
+		b.gracefulDisconnect = true
 		b.close = make(chan error)
 		b.natsOptions.ClosedCB = b.onClose
 		b.natsOptions.AsyncErrorCB = b.onAsyncError

@@ -193,8 +193,8 @@ type ControllerOptions struct{}
 type SubscriberOption func(o *SubscriberOptions)
 
 type SubscriberOptions struct {
-	AutoAck   bool
-	QueueName string
+	AutoAck bool
+	Queue   string
 }
 
 func SubscriberWithoutAutoAck() SubscriberOption {
@@ -203,9 +203,9 @@ func SubscriberWithoutAutoAck() SubscriberOption {
 	}
 }
 
-func SubscriberWithQueueName(n string) SubscriberOption {
+func SubscriberWithQueue(n string) SubscriberOption {
 	return func(o *SubscriberOptions) {
-		o.QueueName = n
+		o.Queue = n
 	}
 }
 

@@ -222,8 +222,8 @@ func (s *grpcServer) subscribe() error {
 			opts = append(opts, broker.SubscribeWithoutAutoAck())
 		}
 
-		if len(grpc.Options().QueueName) > 0 {
-			opts = append(opts, broker.SubscribeWithQueueName(grpc.Options().QueueName))
+		if len(grpc.Options().Queue) > 0 {
+			opts = append(opts, broker.SubscribeWithQueue(grpc.Options().Queue))
 		}
 
 		log.Infof("grpc server subscribing to topic: %s", grpc.Topic())
@@ -347,7 +347,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
-	// seems like this was necessary, in addition to the init toward the 
+	// seems like this was necessary, in addition to the init toward the
 	// bottom of this file, to get grpc to assume the right content type
 	marshaler, err := s.newMarshaler(contentType)
 	if err != nil {

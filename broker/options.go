@@ -64,8 +64,8 @@ func NewBrokerOptions(opts ...BrokerOption) BrokerOptions {
 type SubscribeOption func(o *SubscribeOptions)
 
 type SubscribeOptions struct {
-	AutoAck   bool
-	QueueName string
+	AutoAck bool
+	Queue   string
 }
 
 func SubscribeWithoutAutoAck() SubscribeOption {
@@ -74,9 +74,9 @@ func SubscribeWithoutAutoAck() SubscribeOption {
 	}
 }
 
-func SubscribeWithQueueName(n string) SubscribeOption {
+func SubscribeWithQueue(n string) SubscribeOption {
 	return func(o *SubscribeOptions) {
-		o.QueueName = n
+		o.Queue = n
 	}
 }
 

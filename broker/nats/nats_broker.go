@@ -132,8 +132,8 @@ func (b *natsBroker) Subscribe(topic string, handler broker.Handler, opts ...bro
 
 	b.mtx.RLock()
 
-	if len(options.QueueName) > 0 {
-		subscription, err = b.connection.QueueSubscribe(topic, options.QueueName, fn)
+	if len(options.Queue) > 0 {
+		subscription, err = b.connection.QueueSubscribe(topic, options.Queue, fn)
 	} else {
 		subscription, err = b.connection.Subscribe(topic, fn)
 	}

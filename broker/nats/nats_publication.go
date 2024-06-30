@@ -15,6 +15,7 @@ func (p *natsPublication) Message() *broker.Message {
 	return p.message
 }
 
+// TODO
 func (p *natsPublication) Ack() error {
 	return nil
 }

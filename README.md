@@ -6,7 +6,7 @@
 | --------- | ---------------- | --------------------------------- |
 | api       | http             | build gateway servers             |
 | client    | grpc             | synchronous communication         |
-| events    | TBD              | asynchronous communication        |
+| events    | redis, jetstream | asynchronous communication        |
 | runtime   | kubernetes       | service info                      |
 | security  | jwts, TBD        | token provisioning and encryption |
 | server    | grpc             | build backend servers             |

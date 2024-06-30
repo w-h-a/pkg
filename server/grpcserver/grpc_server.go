@@ -34,13 +34,13 @@ var (
 
 type grpcServer struct {
 	options     server.ServerOptions
-	mtx         sync.RWMutex
-	wg          *sync.WaitGroup
+	server      *grpc.Server
 	controllers map[string]*grpcController
 	subscribers map[*grpcSubscriber]broker.Subscriber
-	server      *grpc.Server
 	started     bool
 	exit        chan chan error
+	mtx         sync.RWMutex
+	wg          *sync.WaitGroup
 }
 
 func (s *grpcServer) Options() server.ServerOptions {
@@ -531,11 +531,11 @@ func NewServer(opts ...server.ServerOption) server.Server {
 
 	s := &grpcServer{
 		options:     options,
-		mtx:         sync.RWMutex{},
-		wg:          &sync.WaitGroup{},
 		controllers: map[string]*grpcController{},
 		subscribers: map[*grpcSubscriber]broker.Subscriber{},
 		exit:        make(chan chan error),
+		mtx:         sync.RWMutex{},
+		wg:          &sync.WaitGroup{},
 	}
 
 	grpcOptions := []grpc.ServerOption{

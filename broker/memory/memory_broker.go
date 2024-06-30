@@ -12,9 +12,9 @@ import (
 
 type memoryBroker struct {
 	options     broker.BrokerOptions
-	subscribers map[string][]*memorySubscriber
-	connected   bool
 	addr        string
+	connected   bool
+	subscribers map[string][]*memorySubscriber
 	mtx         sync.RWMutex
 }
 

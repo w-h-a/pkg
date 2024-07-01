@@ -8,5 +8,6 @@ type Request interface {
 	Method() string
 	ContentType() string
 	Unmarshaled() interface{}
+	Stream() bool
 	String() string
 }

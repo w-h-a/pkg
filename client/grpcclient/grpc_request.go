@@ -34,6 +34,10 @@ func (r *grpcRequest) Unmarshaled() interface{} {
 	return r.options.UnmarshaledRequest
 }
 
+func (r *grpcRequest) Stream() bool {
+	return r.options.Stream
+}
+
 func (r *grpcRequest) String() string {
 	return "grpc"
 }

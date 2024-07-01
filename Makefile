@@ -6,11 +6,11 @@ tidy:
 style:
 	goimports -l -w ./api
 	goimports -l -w ./client
-	goimports -l -w ./events
 	goimports -l -w ./runtime
 	goimports -l -w ./security
 	goimports -l -w ./server
 	goimports -l -w ./store
+	goimports -l -w ./streams
 	goimports -l -w ./telemetry
 	goimports -l -w ./utils
 
@@ -37,6 +37,10 @@ proto-rule:
 .PHONY: proto-runtime
 proto-runtime:
 	protoc proto/runtime/*.proto --go_out=paths=source_relative:. --proto_path=.
+
+.PHONY: proto-streams
+proto-streams:
+	protoc proto/streams/*.proto --go_out=paths=source_relative:. --proto_path=.
 
 .PHONY: proto-ticket
 proto-ticket:

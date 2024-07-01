@@ -8,5 +8,6 @@ type Request interface {
 	ContentType() string
 	Unmarshaled() interface{}
 	Marshaled() []byte
+	Stream() bool
 	String() string
 }

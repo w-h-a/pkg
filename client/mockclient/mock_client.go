@@ -48,6 +48,11 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 	return nil
 }
 
+func (c *mockClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
+	// TODO
+	return nil, nil
+}
+
 func (c *mockClient) String() string {
 	return "mock"
 }

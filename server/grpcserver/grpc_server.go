@@ -236,10 +236,14 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 		return status.New(codes.Unimplemented, fmt.Sprintf("unknown method %s.%s", controllerName, handlerName)).Err()
 	}
 
+	if handler.stream {
+		return s.processStream(stream, controller, handler, contentType, ctx)
+	}
+
 	return s.processRequest(stream, controller, handler, contentType, ctx)
 }
 
-func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcController, handler *grpcSync, contentType string, ctx context.Context) error {
+func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
 	req := reflect.New(handler.reqType.Elem())
 
 	rsp := reflect.New(handler.rspType.Elem())
@@ -282,7 +286,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			err = e.(error)
 		}
 
-		return err
+		return
 	}
 
 	for i := len(s.options.ControllerWrappers); i > 0; i-- {
@@ -311,6 +315,54 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 
 	if err := stream.SendMsg(rsp.Interface()); err != nil {
 		return err
+	}
+
+	return status.New(statusCode, statusDesc).Err()
+}
+
+func (s *grpcServer) processStream(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
+	fn := func(ctx context.Context, request server.Request, stream interface{}) (err error) {
+		args := []reflect.Value{
+			controller.receiver,
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(stream),
+		}
+
+		vals := handler.method.Call(args)
+
+		if e := vals[0].Interface(); e != nil {
+			err = e.(error)
+		}
+
+		return
+	}
+
+	for i := len(s.options.ControllerWrappers); i > 0; i-- {
+		fn = s.options.ControllerWrappers[i-1](fn)
+	}
+
+	statusCode := codes.OK
+	statusDesc := ""
+
+	r := NewRequest(
+		server.RequestWithNamespace(s.options.Namespace),
+		server.RequestWithName(s.options.Name),
+		server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
+		server.RequestWithContentType(contentType),
+		server.RequestWithStream(),
+	)
+
+	if err := fn(
+		ctx,
+		r,
+		&grpcStream{
+			request: r,
+			stream:  stream,
+		},
+	); err != nil {
+		statusCode = ToErrorCode(err)
+		statusDesc = err.Error()
+		return status.New(statusCode, statusDesc).Err()
 	}
 
 	return status.New(statusCode, statusDesc).Err()

@@ -60,6 +60,7 @@ type RequestOptions struct {
 	Method             string
 	ContentType        string
 	UnmarshaledRequest interface{}
+	Stream             bool
 }
 
 func RequestWithNamespace(n string) RequestOption {
@@ -95,6 +96,12 @@ func RequestWithContentType(ct string) RequestOption {
 func RequestWithUnmarshaledRequest(v interface{}) RequestOption {
 	return func(o *RequestOptions) {
 		o.UnmarshaledRequest = v
+	}
+}
+
+func RequestWithStream() RequestOption {
+	return func(o *RequestOptions) {
+		o.Stream = true
 	}
 }
 

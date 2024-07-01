@@ -7,4 +7,6 @@ type Stream interface {
 	Request() Request
 	Recv(msg interface{}) error
 	Send(msg interface{}) error
+	Error() error
+	Close() error
 }

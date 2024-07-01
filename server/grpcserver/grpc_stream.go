@@ -27,3 +27,11 @@ func (s *grpcStream) Recv(msg interface{}) error {
 func (s *grpcStream) Send(msg interface{}) error {
 	return s.stream.SendMsg(msg)
 }
+
+func (s *grpcStream) Error() error {
+	return nil
+}
+
+func (s *grpcStream) Close() error {
+	return nil
+}

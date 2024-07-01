@@ -106,7 +106,7 @@ func (c *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 
 	var e error
 
-	// retry lopp
+	// retry loop
 	for i := 0; i <= callOptions.RetryCount; i++ {
 		go func(i int) {
 			ch <- call(i)
@@ -196,7 +196,7 @@ func (c *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 
 	var e error
 
-	// retry lopp
+	// retry loop
 	for i := 0; i <= callOptions.RetryCount; i++ {
 		go func(i int) {
 			s, err := call(i)

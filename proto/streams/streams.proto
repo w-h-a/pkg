@@ -13,6 +13,36 @@ message Event {
     map<string,string> metadata = 5;
 }
 
+// subscribe request/response
+message SubscribeRequest {
+    string id = 1;
+    string group = 2;
+    string topic = 3;
+    bool auto_ack = 4;
+    int64 ack_wait = 5;
+    int64 retry_limit = 6;
+}
+
+message SubscribeResponse {}
+
+// unsubscribe request/response
+message UnsubscribeRequest {
+    string id = 1;
+}
+
+message UnsubscribeResponse {}
+
+// consume request (stream Event response)
+message ConsumeRequest {
+    int64 offset = 1;
+}
+
+// ack request (no response)
+message AckRequest {
+    string id = 1;
+    bool success = 2;
+}
+
 // produce request/response
 message ProduceRequest {
     string topic = 1;
@@ -22,13 +52,3 @@ message ProduceRequest {
 }
 
 message ProduceResponse {}
-
-// consume request (stream Event response)
-message ConsumeRequest {
-    string topic = 1;
-    string group = 2;
-    int64 offset = 3;
-    bool auto_ack = 4;
-    int64 ack_wait = 5;
-    int64 retry_limit = 6;
-}

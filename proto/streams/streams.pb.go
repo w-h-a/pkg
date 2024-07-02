@@ -100,6 +100,322 @@ func (x *Event) GetMetadata() map[string]string {
 	return nil
 }
 
+// subscribe request/response
+type SubscribeRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Group      string `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
+	Topic      string `protobuf:"bytes,3,opt,name=topic,proto3" json:"topic,omitempty"`
+	AutoAck    bool   `protobuf:"varint,4,opt,name=auto_ack,json=autoAck,proto3" json:"auto_ack,omitempty"`
+	AckWait    int64  `protobuf:"varint,5,opt,name=ack_wait,json=ackWait,proto3" json:"ack_wait,omitempty"`
+	RetryLimit int64  `protobuf:"varint,6,opt,name=retry_limit,json=retryLimit,proto3" json:"retry_limit,omitempty"`
+}
+
+func (x *SubscribeRequest) Reset() {
+	*x = SubscribeRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SubscribeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubscribeRequest) ProtoMessage() {}
+
+func (x *SubscribeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubscribeRequest.ProtoReflect.Descriptor instead.
+func (*SubscribeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SubscribeRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SubscribeRequest) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
+}
+
+func (x *SubscribeRequest) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
+func (x *SubscribeRequest) GetAutoAck() bool {
+	if x != nil {
+		return x.AutoAck
+	}
+	return false
+}
+
+func (x *SubscribeRequest) GetAckWait() int64 {
+	if x != nil {
+		return x.AckWait
+	}
+	return 0
+}
+
+func (x *SubscribeRequest) GetRetryLimit() int64 {
+	if x != nil {
+		return x.RetryLimit
+	}
+	return 0
+}
+
+type SubscribeResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SubscribeResponse) Reset() {
+	*x = SubscribeResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SubscribeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubscribeResponse) ProtoMessage() {}
+
+func (x *SubscribeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubscribeResponse.ProtoReflect.Descriptor instead.
+func (*SubscribeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{2}
+}
+
+// unsubscribe request/response
+type UnsubscribeRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *UnsubscribeRequest) Reset() {
+	*x = UnsubscribeRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UnsubscribeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnsubscribeRequest) ProtoMessage() {}
+
+func (x *UnsubscribeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnsubscribeRequest.ProtoReflect.Descriptor instead.
+func (*UnsubscribeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UnsubscribeRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type UnsubscribeResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *UnsubscribeResponse) Reset() {
+	*x = UnsubscribeResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UnsubscribeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnsubscribeResponse) ProtoMessage() {}
+
+func (x *UnsubscribeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnsubscribeResponse.ProtoReflect.Descriptor instead.
+func (*UnsubscribeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{4}
+}
+
+// consume request (stream Event response)
+type ConsumeRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Offset int64 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+}
+
+func (x *ConsumeRequest) Reset() {
+	*x = ConsumeRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConsumeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsumeRequest) ProtoMessage() {}
+
+func (x *ConsumeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConsumeRequest.ProtoReflect.Descriptor instead.
+func (*ConsumeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ConsumeRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+// ack request (no response)
+type AckRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id      string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Success bool   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+}
+
+func (x *AckRequest) Reset() {
+	*x = AckRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_streams_streams_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *AckRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AckRequest) ProtoMessage() {}
+
+func (x *AckRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_streams_streams_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AckRequest.ProtoReflect.Descriptor instead.
+func (*AckRequest) Descriptor() ([]byte, []int) {
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *AckRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AckRequest) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 // produce request/response
 type ProduceRequest struct {
 	state         protoimpl.MessageState
@@ -115,7 +431,7 @@ type ProduceRequest struct {
 func (x *ProduceRequest) Reset() {
 	*x = ProduceRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_streams_streams_proto_msgTypes[1]
+		mi := &file_proto_streams_streams_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -128,7 +444,7 @@ func (x *ProduceRequest) String() string {
 func (*ProduceRequest) ProtoMessage() {}
 
 func (x *ProduceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_streams_streams_proto_msgTypes[1]
+	mi := &file_proto_streams_streams_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -141,7 +457,7 @@ func (x *ProduceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProduceRequest.ProtoReflect.Descriptor instead.
 func (*ProduceRequest) Descriptor() ([]byte, []int) {
-	return file_proto_streams_streams_proto_rawDescGZIP(), []int{1}
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ProduceRequest) GetTopic() string {
@@ -181,7 +497,7 @@ type ProduceResponse struct {
 func (x *ProduceResponse) Reset() {
 	*x = ProduceResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_streams_streams_proto_msgTypes[2]
+		mi := &file_proto_streams_streams_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -194,7 +510,7 @@ func (x *ProduceResponse) String() string {
 func (*ProduceResponse) ProtoMessage() {}
 
 func (x *ProduceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_streams_streams_proto_msgTypes[2]
+	mi := &file_proto_streams_streams_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -207,95 +523,7 @@ func (x *ProduceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProduceResponse.ProtoReflect.Descriptor instead.
 func (*ProduceResponse) Descriptor() ([]byte, []int) {
-	return file_proto_streams_streams_proto_rawDescGZIP(), []int{2}
-}
-
-// consume request (stream Event response)
-type ConsumeRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Topic      string `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
-	Group      string `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	Offset     int64  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
-	AutoAck    bool   `protobuf:"varint,4,opt,name=auto_ack,json=autoAck,proto3" json:"auto_ack,omitempty"`
-	AckWait    int64  `protobuf:"varint,5,opt,name=ack_wait,json=ackWait,proto3" json:"ack_wait,omitempty"`
-	RetryLimit int64  `protobuf:"varint,6,opt,name=retry_limit,json=retryLimit,proto3" json:"retry_limit,omitempty"`
-}
-
-func (x *ConsumeRequest) Reset() {
-	*x = ConsumeRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_streams_streams_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ConsumeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConsumeRequest) ProtoMessage() {}
-
-func (x *ConsumeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_streams_streams_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConsumeRequest.ProtoReflect.Descriptor instead.
-func (*ConsumeRequest) Descriptor() ([]byte, []int) {
-	return file_proto_streams_streams_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ConsumeRequest) GetTopic() string {
-	if x != nil {
-		return x.Topic
-	}
-	return ""
-}
-
-func (x *ConsumeRequest) GetGroup() string {
-	if x != nil {
-		return x.Group
-	}
-	return ""
-}
-
-func (x *ConsumeRequest) GetOffset() int64 {
-	if x != nil {
-		return x.Offset
-	}
-	return 0
-}
-
-func (x *ConsumeRequest) GetAutoAck() bool {
-	if x != nil {
-		return x.AutoAck
-	}
-	return false
-}
-
-func (x *ConsumeRequest) GetAckWait() int64 {
-	if x != nil {
-		return x.AckWait
-	}
-	return 0
-}
-
-func (x *ConsumeRequest) GetRetryLimit() int64 {
-	if x != nil {
-		return x.RetryLimit
-	}
-	return 0
+	return file_proto_streams_streams_proto_rawDescGZIP(), []int{8}
 }
 
 var File_proto_streams_streams_proto protoreflect.FileDescriptor
@@ -317,36 +545,47 @@ var file_proto_streams_streams_proto_rawDesc = []byte{
 	0x64, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76,
 	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75,
-	0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0xe0, 0x01, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
-	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f, 0x70, 0x69,
-	0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x12, 0x18,
-	0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52,
-	0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x74, 0x69, 0x6d, 0x65,
-	0x73, 0x74, 0x61, 0x6d, 0x70, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x74, 0x69,
-	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x74, 0x12, 0x41, 0x0a, 0x08, 0x6d, 0x65, 0x74, 0x61,
-	0x64, 0x61, 0x74, 0x61, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x73, 0x74, 0x72,
-	0x65, 0x61, 0x6d, 0x73, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72,
-	0x79, 0x52, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x1a, 0x3b, 0x0a, 0x0d, 0x4d,
-	0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03,
-	0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14,
-	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76,
-	0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x11, 0x0a, 0x0f, 0x50, 0x72, 0x6f, 0x64,
-	0x75, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xab, 0x01, 0x0a, 0x0e,
-	0x43, 0x6f, 0x6e, 0x73, 0x75, 0x6d, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14,
-	0x0a, 0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74,
-	0x6f, 0x70, 0x69, 0x63, 0x12, 0x14, 0x0a, 0x05, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x05, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66,
-	0x66, 0x73, 0x65, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6f, 0x66, 0x66, 0x73,
-	0x65, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x61, 0x75, 0x74, 0x6f, 0x5f, 0x61, 0x63, 0x6b, 0x18, 0x04,
-	0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x61, 0x75, 0x74, 0x6f, 0x41, 0x63, 0x6b, 0x12, 0x19, 0x0a,
-	0x08, 0x61, 0x63, 0x6b, 0x5f, 0x77, 0x61, 0x69, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x03, 0x52,
-	0x07, 0x61, 0x63, 0x6b, 0x57, 0x61, 0x69, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x74, 0x72,
-	0x79, 0x5f, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x72,
-	0x65, 0x74, 0x72, 0x79, 0x4c, 0x69, 0x6d, 0x69, 0x74, 0x42, 0x24, 0x5a, 0x22, 0x67, 0x69, 0x74,
-	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x2d, 0x68, 0x2d, 0x61, 0x2f, 0x70, 0x6b,
-	0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x73, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0xa5, 0x01, 0x0a, 0x10, 0x53, 0x75, 0x62, 0x73, 0x63, 0x72,
+	0x69, 0x62, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x67, 0x72,
+	0x6f, 0x75, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x67, 0x72, 0x6f, 0x75, 0x70,
+	0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x12, 0x19, 0x0a, 0x08, 0x61, 0x75, 0x74, 0x6f, 0x5f, 0x61,
+	0x63, 0x6b, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x61, 0x75, 0x74, 0x6f, 0x41, 0x63,
+	0x6b, 0x12, 0x19, 0x0a, 0x08, 0x61, 0x63, 0x6b, 0x5f, 0x77, 0x61, 0x69, 0x74, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x07, 0x61, 0x63, 0x6b, 0x57, 0x61, 0x69, 0x74, 0x12, 0x1f, 0x0a, 0x0b,
+	0x72, 0x65, 0x74, 0x72, 0x79, 0x5f, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x0a, 0x72, 0x65, 0x74, 0x72, 0x79, 0x4c, 0x69, 0x6d, 0x69, 0x74, 0x22, 0x13, 0x0a,
+	0x11, 0x53, 0x75, 0x62, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x24, 0x0a, 0x12, 0x55, 0x6e, 0x73, 0x75, 0x62, 0x73, 0x63, 0x72, 0x69, 0x62,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x15, 0x0a, 0x13, 0x55, 0x6e, 0x73, 0x75,
+	0x62, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x28, 0x0a, 0x0e, 0x43, 0x6f, 0x6e, 0x73, 0x75, 0x6d, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x22, 0x36, 0x0a, 0x0a, 0x41, 0x63, 0x6b,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65,
+	0x73, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x22, 0xe0, 0x01, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x65, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61,
+	0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x70, 0x61, 0x79,
+	0x6c, 0x6f, 0x61, 0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d,
+	0x70, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x74, 0x12, 0x41, 0x0a, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
+	0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x73,
+	0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e,
+	0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x08, 0x6d,
+	0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x1a, 0x3b, 0x0a, 0x0d, 0x4d, 0x65, 0x74, 0x61, 0x64,
+	0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x3a, 0x02, 0x38, 0x01, 0x22, 0x11, 0x0a, 0x0f, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x24, 0x5a, 0x22, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x2d, 0x68, 0x2d, 0x61, 0x2f, 0x70, 0x6b, 0x67, 0x2f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x73, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -361,23 +600,28 @@ func file_proto_streams_streams_proto_rawDescGZIP() []byte {
 	return file_proto_streams_streams_proto_rawDescData
 }
 
-var file_proto_streams_streams_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_proto_streams_streams_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_proto_streams_streams_proto_goTypes = []interface{}{
-	(*Event)(nil),           // 0: streams.Event
-	(*ProduceRequest)(nil),  // 1: streams.ProduceRequest
-	(*ProduceResponse)(nil), // 2: streams.ProduceResponse
-	(*ConsumeRequest)(nil),  // 3: streams.ConsumeRequest
-	nil,                     // 4: streams.Event.MetadataEntry
-	nil,                     // 5: streams.ProduceRequest.MetadataEntry
+	(*Event)(nil),               // 0: streams.Event
+	(*SubscribeRequest)(nil),    // 1: streams.SubscribeRequest
+	(*SubscribeResponse)(nil),   // 2: streams.SubscribeResponse
+	(*UnsubscribeRequest)(nil),  // 3: streams.UnsubscribeRequest
+	(*UnsubscribeResponse)(nil), // 4: streams.UnsubscribeResponse
+	(*ConsumeRequest)(nil),      // 5: streams.ConsumeRequest
+	(*AckRequest)(nil),          // 6: streams.AckRequest
+	(*ProduceRequest)(nil),      // 7: streams.ProduceRequest
+	(*ProduceResponse)(nil),     // 8: streams.ProduceResponse
+	nil,                         // 9: streams.Event.MetadataEntry
+	nil,                         // 10: streams.ProduceRequest.MetadataEntry
 }
 var file_proto_streams_streams_proto_depIdxs = []int32{
-	4, // 0: streams.Event.metadata:type_name -> streams.Event.MetadataEntry
-	5, // 1: streams.ProduceRequest.metadata:type_name -> streams.ProduceRequest.MetadataEntry
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	9,  // 0: streams.Event.metadata:type_name -> streams.Event.MetadataEntry
+	10, // 1: streams.ProduceRequest.metadata:type_name -> streams.ProduceRequest.MetadataEntry
+	2,  // [2:2] is the sub-list for method output_type
+	2,  // [2:2] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_proto_streams_streams_proto_init() }
@@ -399,7 +643,7 @@ func file_proto_streams_streams_proto_init() {
 			}
 		}
 		file_proto_streams_streams_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProduceRequest); i {
+			switch v := v.(*SubscribeRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -411,7 +655,7 @@ func file_proto_streams_streams_proto_init() {
 			}
 		}
 		file_proto_streams_streams_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProduceResponse); i {
+			switch v := v.(*SubscribeResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -423,7 +667,67 @@ func file_proto_streams_streams_proto_init() {
 			}
 		}
 		file_proto_streams_streams_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UnsubscribeRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_streams_streams_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UnsubscribeResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_streams_streams_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ConsumeRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_streams_streams_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AckRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_streams_streams_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProduceRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_streams_streams_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProduceResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -441,7 +745,7 @@ func file_proto_streams_streams_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_streams_streams_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

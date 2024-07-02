@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-type AckFunc func() error
+type Ack func() error
 
-type NackFunc func() error
+type Nack func() error
 
 type Event struct {
 	Id        string
@@ -16,32 +16,32 @@ type Event struct {
 	Payload   []byte
 	Timestamp time.Time
 	Metadata  map[string]string
-	ackFunc   AckFunc
-	nackFunc  NackFunc
+	ack       Ack
+	nack      Nack
 }
 
 func (e *Event) Unmarshal(v interface{}) error {
 	return json.Unmarshal(e.Payload, v)
 }
 
-func (e *Event) SetAck(f AckFunc) {
-	e.ackFunc = f
+func (e *Event) SetAck(f Ack) {
+	e.ack = f
 }
 
 func (e *Event) Ack() error {
-	if e.ackFunc == nil {
+	if e.ack == nil {
 		return errors.New("no ack function set")
 	}
-	return e.ackFunc()
+	return e.ack()
 }
 
-func (e *Event) SetNack(f NackFunc) {
-	e.nackFunc = f
+func (e *Event) SetNack(f Nack) {
+	e.nack = f
 }
 
 func (e *Event) Nack() error {
-	if e.nackFunc == nil {
+	if e.nack == nil {
 		return errors.New("no nack function set")
 	}
-	return e.nackFunc()
+	return e.nack()
 }

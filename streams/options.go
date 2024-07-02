@@ -1,12 +1,72 @@
 package streams
 
-type ProduceOption func(o *ProduceOptions)
+import (
+	"context"
+	"time"
 
-type ProduceOptions struct {
+	"github.com/google/uuid"
+)
+
+type StreamsOption func(o *StreamsOptions)
+
+type StreamsOptions struct {
+	Context context.Context
 }
 
-func NewProduceOptions(opts ...ProduceOption) ProduceOptions {
-	options := ProduceOptions{}
+func NewStreamsOptions(opts ...StreamsOption) StreamsOptions {
+	options := StreamsOptions{
+		Context: context.Background(),
+	}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
+type SubscribeOption func(o *SubscribeOptions)
+
+type SubscribeOptions struct {
+	Group      string
+	Topic      string
+	AutoAck    bool
+	AckWait    time.Duration
+	RetryLimit int
+}
+
+func SubscribeWithGroup(n string) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.Group = n
+	}
+}
+
+func SubscribeWithTopic(t string) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.Topic = t
+	}
+}
+
+func SubscribeWithAck(ack bool, ackWait time.Duration) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.AutoAck = ack
+		o.AckWait = ackWait
+	}
+}
+
+func SubscribeWithRetryLimit(retries int) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.RetryLimit = retries
+	}
+}
+
+func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
+	options := SubscribeOptions{
+		Group:      uuid.New().String(),
+		AutoAck:    false,
+		AckWait:    4 * time.Second,
+		RetryLimit: 4,
+	}
 
 	for _, fn := range opts {
 		fn(&options)
@@ -18,10 +78,49 @@ func NewProduceOptions(opts ...ProduceOption) ProduceOptions {
 type ConsumeOption func(o *ConsumeOptions)
 
 type ConsumeOptions struct {
+	Offset time.Time
+}
+
+func ConsumeWithOffset(t time.Time) ConsumeOption {
+	return func(o *ConsumeOptions) {
+		o.Offset = t
+	}
 }
 
 func NewConsumeOptions(opts ...ConsumeOption) ConsumeOptions {
 	options := ConsumeOptions{}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
+type ProduceOption func(o *ProduceOptions)
+
+type ProduceOptions struct {
+	Timestamp time.Time
+	Metadata  map[string]string
+}
+
+func ProduceWithTimestamp(t time.Time) ProduceOption {
+	return func(o *ProduceOptions) {
+		o.Timestamp = t
+	}
+}
+
+func ProduceWithMetadata(md map[string]string) ProduceOption {
+	return func(o *ProduceOptions) {
+		o.Metadata = md
+	}
+}
+
+func NewProduceOptions(opts ...ProduceOption) ProduceOptions {
+	options := ProduceOptions{
+		Timestamp: time.Now(),
+		Metadata:  map[string]string{},
+	}
 
 	for _, fn := range opts {
 		fn(&options)

@@ -11,6 +11,7 @@ message Event {
     bytes payload = 3;
     int64 timestamp = 4;
     map<string,string> metadata = 5;
+    map<string,bool> processed = 6;
 }
 
 // subscribe request/response

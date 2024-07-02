@@ -47,9 +47,9 @@ func SubscribeWithTopic(t string) SubscribeOption {
 	}
 }
 
-func SubscribeWithAck(ack bool, ackWait time.Duration) SubscribeOption {
+func SubscribeWithAutoAck(autoAck bool, ackWait time.Duration) SubscribeOption {
 	return func(o *SubscribeOptions) {
-		o.AutoAck = ack
+		o.AutoAck = autoAck
 		o.AckWait = ackWait
 	}
 }
@@ -102,6 +102,7 @@ type ProduceOption func(o *ProduceOptions)
 type ProduceOptions struct {
 	Timestamp time.Time
 	Metadata  map[string]string
+	Processed map[string]bool
 }
 
 func ProduceWithTimestamp(t time.Time) ProduceOption {
@@ -120,6 +121,7 @@ func NewProduceOptions(opts ...ProduceOption) ProduceOptions {
 	options := ProduceOptions{
 		Timestamp: time.Now(),
 		Metadata:  map[string]string{},
+		Processed: map[string]bool{},
 	}
 
 	for _, fn := range opts {

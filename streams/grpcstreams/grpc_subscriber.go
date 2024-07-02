@@ -34,14 +34,14 @@ func (s *grpcSubscriber) Nack(ev streams.Event) error {
 	return nil
 }
 
-func (s *grpcSubscriber) SetAttemptCount(c int, ev streams.Event) {
+func (s *grpcSubscriber) SetAttempts(c int, ev streams.Event) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
 	s.retryMap[ev.Id] = c
 }
 
-func (s *grpcSubscriber) GetAttemptCount(ev streams.Event) (int, bool) {
+func (s *grpcSubscriber) GetAttempts(ev streams.Event) (int, bool) {
 	s.mtx.RLock()
 	defer s.mtx.RUnlock()
 

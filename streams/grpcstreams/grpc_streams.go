@@ -81,20 +81,7 @@ func (s *grpcStreams) Produce(topic string, data interface{}, opts ...streams.Pr
 		Payload:   payload,
 		Timestamp: options.Timestamp,
 		Metadata:  options.Metadata,
-	}
-
-	bytes, err := json.Marshal(event)
-	if err != nil {
-		return streams.ErrEncodingEvent
-	}
-
-	key := fmt.Sprintf("%v:%v", event.Topic, event.Id)
-
-	if err := s.store.Write(&store.Record{
-		Key:   key,
-		Value: bytes,
-	}); err != nil {
-		return fmt.Errorf("failed to write to event store: %v", err)
+		Processed: options.Processed,
 	}
 
 	go s.handleEvent(event)
@@ -120,6 +107,10 @@ func (s *grpcStreams) lookupPreviousEvents(sub streams.Subscriber, startTime tim
 			continue
 		}
 
+		if _, ok := event.Processed[sub.Options().Group]; ok {
+			continue
+		}
+
 		if event.Timestamp.Unix() < startTime.Unix() {
 			continue
 		}
@@ -127,11 +118,29 @@ func (s *grpcStreams) lookupPreviousEvents(sub streams.Subscriber, startTime tim
 		if err := SendEvent(sub, &event); err != nil {
 			log.Errorf("failed to send previous event: %v", err)
 			continue
+		} else {
+			event.Processed[sub.Options().Group] = true
+
+			bytes, err := json.Marshal(event)
+			if err != nil {
+				log.Errorf("failed to marshal previous event for store after group %s successfully processed: %v", sub.Options().Group, err)
+				continue
+			}
+
+			key := fmt.Sprintf("%v:%v", event.Topic, event.Id)
+
+			if err := s.store.Write(&store.Record{
+				Key:   key,
+				Value: bytes,
+			}); err != nil {
+				log.Errorf("failed to re-write previous event to event store: %v", err)
+				continue
+			}
 		}
 	}
 }
 
-func (s *grpcStreams) handleEvent(ev *streams.Event) {
+func (s *grpcStreams) handleEvent(event *streams.Event) {
 	s.mtx.RLock()
 	subs := s.subscribers
 	s.mtx.RUnlock()
@@ -139,17 +148,31 @@ func (s *grpcStreams) handleEvent(ev *streams.Event) {
 	groupedSubscribers := map[string]streams.Subscriber{}
 
 	for _, sub := range subs {
-		if len(sub.Options().Topic) == 0 || sub.Options().Topic == ev.Topic {
+		if len(sub.Options().Topic) == 0 || sub.Options().Topic == event.Topic {
 			groupedSubscribers[sub.Options().Group] = sub
 		}
 	}
 
 	for _, sub := range groupedSubscribers {
-		go func(sub streams.Subscriber) {
-			if err := SendEvent(sub, ev); err != nil {
-				log.Errorf("failed to handle event: %v", err)
+		if err := SendEvent(sub, event); err != nil {
+			log.Errorf("failed to handle event: %v", err)
+		} else {
+			event.Processed[sub.Options().Group] = true
+
+			bytes, err := json.Marshal(event)
+			if err != nil {
+				log.Errorf("failed to marshal new event for store after group %s successfully processed: %v", sub.Options().Group, err)
 			}
-		}(sub)
+
+			key := fmt.Sprintf("%v:%v", event.Topic, event.Id)
+
+			if err := s.store.Write(&store.Record{
+				Key:   key,
+				Value: bytes,
+			}); err != nil {
+				log.Errorf("failed to re-write new event to event store: %v", err)
+			}
+		}
 	}
 }
 

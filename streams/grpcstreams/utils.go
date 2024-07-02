@@ -18,13 +18,13 @@ func SendEvent(sub streams.Subscriber, event *streams.Event) error {
 	cpy.SetAck(Ack(sub, cpy))
 	cpy.SetNack(Nack(sub, cpy))
 
-	sub.SetAttemptCount(0, cpy)
+	sub.SetAttempts(0, cpy)
 
 	tick := time.NewTicker(sub.Options().AckWait)
 	defer tick.Stop()
 
 	for range tick.C {
-		count, ok := sub.GetAttemptCount(cpy)
+		count, ok := sub.GetAttempts(cpy)
 		if !ok {
 			break
 		}
@@ -36,7 +36,7 @@ func SendEvent(sub streams.Subscriber, event *streams.Event) error {
 
 		sub.Channel() <- cpy
 
-		sub.SetAttemptCount(count+1, cpy)
+		sub.SetAttempts(count+1, cpy)
 	}
 
 	return nil

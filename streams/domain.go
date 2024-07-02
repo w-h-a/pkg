@@ -11,11 +11,12 @@ type Ack func() error
 type Nack func() error
 
 type Event struct {
-	Id        string
-	Topic     string
-	Payload   []byte
-	Timestamp time.Time
-	Metadata  map[string]string
+	Id        string            `json:"id"`
+	Topic     string            `json:"topic"`
+	Payload   []byte            `json:"payload"`
+	Timestamp time.Time         `json:"timestamp"`
+	Metadata  map[string]string `json:"metadata"`
+	Processed map[string]bool   `json:"processed"`
 	ack       Ack
 	nack      Nack
 }

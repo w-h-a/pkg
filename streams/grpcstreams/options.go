@@ -3,14 +3,14 @@ package grpcstreams
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/security/token"
 	"github.com/w-h-a/pkg/store"
+	"github.com/w-h-a/pkg/streams"
 )
 
 type storeKey struct{}
 
-func GrpcStreamsWithStore(s store.Store) token.TokenOption {
-	return func(o *token.TokenOptions) {
+func GrpcStreamsWithStore(s store.Store) streams.StreamsOption {
+	return func(o *streams.StreamsOptions) {
 		o.Context = context.WithValue(o.Context, storeKey{}, s)
 	}
 }

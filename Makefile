@@ -14,13 +14,9 @@ style:
 	goimports -l -w ./telemetry
 	goimports -l -w ./utils
 
-.PHONY: clean
-clean:
-	go clean -testcache
-
 .PHONY: test
 test:
-	go test -v -race ./...
+	go clean -testcache && go test -v -race ./...
 
 .PHONY: proto-account
 proto-account:

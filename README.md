@@ -10,5 +10,5 @@
 | security  | jwts, TBD        | token provisioning and encryption |
 | server    | grpc             | build backend servers             |
 | store     | cockroach, redis | data persistence                  |
-| streams   | grpc, redis      | asynchronous communication        |
+| streams   | redis            | asynchronous communication        |
 | telemetry | memory           | logs, metrics, and traces         |

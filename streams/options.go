@@ -5,12 +5,20 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/w-h-a/pkg/store"
 )
 
 type StreamsOption func(o *StreamsOptions)
 
 type StreamsOptions struct {
+	Store   store.Store
 	Context context.Context
+}
+
+func StreamsWithStore(s store.Store) StreamsOption {
+	return func(o *StreamsOptions) {
+		o.Store = s
+	}
 }
 
 func NewStreamsOptions(opts ...StreamsOption) StreamsOptions {

@@ -236,6 +236,8 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 		return status.New(codes.Unimplemented, fmt.Sprintf("unknown method %s.%s", controllerName, handlerName)).Err()
 	}
 
+	log.Info("HERERE", handler.stream)
+
 	if handler.stream {
 		return s.processStream(stream, controller, handler, contentType, ctx)
 	}

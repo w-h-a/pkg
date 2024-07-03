@@ -35,7 +35,9 @@ message UnsubscribeRequest {
 message UnsubscribeResponse {}
 
 // consume request (stream Event response)
-message ConsumeRequest {}
+message ConsumeRequest {
+    string id = 1;
+}
 
 // ack request (no response)
 message AckRequest {

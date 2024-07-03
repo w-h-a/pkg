@@ -37,7 +37,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan, err := s.Consume(id)
+		sub, err := s.Consume(id)
 		require.NoError(t, err)
 
 		timeCh := make(chan time.Time)
@@ -47,7 +47,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			timeout := time.NewTicker(time.Second * 4)
 
 			select {
-			case event := <-evChan:
+			case event := <-sub.Channel():
 				require.NotNil(t, event)
 				require.Equal(t, metadata, event.Metadata)
 
@@ -99,7 +99,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan1, err := s.Consume(id1)
+		sub1, err := s.Consume(id1)
 		require.NoError(t, err)
 
 		timeCh1 := make(chan time.Time)
@@ -109,7 +109,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			timeout := time.NewTicker(time.Second * 4)
 
 			select {
-			case event := <-evChan1:
+			case event := <-sub1.Channel():
 				require.NotNil(t, event)
 				require.Equal(t, metadata, event.Metadata)
 
@@ -146,7 +146,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan2, err := s.Consume(id2)
+		sub2, err := s.Consume(id2)
 		require.NoError(t, err)
 
 		timeCh2 := make(chan time.Time)
@@ -156,7 +156,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			timeout := time.NewTicker(time.Second * 4)
 
 			select {
-			case event := <-evChan2:
+			case event := <-sub2.Channel():
 				require.NotNil(t, event)
 				require.Equal(t, metadata, event.Metadata)
 
@@ -202,8 +202,10 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan, err := s.Consume(id)
+		sub, err := s.Consume(id)
 		require.NoError(t, err)
+
+		evChan := sub.Channel()
 
 		require.NoError(t, s.Produce(topic, payload1))
 		require.NoError(t, s.Produce(topic, payload2))
@@ -243,7 +245,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan1, err := s.Consume(id1)
+		sub1, err := s.Consume(id1)
 		require.NoError(t, err)
 
 		err = s.Subscribe(
@@ -257,7 +259,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan2, err := s.Consume(id2)
+		sub2, err := s.Consume(id2)
 		require.NoError(t, err)
 
 		require.NoError(t, s.Produce(topic1, payload))
@@ -268,14 +270,14 @@ func runTestStream(t *testing.T, s streams.Streams) {
 		wg.Add(2)
 
 		go func() {
-			ev := <-evChan1
+			ev := <-sub1.Channel()
 			require.Equal(t, topic1, ev.Topic)
 			ev.Ack()
 			wg.Done()
 		}()
 
 		go func() {
-			ev := <-evChan2
+			ev := <-sub2.Channel()
 			ev.Ack()
 			require.Equal(t, topic2, ev.Topic)
 			ev.Ack()

@@ -42,7 +42,7 @@ func (s *grpcStreams) Unsubscribe(id string) error {
 	return nil
 }
 
-func (s *grpcStreams) Consume(id string) (<-chan streams.Event, error) {
+func (s *grpcStreams) Consume(id string) (streams.Subscriber, error) {
 	s.mtx.RLock()
 	sub, ok := s.subscribers[id]
 	if !ok {
@@ -55,7 +55,7 @@ func (s *grpcStreams) Consume(id string) (<-chan streams.Event, error) {
 		go s.lookupPreviousEvents(sub, sub.Options().Offset)
 	}
 
-	return sub.Channel(), nil
+	return sub, nil
 }
 
 func (s *grpcStreams) Produce(topic string, data interface{}, opts ...streams.ProduceOption) error {

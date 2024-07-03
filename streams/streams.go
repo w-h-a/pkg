@@ -12,7 +12,7 @@ type Streams interface {
 	Options() StreamsOptions
 	Subscribe(id string, opts ...SubscribeOption) error
 	Unsubscribe(id string) error
-	Consume(id string) (<-chan Event, error)
+	Consume(id string) (Subscriber, error)
 	Produce(topic string, data interface{}, opts ...ProduceOption) error
 	String() string
 }

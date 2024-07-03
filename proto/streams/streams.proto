@@ -22,6 +22,7 @@ message SubscribeRequest {
     bool auto_ack = 4;
     int64 ack_wait = 5;
     int64 retry_limit = 6;
+    int64 offset = 7;
 }
 
 message SubscribeResponse {}
@@ -34,9 +35,7 @@ message UnsubscribeRequest {
 message UnsubscribeResponse {}
 
 // consume request (stream Event response)
-message ConsumeRequest {
-    int64 offset = 1;
-}
+message ConsumeRequest {}
 
 // ack request (no response)
 message AckRequest {

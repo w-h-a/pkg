@@ -42,9 +42,7 @@ func (s *grpcStreams) Unsubscribe(id string) error {
 	return nil
 }
 
-func (s *grpcStreams) Consume(id string, opts ...streams.ConsumeOption) (<-chan streams.Event, error) {
-	options := streams.NewConsumeOptions(opts...)
-
+func (s *grpcStreams) Consume(id string) (<-chan streams.Event, error) {
 	s.mtx.RLock()
 	sub, ok := s.subscribers[id]
 	if !ok {
@@ -53,8 +51,8 @@ func (s *grpcStreams) Consume(id string, opts ...streams.ConsumeOption) (<-chan 
 	}
 	s.mtx.RUnlock()
 
-	if options.Offset.Unix() > 0 {
-		go s.lookupPreviousEvents(sub, options.Offset)
+	if sub.Options().Offset.Unix() > 0 {
+		go s.lookupPreviousEvents(sub, sub.Options().Offset)
 	}
 
 	return sub.Channel(), nil
@@ -94,6 +92,7 @@ func (s *grpcStreams) String() string {
 }
 
 func (s *grpcStreams) lookupPreviousEvents(sub streams.Subscriber, startTime time.Time) {
+	// TODO: add limit
 	recs, err := s.store.Read(sub.Options().Topic+":", store.ReadWithPrefix())
 	if err != nil {
 		log.Errorf("failed to find any previous events: %v", err)

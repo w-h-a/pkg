@@ -33,6 +33,7 @@ type SubscribeOptions struct {
 	AutoAck    bool
 	AckWait    time.Duration
 	RetryLimit int
+	Offset     time.Time
 }
 
 func SubscribeWithGroup(n string) SubscribeOption {
@@ -60,35 +61,20 @@ func SubscribeWithRetryLimit(retries int) SubscribeOption {
 	}
 }
 
+func SubscribeWithOffset(t time.Time) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.Offset = t
+	}
+}
+
 func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	options := SubscribeOptions{
 		Group:      uuid.New().String(),
 		AutoAck:    false,
 		AckWait:    4 * time.Second,
 		RetryLimit: 4,
+		Offset:     time.Now().Add(time.Hour * -1),
 	}
-
-	for _, fn := range opts {
-		fn(&options)
-	}
-
-	return options
-}
-
-type ConsumeOption func(o *ConsumeOptions)
-
-type ConsumeOptions struct {
-	Offset time.Time
-}
-
-func ConsumeWithOffset(t time.Time) ConsumeOption {
-	return func(o *ConsumeOptions) {
-		o.Offset = t
-	}
-}
-
-func NewConsumeOptions(opts ...ConsumeOption) ConsumeOptions {
-	options := ConsumeOptions{}
 
 	for _, fn := range opts {
 		fn(&options)

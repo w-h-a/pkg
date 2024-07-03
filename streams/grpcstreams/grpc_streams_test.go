@@ -23,7 +23,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 		payload := map[string]string{"message": "hello world"}
 		metadata := map[string]string{"foo": "bar"}
 		id := uuid.New().String()
-		topic := "test"
+		topic := "test1"
 
 		err := s.Subscribe(
 			id,
@@ -84,7 +84,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 		id2 := uuid.New().String()
 		group1 := uuid.New().String()
 		group2 := uuid.New().String()
-		topic := "test"
+		topic := "test2"
 
 		err := s.Subscribe(
 			id1,
@@ -137,6 +137,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			streams.SubscribeWithGroup(group2),
 			streams.SubscribeWithTopic(topic),
 			streams.SubscribeWithAutoAck(true, 0),
+			streams.SubscribeWithOffset(time.Now().Add(time.Minute*-1)),
 		)
 		require.NoError(t, err)
 
@@ -145,7 +146,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 			require.NoError(t, err)
 		}()
 
-		evChan2, err := s.Consume(id2, streams.ConsumeWithOffset(time.Now().Add(time.Minute*-1)))
+		evChan2, err := s.Consume(id2)
 		require.NoError(t, err)
 
 		timeCh2 := make(chan time.Time)
@@ -188,7 +189,7 @@ func runTestStream(t *testing.T, s streams.Streams) {
 		payload1 := map[string]string{"message": "hello world 1"}
 		payload2 := map[string]string{"message": "hello world 2"}
 		id := uuid.New().String()
-		topic := "test"
+		topic := "test3"
 
 		err := s.Subscribe(
 			id,
@@ -228,8 +229,8 @@ func runTestStream(t *testing.T, s streams.Streams) {
 		payload := map[string]string{"message": "hello world"}
 		id1 := uuid.New().String()
 		id2 := uuid.New().String()
-		topic1 := "test1"
-		topic2 := "test2"
+		topic1 := "test4"
+		topic2 := "test5"
 
 		err := s.Subscribe(
 			id1,

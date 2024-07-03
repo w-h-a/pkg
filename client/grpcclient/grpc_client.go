@@ -365,7 +365,7 @@ func (c *grpcClient) stream(ctx context.Context, address string, req client.Requ
 	s, err := conn.NewStream(
 		newCtx,
 		&grpc.StreamDesc{
-			StreamName:    req.Service() + req.Method(),
+			StreamName:    req.Method(),
 			ClientStreams: true,
 			ServerStreams: true,
 		},

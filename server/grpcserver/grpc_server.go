@@ -144,21 +144,10 @@ func (s *grpcServer) start() error {
 			s.wg.Wait()
 		}
 
-		exit := make(chan bool)
+		// temporary because grpc.Server GracefulStop sucks
+		<-time.After(10 * time.Second)
 
-		go func() {
-			s.server.GracefulStop()
-			close(exit)
-		}()
-
-		countdown := time.NewTimer(10 * time.Second)
-
-		select {
-		case <-exit:
-			countdown.Stop()
-		case <-countdown.C:
-			s.server.Stop()
-		}
+		s.server.Stop()
 
 		// signal that we've finished stopping the grpc server
 		ch <- nil

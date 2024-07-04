@@ -151,9 +151,12 @@ func (s *grpcServer) start() error {
 			close(exit)
 		}()
 
+		countdown := time.NewTimer(10 * time.Second)
+
 		select {
 		case <-exit:
-		case <-time.After(time.Minute):
+			countdown.Stop()
+		case <-countdown.C:
 			s.server.Stop()
 		}
 

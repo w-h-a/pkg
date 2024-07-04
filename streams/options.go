@@ -79,7 +79,7 @@ func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	options := SubscribeOptions{
 		Group:      uuid.New().String(),
 		AutoAck:    false,
-		AckWait:    4 * time.Second,
+		AckWait:    16 * time.Second,
 		RetryLimit: 4,
 		Offset:     time.Now().Add(time.Hour * -1),
 	}

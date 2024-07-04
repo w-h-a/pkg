@@ -140,14 +140,30 @@ func (s *grpcServer) start() error {
 			}
 		}
 
-		if s.wg != nil {
+		wait := make(chan struct{})
+
+		go func() {
+			defer close(wait)
 			s.wg.Wait()
+		}()
+
+		select {
+		case <-wait:
+		case <-time.After(30 * time.Second):
 		}
 
-		// temporary because grpc.Server GracefulStop sucks
-		<-time.After(10 * time.Second)
+		shutdown := make(chan struct{})
 
-		s.server.Stop()
+		go func() {
+			defer close(shutdown)
+			s.server.GracefulStop()
+		}()
+
+		select {
+		case <-shutdown:
+		case <-time.After(30 * time.Second):
+			s.server.Stop()
+		}
 
 		// signal that we've finished stopping the grpc server
 		ch <- nil

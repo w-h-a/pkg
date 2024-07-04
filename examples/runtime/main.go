@@ -33,7 +33,7 @@ type logWrapper struct {
 }
 
 func (c *logWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	log.Infof("making a call to %s of %s.%s", req.Method(), req.Server(), req.Namespace())
+	log.Infof("making a call to %s of %s.%s", req.Method(), req.Service(), req.Namespace())
 	
 	return c.Client.Call(ctx, req, rsp, opts...)
 }

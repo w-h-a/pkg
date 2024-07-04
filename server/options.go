@@ -1,6 +1,8 @@
 package server
 
-import "context"
+import (
+	"context"
+)
 
 type ServerOption func(o *ServerOptions)
 
@@ -84,6 +86,7 @@ type RequestOptions struct {
 	ContentType        string
 	UnmarshaledRequest interface{}
 	MarshaledRequest   []byte
+	Stream             bool
 }
 
 func RequestWithNamespace(n string) RequestOption {
@@ -119,6 +122,12 @@ func RequestWithUnmarshaledRequest(v interface{}) RequestOption {
 func RequestWithMarshaledRequest(bs []byte) RequestOption {
 	return func(o *RequestOptions) {
 		o.MarshaledRequest = bs
+	}
+}
+
+func RequestWithStream() RequestOption {
+	return func(o *RequestOptions) {
+		o.Stream = true
 	}
 }
 

@@ -33,12 +33,12 @@ var (
 
 type grpcServer struct {
 	options     server.ServerOptions
-	mtx         sync.RWMutex
-	wg          *sync.WaitGroup
-	controllers map[string]*grpcController
 	server      *grpc.Server
+	controllers map[string]*grpcController
 	started     bool
 	exit        chan chan error
+	mtx         sync.RWMutex
+	wg          *sync.WaitGroup
 }
 
 func (s *grpcServer) Options() server.ServerOptions {
@@ -118,8 +118,6 @@ func (s *grpcServer) start() error {
 
 	log.Infof("grpc server is listening on %s", listener.Addr().String())
 
-	// TODO: connect to broker if we have subscribers
-
 	go func() {
 		if err := s.server.Serve(listener); err != nil {
 			log.Fatalf("grpc server failed to start: %v", err)
@@ -142,16 +140,33 @@ func (s *grpcServer) start() error {
 			}
 		}
 
-		if s.wg != nil {
+		wait := make(chan struct{})
+
+		go func() {
+			defer close(wait)
 			s.wg.Wait()
+		}()
+
+		select {
+		case <-wait:
+		case <-time.After(30 * time.Second):
 		}
 
-		s.server.GracefulStop()
+		shutdown := make(chan struct{})
+
+		go func() {
+			defer close(shutdown)
+			s.server.GracefulStop()
+		}()
+
+		select {
+		case <-shutdown:
+		case <-time.After(30 * time.Second):
+			s.server.Stop()
+		}
 
 		// signal that we've finished stopping the grpc server
 		ch <- nil
-
-		// TODO: disconnect from broker if we're connected
 	}()
 
 	s.mtx.Lock()
@@ -214,7 +229,6 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	}
 
 	timeout := md["timeout"]
-	delete(md, "timeout")
 
 	ctx := metadatautils.NewContext(stream.Context(), md)
 
@@ -241,10 +255,14 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 		return status.New(codes.Unimplemented, fmt.Sprintf("unknown method %s.%s", controllerName, handlerName)).Err()
 	}
 
+	if handler.stream {
+		return s.processStream(stream, controller, handler, contentType, ctx)
+	}
+
 	return s.processRequest(stream, controller, handler, contentType, ctx)
 }
 
-func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcController, handler *grpcSync, contentType string, ctx context.Context) error {
+func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
 	req := reflect.New(handler.reqType.Elem())
 
 	rsp := reflect.New(handler.rspType.Elem())
@@ -253,12 +271,14 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return err
 	}
 
+	// this is necessary in addition to the init toward the
+	// bottom to get grpc to assume the right content type
 	marshaler, err := s.newMarshaler(contentType)
 	if err != nil {
 		return errorutils.InternalServerError("server", err.Error())
 	}
 
-	b, err := marshaler.Marshal(req.Interface())
+	bytes, err := marshaler.Marshal(req.Interface())
 	if err != nil {
 		return err
 	}
@@ -279,13 +299,13 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			reflect.ValueOf(response),
 		}
 
-		results := handler.method.Call(args)
+		vals := handler.method.Call(args)
 
-		if e := results[0].Interface(); e != nil {
+		if e := vals[0].Interface(); e != nil {
 			err = e.(error)
 		}
 
-		return err
+		return
 	}
 
 	for i := len(s.options.ControllerWrappers); i > 0; i-- {
@@ -303,7 +323,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
 			server.RequestWithContentType(contentType),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
-			server.RequestWithMarshaledRequest(b),
+			server.RequestWithMarshaledRequest(bytes),
 		),
 		rsp.Interface(),
 	); err != nil {
@@ -314,6 +334,54 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 
 	if err := stream.SendMsg(rsp.Interface()); err != nil {
 		return err
+	}
+
+	return status.New(statusCode, statusDesc).Err()
+}
+
+func (s *grpcServer) processStream(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
+	fn := func(ctx context.Context, request server.Request, stream interface{}) (err error) {
+		args := []reflect.Value{
+			controller.receiver,
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(stream),
+		}
+
+		vals := handler.method.Call(args)
+
+		if e := vals[0].Interface(); e != nil {
+			err = e.(error)
+		}
+
+		return
+	}
+
+	for i := len(s.options.ControllerWrappers); i > 0; i-- {
+		fn = s.options.ControllerWrappers[i-1](fn)
+	}
+
+	statusCode := codes.OK
+	statusDesc := ""
+
+	r := NewRequest(
+		server.RequestWithNamespace(s.options.Namespace),
+		server.RequestWithName(s.options.Name),
+		server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
+		server.RequestWithContentType(contentType),
+		server.RequestWithStream(),
+	)
+
+	if err := fn(
+		ctx,
+		r,
+		&grpcStream{
+			request: r,
+			stream:  stream,
+		},
+	); err != nil {
+		statusCode = ToErrorCode(err)
+		statusDesc = err.Error()
+		return status.New(statusCode, statusDesc).Err()
 	}
 
 	return status.New(statusCode, statusDesc).Err()
@@ -338,10 +406,10 @@ func NewServer(opts ...server.ServerOption) server.Server {
 
 	s := &grpcServer{
 		options:     options,
-		mtx:         sync.RWMutex{},
-		wg:          &sync.WaitGroup{},
 		controllers: map[string]*grpcController{},
 		exit:        make(chan chan error),
+		mtx:         sync.RWMutex{},
+		wg:          &sync.WaitGroup{},
 	}
 
 	grpcOptions := []grpc.ServerOption{

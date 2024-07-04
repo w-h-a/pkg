@@ -14,7 +14,7 @@ func (r *grpcRequest) Namespace() string {
 	return r.options.Namespace
 }
 
-func (r *grpcRequest) Server() string {
+func (r *grpcRequest) Service() string {
 	return r.options.Name
 }
 
@@ -32,6 +32,10 @@ func (r *grpcRequest) ContentType() string {
 
 func (r *grpcRequest) Unmarshaled() interface{} {
 	return r.options.UnmarshaledRequest
+}
+
+func (r *grpcRequest) Stream() bool {
+	return r.options.Stream
 }
 
 func (r *grpcRequest) String() string {

@@ -15,7 +15,7 @@ import (
 
 type cockroachStore struct {
 	options    store.StoreOptions
-	dbClient   *sql.DB
+	client     *sql.DB
 	write      *sql.Stmt
 	readOne    *sql.Stmt
 	readMany   *sql.Stmt
@@ -228,30 +228,30 @@ func (s *cockroachStore) configure() error {
 		return err
 	}
 
-	dbClient, err := sql.Open("postgres", source)
+	client, err := sql.Open("postgres", source)
 	if err != nil {
 		return err
 	}
 
-	if err := dbClient.Ping(); err != nil {
+	if err := client.Ping(); err != nil {
 		return err
 	}
 
-	s.dbClient = dbClient
+	s.client = client
 
 	return s.initDB()
 }
 
 func (s *cockroachStore) initDB() error {
-	if _, err := s.dbClient.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", s.options.Database)); err != nil {
+	if _, err := s.client.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", s.options.Database)); err != nil {
 		return err
 	}
 
-	if _, err := s.dbClient.Exec(fmt.Sprintf("SET DATABASE = %s ;", s.options.Database)); err != nil {
+	if _, err := s.client.Exec(fmt.Sprintf("SET DATABASE = %s ;", s.options.Database)); err != nil {
 		return err
 	}
 
-	if _, err := s.dbClient.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s
+	if _, err := s.client.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s
 	(
 		key text NOT NULL,
 		value bytea,
@@ -261,11 +261,11 @@ func (s *cockroachStore) initDB() error {
 		return err
 	}
 
-	if _, err := s.dbClient.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING btree ("key");`, "key_index_"+s.options.Table, s.options.Database, s.options.Table)); err != nil {
+	if _, err := s.client.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING btree ("key");`, "key_index_"+s.options.Table, s.options.Database, s.options.Table)); err != nil {
 		return err
 	}
 
-	write, err := s.dbClient.Prepare(fmt.Sprintf(`INSERT INTO %s.%s(key, value, expiry)
+	write, err := s.client.Prepare(fmt.Sprintf(`INSERT INTO %s.%s(key, value, expiry)
 		VALUES ($1, $2::bytea, $3)
 		ON CONFLICT (key)
 		DO UPDATE
@@ -275,31 +275,31 @@ func (s *cockroachStore) initDB() error {
 	}
 	s.write = write
 
-	readOne, err := s.dbClient.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key = $1;", s.options.Database, s.options.Table))
+	readOne, err := s.client.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key = $1;", s.options.Database, s.options.Table))
 	if err != nil {
 		return err
 	}
 	s.readOne = readOne
 
-	readMany, err := s.dbClient.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key LIKE $1;", s.options.Database, s.options.Table))
+	readMany, err := s.client.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key LIKE $1;", s.options.Database, s.options.Table))
 	if err != nil {
 		return err
 	}
 	s.readMany = readMany
 
-	readOffset, err := s.dbClient.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key DESC LIMIT $2 OFFSET $3;", s.options.Database, s.options.Table))
+	readOffset, err := s.client.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s WHERE key LIKE $1 ORDER BY key DESC LIMIT $2 OFFSET $3;", s.options.Database, s.options.Table))
 	if err != nil {
 		return err
 	}
 	s.readOffset = readOffset
 
-	list, err := s.dbClient.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s;", s.options.Database, s.options.Table))
+	list, err := s.client.Prepare(fmt.Sprintf("SELECT key, value, expiry FROM %s.%s;", s.options.Database, s.options.Table))
 	if err != nil {
 		return err
 	}
 	s.list = list
 
-	delete, err := s.dbClient.Prepare(fmt.Sprintf("DELETE FROM %s.%s WHERE key = $1;", s.options.Database, s.options.Table))
+	delete, err := s.client.Prepare(fmt.Sprintf("DELETE FROM %s.%s WHERE key = $1;", s.options.Database, s.options.Table))
 	if err != nil {
 		return err
 	}

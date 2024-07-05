@@ -13,6 +13,6 @@ type Streams interface {
 	Subscribe(id string, opts ...SubscribeOption) error
 	Unsubscribe(id string) error
 	Consume(id string) (Subscriber, error)
-	Produce(topic string, data []byte, opts ...ProduceOption) error
+	Produce(topic string, data interface{}, opts ...ProduceOption) error
 	String() string
 }

@@ -1,9 +1,11 @@
 package streams
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
+
+	"google.golang.org/protobuf/proto"
 )
 
 type Ack func() error
@@ -21,8 +23,22 @@ type Event struct {
 	nack      Nack
 }
 
+func (e *Event) Marshal(v interface{}) ([]byte, error) {
+	protoMessage, ok := v.(proto.Message)
+	if !ok {
+		return nil, fmt.Errorf("failed to marshal: %v is not a proto message", v)
+	}
+
+	return proto.Marshal(protoMessage)
+}
+
 func (e *Event) Unmarshal(v interface{}) error {
-	return json.Unmarshal(e.Payload, v)
+	protoMessage, ok := v.(proto.Message)
+	if !ok {
+		return fmt.Errorf("failed to unmarshal: %v is not a proto message", v)
+	}
+
+	return proto.Unmarshal(e.Payload, protoMessage)
 }
 
 func (e *Event) SetAck(f Ack) {

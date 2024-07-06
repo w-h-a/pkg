@@ -31,7 +31,7 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 
 	mock, ok := c.responses[req.Service()+":"+req.Method()]
 	if !ok {
-		return errorutils.NotFound("mock.client", "service not found")
+		return errorutils.NotFound("mock.client", "service:method %s:%s not found in responses %+v", req.Service(), req.Method(), c.responses)
 	}
 
 	if mock.Err != nil {

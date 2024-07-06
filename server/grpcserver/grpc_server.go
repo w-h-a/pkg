@@ -229,6 +229,7 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	}
 
 	timeout := md["timeout"]
+	delete(md, "timeout")
 
 	ctx := metadatautils.NewContext(stream.Context(), md)
 

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "github.com/w-h-a/pkg/proto/order";
+
+// domain
+enum Status {
+    // order created but ticket is not reserved
+    CREATED = 0;
+    // the order fails to reserve the ticket, the user cancelled the order, or the order expires
+    CANCELLED = 1;
+    // order is awaiting payment and has reserved the ticket
+    AWAITING_PAYMENT = 2;
+    // the order has reserved the ticket and the user has provided payment
+    COMPLETE = 4;
+}
+
+message Order {
+    string ticket = 1;
+    Status status = 2;
+    int64 expiry = 3;
+    string userId = 4;
+}
+
+// create request/response
+message CreateRequest {
+    string ticket = 1;
+}
+
+message CreateResponse {}
+
+// read request/response
+message ReadRequest {
+    string suffix = 1;
+}
+
+message ReadResponse {
+    repeated Order orders = 1;
+}
+
+// delete request/response
+message DeleteRequest {
+    string order = 1;
+}
+
+message DeleteResponse {}

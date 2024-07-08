@@ -109,9 +109,6 @@ func (s *cockroachStore) read(key string, options store.ReadOptions) ([]*store.R
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return records, store.ErrRecordNotFound
-		}
 		return nil, err
 	}
 

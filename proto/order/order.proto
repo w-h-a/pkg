@@ -8,7 +8,7 @@ option go_package = "github.com/w-h-a/pkg/proto/order";
 enum Status {
     // order created but ticket is not reserved
     CREATED = 0;
-    // the order fails to reserve the ticket or the user cancelled the order
+    // the order fails to reserve the ticket, the user cancelled the order, or the order expired
     CANCELLED = 1;
     // order is awaiting payment and has reserved the ticket
     AWAITING_PAYMENT = 2;

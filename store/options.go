@@ -10,6 +10,7 @@ type StoreOptions struct {
 	Nodes    []string
 	Database string
 	Table    string
+	Seed     []*Record
 	Context  context.Context
 }
 
@@ -28,6 +29,12 @@ func StoreWithDatabase(db string) StoreOption {
 func StoreWithTable(tbl string) StoreOption {
 	return func(o *StoreOptions) {
 		o.Table = tbl
+	}
+}
+
+func StoreWithSeed(rs ...*Record) StoreOption {
+	return func(o *StoreOptions) {
+		o.Seed = append(o.Seed, rs...)
 	}
 }
 

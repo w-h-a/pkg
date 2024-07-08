@@ -6,6 +6,7 @@ import (
 
 	"github.com/patrickmn/go-cache"
 	"github.com/w-h-a/pkg/store"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type memoryStore struct {
@@ -191,6 +192,14 @@ func NewStore(opts ...store.StoreOption) store.Store {
 	s := &memoryStore{
 		options: options,
 		store:   cache.New(cache.NoExpiration, 5*time.Minute),
+	}
+
+	if len(options.Seed) != 0 {
+		for _, rec := range options.Seed {
+			if err := s.Write(rec); err != nil {
+				log.Fatalf("failed to seed database: %v", err)
+			}
+		}
 	}
 
 	return s

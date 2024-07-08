@@ -70,6 +70,10 @@ func (s *memoryStore) Read(key string, opts ...store.ReadOption) ([]*store.Recor
 
 	records := []*store.Record{}
 
+	if len(keys) == 0 {
+		return records, store.ErrRecordNotFound
+	}
+
 	for _, k := range keys {
 		record, err := s.read(k)
 		if err != nil {

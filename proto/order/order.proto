@@ -32,7 +32,7 @@ message CreateResponse {}
 
 // read request/response
 message ReadRequest {
-    string suffix = 1;
+    string prefix = 1;
 }
 
 message ReadResponse {

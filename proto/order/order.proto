@@ -25,7 +25,7 @@ message Order {
 
 // create request/response
 message CreateRequest {
-    string ticket = 1;
+    string ticketKey = 1;
 }
 
 message CreateResponse {}
@@ -41,7 +41,7 @@ message ReadResponse {
 
 // delete request/response
 message DeleteRequest {
-    string order = 1;
+    string ticketKey = 1;
 }
 
 message DeleteResponse {}

@@ -21,6 +21,7 @@ message Order {
     Status status = 2;
     int64 expiry = 3;
     string userId = 4;
+    string price = 5;
 }
 
 // create request/response

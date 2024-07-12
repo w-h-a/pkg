@@ -9,6 +9,7 @@ message Ticket {
     string title = 1;
     string price = 2;
     string userId = 3;
+    string orderId = 4;
 }
 
 // create request/response

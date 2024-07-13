@@ -33,12 +33,12 @@ message UnsubscribeRequest {
 
 message UnsubscribeResponse {}
 
-// consume request (stream Event response)
+// consume request 
 message ConsumeRequest {
     string id = 1;
 }
 
-// ack request (no response)
+// ack request 
 message AckRequest {
     string id = 1;
     bool success = 2;

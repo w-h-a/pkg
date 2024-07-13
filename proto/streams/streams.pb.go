@@ -320,7 +320,7 @@ func (*UnsubscribeResponse) Descriptor() ([]byte, []int) {
 	return file_proto_streams_streams_proto_rawDescGZIP(), []int{4}
 }
 
-// consume request (stream Event response)
+// consume request
 type ConsumeRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -368,7 +368,7 @@ func (x *ConsumeRequest) GetId() string {
 	return ""
 }
 
-// ack request (no response)
+// ack request
 type AckRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

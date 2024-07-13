@@ -19,10 +19,9 @@ message SubscribeRequest {
     string id = 1;
     string group = 2;
     string topic = 3;
-    bool auto_ack = 4;
-    int64 ack_wait = 5;
-    int64 retry_limit = 6;
-    int64 offset = 7;
+    int64 ack_wait = 4;
+    int64 retry_limit = 5;
+    int64 offset = 6;
 }
 
 message SubscribeResponse {}

@@ -13,6 +13,7 @@ import (
 type mockClient struct {
 	options   client.ClientOptions
 	responses map[string]Response
+	streams   map[string]client.Stream
 	client    client.Client
 	mtx       sync.RWMutex
 }
@@ -49,8 +50,15 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 }
 
 func (c *mockClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
-	// TODO
-	return nil, nil
+	c.mtx.RLock()
+	defer c.mtx.RUnlock()
+
+	mock, ok := c.streams[req.Service()+":"+req.Method()]
+	if !ok {
+		return nil, errorutils.NotFound("mock.client", "service:method %s:%s not found in streams %+v", req.Service(), req.Method(), c.streams)
+	}
+
+	return mock, nil
 }
 
 func (c *mockClient) String() string {
@@ -65,6 +73,11 @@ func NewClient(opts ...client.ClientOption) client.Client {
 		responses = map[string]Response{}
 	}
 
+	streams, ok := GetStreamsFromContext(options.Context)
+	if !ok {
+		streams = map[string]client.Stream{}
+	}
+
 	c, ok := GetClientFromContext(options.Context)
 	if !ok {
 		c = grpcclient.NewClient()
@@ -73,6 +86,7 @@ func NewClient(opts ...client.ClientOption) client.Client {
 	m := &mockClient{
 		options:   options,
 		responses: responses,
+		streams:   streams,
 		client:    c,
 		mtx:       sync.RWMutex{},
 	}

@@ -3,8 +3,9 @@ package streams
 type Subscriber interface {
 	Options() SubscribeOptions
 	Channel() chan Event
-	Ack(ev Event) error
-	Nack(ev Event) error
+	Close()
+	Ack(ev Event) interface{}
+	Nack(ev Event) interface{}
 	SetAttempts(c int, ev Event)
 	GetAttempts(ev Event) (int, bool)
 	String() string

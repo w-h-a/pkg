@@ -38,7 +38,6 @@ type SubscribeOption func(o *SubscribeOptions)
 type SubscribeOptions struct {
 	Group      string
 	Topic      string
-	AutoAck    bool
 	AckWait    time.Duration
 	RetryLimit int
 	Offset     time.Time
@@ -56,9 +55,8 @@ func SubscribeWithTopic(t string) SubscribeOption {
 	}
 }
 
-func SubscribeWithAutoAck(autoAck bool, ackWait time.Duration) SubscribeOption {
+func SubscribeWithAckWait(ackWait time.Duration) SubscribeOption {
 	return func(o *SubscribeOptions) {
-		o.AutoAck = autoAck
 		o.AckWait = ackWait
 	}
 }
@@ -78,7 +76,6 @@ func SubscribeWithOffset(t time.Time) SubscribeOption {
 func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	options := SubscribeOptions{
 		Group:      uuid.New().String(),
-		AutoAck:    false,
 		AckWait:    16 * time.Second,
 		RetryLimit: 4,
 		Offset:     time.Now().Add(time.Hour * -1),

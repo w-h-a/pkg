@@ -2,6 +2,7 @@ package mockclient
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"sync"
 
@@ -53,7 +54,13 @@ func (s *mockStream) Recv(msg interface{}) error {
 
 	response := mock.Response
 
+	fmt.Println("TYPE", reflect.TypeOf(response))
+	fmt.Printf("RESPONSE: %+v", response)
+
 	val.Set(reflect.ValueOf(response))
+
+	fmt.Println("TYPE", reflect.TypeOf(val))
+	fmt.Printf("VAL: %+v", val)
 
 	return nil
 }

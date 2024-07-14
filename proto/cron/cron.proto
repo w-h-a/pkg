@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package cron;
+
+option go_package = "github.com/w-h-a/pkg/proto/cron";
+
+// domain
+message Job {
+    string id = 1;
+}

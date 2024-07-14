@@ -38,6 +38,10 @@ proto-runtime:
 proto-streams:
 	protoc proto/streams/*.proto --go_out=paths=source_relative:. --proto_path=.
 
+.PHONY: proto-cron
+proto-cron:
+	protoc proto/cron/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-ticket
 proto-ticket:
 	protoc proto/ticket/*.proto --go_out=paths=source_relative:. --proto_path=.

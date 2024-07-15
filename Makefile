@@ -18,17 +18,25 @@ style:
 test:
 	go clean -testcache && go test -v -race ./...
 
-.PHONY: proto-account
-proto-account:
-	protoc proto/account/*.proto --go_out=paths=source_relative:. --proto_path=.
-
 .PHONY: proto-health
 proto-health:
 	protoc proto/health/*.proto --go_out=paths=source_relative:. --proto_path=.
 
+.PHONY: proto-account
+proto-account:
+	protoc proto/account/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-rule
 proto-rule:
 	protoc proto/rule/*.proto --go_out=paths=source_relative:. --proto_path=.
+
+.PHONY: proto-snapshot
+proto-snapshot:
+	protoc proto/snapshot/*.proto --go_out=paths=source_relative:. --proto_path=.
+
+.PHONY: proto-restore
+proto-restore:
+	protoc proto/restore/*.proto --go_out=paths=source_relative:. --proto_path=.
 
 .PHONY: proto-runtime
 proto-runtime:

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package restore;
+
+option go_package = "github.com/w-h-a/pkg/proto/restore";
+
+// restore request/response
+message RestoreRequest {
+    string store = 1;
+    repeated string nodes = 2;
+    string database = 3;
+    string table = 4;
+    string source = 5;
+}
+
+message RestoreResponse {}

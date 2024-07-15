@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package snapshot;
+
+option go_package = "github.com/w-h-a/pkg/proto/snapshot";
+
+// snapshot request/response
+message SnapshotRequest {
+    string store = 1;
+    repeated string nodes = 2;
+    string database = 3;
+    string table = 4;
+    string destination = 5;
+}
+
+message SnapshotResponse {}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "github.com/w-h-a/pkg/proto/payment";
+
+// domain
+message Payment {
+    string paymentId = 2;
+    string orderId = 1;
+}
+
+// create request/response
+message CreateRequest {
+    string orderId = 1;
+    string token = 2;
+}
+
+message CreateResponse {}

@@ -58,6 +58,10 @@ proto-ticket:
 proto-order:
 	protoc proto/order/*.proto --go_out=paths=source_relative:. --proto_path=.
 
+.PHONY: proto-payment
+proto-payment:
+	protoc proto/payment/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-greeter
 proto-greeter:
 	protoc examples/greeter/proto/*.proto --go_out=paths=source_relative:. --proto_path=.

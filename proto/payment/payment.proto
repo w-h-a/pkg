@@ -6,8 +6,9 @@ option go_package = "github.com/w-h-a/pkg/proto/payment";
 
 // domain
 message Payment {
-    string paymentId = 2;
-    string orderId = 1;
+    string payment = 1;
+    string order = 2;
+    string userId = 3;
 }
 
 // create request/response

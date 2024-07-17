@@ -13,7 +13,7 @@ message Payment {
 
 // create request/response
 message CreateRequest {
-    string orderId = 1;
+    string orderKey = 1;
     string token = 2;
 }
 

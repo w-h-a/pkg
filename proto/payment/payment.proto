@@ -13,8 +13,17 @@ message Payment {
 
 // create request/response
 message CreateRequest {
-    string orderKey = 1;
-    string token = 2;
+    string paymentToken = 1;
+    string orderKey = 2;
 }
 
 message CreateResponse {}
+
+// read request/response
+message ReadRequest {
+    string suffix = 1;
+}
+
+message ReadResponse {
+    repeated Payment payments = 1;
+}

@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+
+package search;
+
+option go_package = "github.com/w-h-a/pkg/proto/search";
+
+// domain
+message Record {
+    string id = 1;
+    google.protobuf.Struct data = 2;
+}
+
+// create index request/response
+message CreateIndexRequest {
+    string index = 1;
+}
+
+message CreateIndexResponse {}
+
+// delete index request/response
+message DeleteIndexRequest {
+    string index = 1;
+}
+
+message DeleteIndexResponse {}
+
+// index request/response
+message IndexRequest {
+    string index = 1;
+    string id = 2;
+    google.protobuf.Struct data = 3;
+}
+
+message IndexResponse {}
+
+// search request/response
+message SearchRequest {
+    string index = 1;
+    string query = 2;
+}
+
+message SearchResponse {
+    repeated Record records = 1;
+}
+
+// delete request/response
+message DeleteRequest {
+    string index = 1;
+    string id = 2;
+}
+
+message DeleteResponse {}

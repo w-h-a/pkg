@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package news;
+
+option go_package = "github.com/w-h-a/pkg/proto/news";
+
+// domain
+message Article {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string keywords = 4;
+    string snippet = 5;
+    string url = 6;
+    string image_url = 7;
+    string published_at = 8;
+    string source = 9;
+    repeated string categories = 10;
+    string language = 11;
+    string locale = 12;
+}
+
+// headlines request/response
+message HeadlinesRequest {
+    string language = 1;
+    string locale = 2;
+    string date = 3;
+}
+
+message HeadlinesResponse {
+    repeated Article articles = 1;
+}
+
+// top stories request/response
+message TopStoriesRequest {
+    string language = 1;
+    string locale = 2;
+    string date = 3;
+}
+
+message TopStoriesResponse {
+    repeated Article articles = 1;
+}

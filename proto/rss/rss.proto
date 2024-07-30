@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package rss;
+
+option go_package = "github.com/w-h-a/pkg/proto/rss";
+
+// domain
+message Feed {
+    string id = 1;
+    string name = 2;
+    string url = 3;
+    string category = 4;
+}
+
+message Entry {
+    string id = 1;
+    string feed = 2;
+    string link = 3;
+    string title = 4;
+    string summary = 5;
+    string content = 6;
+    string date = 7;
+}
+
+// add request/response
+message AddRequest {
+    string name = 1;
+    string url = 2;
+    string category = 3;
+}
+
+message AddResponse {}
+
+// list request/response
+message ListRequest {}
+
+message ListResponse {
+    repeated Feed feeds = 1;
+}
+
+// remove request/response
+message RemoveRequest {
+    string name = 1;
+}
+
+message RemoveResponse {}
+
+// feed request/response
+message FeedRequest {
+    string name = 1;
+    int64 limit = 2;
+    int64 offset = 3;
+}
+
+message FeedResponse {
+    repeated Entry entries = 1;
+}

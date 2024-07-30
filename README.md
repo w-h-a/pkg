@@ -10,5 +10,5 @@
 | security  | jwts, nacl, TBD | tokens, secrets, and certs |
 | server    | grpc            | build backend servers      |
 | store     | cockroach       | data persistence           |
-| streams   | TBD             | asynchronous communication |
+| streams   | custom          | asynchronous communication |
 | telemetry | memory          | logs, metrics, and traces  |

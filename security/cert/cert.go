@@ -4,6 +4,6 @@ import "net"
 
 type CertProvider interface {
 	Options() CertOptions
-	Listener(domains ...string) (net.Listener, error)
+	Listener(hosts ...string) (net.Listener, error)
 	String() string
 }

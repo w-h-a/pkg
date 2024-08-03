@@ -53,8 +53,17 @@ func (a *httpApi) String() string {
 }
 
 func (a *httpApi) start() error {
-	// TODO: tls
-	listener, err := net.Listen("tcp", a.options.Address)
+	var listener net.Listener
+
+	var err error
+
+	if a.options.EnableTLS && a.options.CertProvider != nil {
+		// should we check the address to make sure it's :443?
+		listener, err = a.options.CertProvider.Listener(a.options.Hosts...)
+	} else {
+		listener, err = net.Listen("tcp", a.options.Address)
+	}
+
 	if err != nil {
 		return err
 	}

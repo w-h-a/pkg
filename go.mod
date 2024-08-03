@@ -9,6 +9,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/crypto v0.21.0
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.33.0
 )

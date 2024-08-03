@@ -1,6 +1,10 @@
 package api
 
-import "context"
+import (
+	"context"
+
+	"github.com/w-h-a/pkg/security/cert"
+)
 
 type ApiOption func(o *ApiOptions)
 
@@ -9,6 +13,9 @@ type ApiOptions struct {
 	Name            string
 	Version         string
 	Address         string
+	EnableTLS       bool
+	CertProvider    cert.CertProvider
+	Hosts           []string
 	HandlerWrappers []HandlerWrapper
 	Context         context.Context
 }
@@ -34,6 +41,24 @@ func ApiWithVersion(v string) ApiOption {
 func ApiWithAddress(addr string) ApiOption {
 	return func(o *ApiOptions) {
 		o.Address = addr
+	}
+}
+
+func ApiWithTLS() ApiOption {
+	return func(o *ApiOptions) {
+		o.EnableTLS = true
+	}
+}
+
+func ApiWithCertProvider(p cert.CertProvider) ApiOption {
+	return func(o *ApiOptions) {
+		o.CertProvider = p
+	}
+}
+
+func ApiWithHosts(hs ...string) ApiOption {
+	return func(o *ApiOptions) {
+		o.Hosts = hs
 	}
 }
 

@@ -118,7 +118,7 @@ func WithLevel(l Level, v ...interface{}) {
 	if l > level {
 		return
 	}
-	log(v...)
+	log(l, v...)
 }
 
 // WithLevel logs with the level specified
@@ -126,10 +126,10 @@ func WithLevelf(l Level, format string, v ...interface{}) {
 	if l > level {
 		return
 	}
-	logf(format, v...)
+	logf(l, format, v...)
 }
 
-func log(v ...interface{}) {
+func log(l Level, v ...interface{}) {
 	if len(prefix) > 0 {
 		v = append([]interface{}{prefix, " "}, v...)
 	}
@@ -138,12 +138,12 @@ func log(v ...interface{}) {
 		Record{
 			Timestamp: time.Now(),
 			Message:   fmt.Sprint(v...),
-			Metadata:  map[string]string{"level": level.String()},
+			Metadata:  map[string]string{"level": l.String()},
 		},
 	)
 }
 
-func logf(format string, v ...interface{}) {
+func logf(l Level, format string, v ...interface{}) {
 	if len(prefix) > 0 {
 		format = prefix + " " + format
 	}
@@ -152,7 +152,7 @@ func logf(format string, v ...interface{}) {
 		Record{
 			Timestamp: time.Now(),
 			Message:   fmt.Sprintf(format, v...),
-			Metadata:  map[string]string{"level": level.String()},
+			Metadata:  map[string]string{"level": l.String()},
 		},
 	)
 }

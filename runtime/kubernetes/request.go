@@ -92,10 +92,10 @@ func (r *request) request() (*http.Request, error) {
 	return req, nil
 }
 
-func newRequest(options *runtime.RuntimeOptions) *request {
+func newRequest(namespace string, options *runtime.RuntimeOptions) *request {
 	req := &request{
 		host:      options.Host,
-		namespace: options.Namespace,
+		namespace: namespace,
 		client:    options.Client,
 		header:    make(http.Header),
 		params:    make(url.Values),

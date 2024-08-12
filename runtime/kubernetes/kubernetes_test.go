@@ -14,29 +14,29 @@ type testcase struct {
 	Method        string
 	URL           string
 	Header        map[string]string
-	NewReqWrapper func(options *runtime.RuntimeOptions) *request
+	NewReqWrapper func(namespace string, options *runtime.RuntimeOptions) *request
 }
 
 var tests = []testcase{
 	{
-		NewReqWrapper: func(options *runtime.RuntimeOptions) *request {
-			return newRequest(options).get().setResource("service")
+		NewReqWrapper: func(namespace string, options *runtime.RuntimeOptions) *request {
+			return newRequest(namespace, options).get().setResource("service")
 		},
 		Token:  "my fake token",
 		Method: "GET",
 		URL:    "/api/v1/namespaces/default/services/",
 	},
 	{
-		NewReqWrapper: func(options *runtime.RuntimeOptions) *request {
-			return newRequest(options).get().setResource("pod").setParams(&params{labelSelector: map[string]string{"foo": "bar"}})
+		NewReqWrapper: func(namespace string, options *runtime.RuntimeOptions) *request {
+			return newRequest(namespace, options).get().setResource("pod").setParams(&params{labelSelector: map[string]string{"foo": "bar"}})
 		},
 		Token:  "my fake token",
 		Method: "GET",
 		URL:    "/api/v1/namespaces/default/pods/?labelSelector=foo%3Dbar",
 	},
 	{
-		NewReqWrapper: func(options *runtime.RuntimeOptions) *request {
-			return newRequest(options).get().setResource("deployment").setParams(&params{labelSelector: map[string]string{"foo": "bar"}})
+		NewReqWrapper: func(namespace string, options *runtime.RuntimeOptions) *request {
+			return newRequest(namespace, options).get().setResource("deployment").setParams(&params{labelSelector: map[string]string{"foo": "bar"}})
 		},
 		Token:  "my fake token",
 		Method: "GET",
@@ -57,9 +57,8 @@ var wrappedHandler = func(test *testcase, t *testing.T) http.HandlerFunc {
 func TestKubernetes(t *testing.T) {
 	for _, test := range tests {
 		ts := httptest.NewServer(wrappedHandler(&test, t))
-		req := test.NewReqWrapper(&runtime.RuntimeOptions{
+		req := test.NewReqWrapper("default", &runtime.RuntimeOptions{
 			Host:        ts.URL,
-			Namespace:   "default",
 			BearerToken: test.Token,
 			Client:      &http.Client{},
 		})

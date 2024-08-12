@@ -15,13 +15,13 @@ message Service {
 
 // get request/response
 message GetRequest {
-    GetOptions options = 1;
+    string namespace = 1;
+    GetOptions options = 2;
 }
 
 message GetOptions {
-    string namespace = 1;
-    string service = 2;
-    string version =3;
+    string service = 1;
+    string version = 2;
 }
 
 message GetResponse {

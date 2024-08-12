@@ -1,9 +1,10 @@
 package kubernetes
 
 type Resource struct {
-	Name  string
-	Kind  string
-	Value interface{}
+	Namespace string
+	Name      string
+	Kind      string
+	Value     interface{}
 }
 
 type ServiceList struct {

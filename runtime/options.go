@@ -9,7 +9,6 @@ type RuntimeOption func(o *RuntimeOptions)
 
 type RuntimeOptions struct {
 	Host        string
-	Namespace   string
 	BearerToken string
 	Client      *http.Client
 	Context     context.Context
@@ -18,12 +17,6 @@ type RuntimeOptions struct {
 func RuntimeWithHost(h string) RuntimeOption {
 	return func(o *RuntimeOptions) {
 		o.Host = h
-	}
-}
-
-func RuntimeWithNamespace(n string) RuntimeOption {
-	return func(o *RuntimeOptions) {
-		o.Namespace = n
 	}
 }
 
@@ -54,15 +47,8 @@ func NewRuntimeOptions(opts ...RuntimeOption) RuntimeOptions {
 type GetServicesOption func(o *GetServicesOptions)
 
 type GetServicesOptions struct {
-	Namespace string
-	Name      string
-	Version   string
-}
-
-func GetServicesWithNamespace(n string) GetServicesOption {
-	return func(o *GetServicesOptions) {
-		o.Namespace = n
-	}
+	Name    string
+	Version string
 }
 
 func GetServicesWithName(n string) GetServicesOption {

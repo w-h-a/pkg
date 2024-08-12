@@ -32,14 +32,12 @@ func (k *kubernetesRuntime) Options() runtime.RuntimeOptions {
 	return k.options
 }
 
-func (k *kubernetesRuntime) GetServices(opts ...runtime.GetServicesOption) ([]*runtime.Service, error) {
+func (k *kubernetesRuntime) GetServices(namespace string, opts ...runtime.GetServicesOption) ([]*runtime.Service, error) {
 	options := runtime.NewGetOptions(opts...)
 
 	labels := map[string]string{}
 
-	if len(options.Namespace) > 0 {
-		labels["namespace"] = options.Namespace
-	}
+	labels["namespace"] = namespace
 
 	if len(options.Name) > 0 {
 		labels["name"] = options.Name
@@ -52,8 +50,9 @@ func (k *kubernetesRuntime) GetServices(opts ...runtime.GetServicesOption) ([]*r
 	serviceList := &ServiceList{}
 
 	serviceResource := &Resource{
-		Kind:  "service",
-		Value: serviceList,
+		Namespace: namespace,
+		Kind:      "service",
+		Value:     serviceList,
 	}
 
 	if err := k.get(serviceResource, labels); err != nil {
@@ -97,7 +96,7 @@ func (k *kubernetesRuntime) String() string {
 }
 
 func (k *kubernetesRuntime) get(resource *Resource, labels map[string]string) error {
-	return newRequest(&k.options).
+	return newRequest(resource.Namespace, &k.options).
 		get().
 		setResource(resource.Kind).
 		setParams(&params{labelSelector: labels}).
@@ -119,14 +118,6 @@ func NewRuntime(opts ...runtime.RuntimeOption) runtime.Runtime {
 
 	if fileInfo == nil || !fileInfo.IsDir() {
 		log.Fatal(ErrReadServiceAccount)
-	}
-
-	if len(options.Namespace) == 0 {
-		ns, err := DetectNamespace()
-		if err != nil {
-			log.Fatal(err)
-		}
-		options.Namespace = ns
 	}
 
 	if options.BearerToken == "" {

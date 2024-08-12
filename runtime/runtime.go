@@ -2,6 +2,6 @@ package runtime
 
 type Runtime interface {
 	Options() RuntimeOptions
-	GetServices(opts ...GetServicesOption) ([]*Service, error)
+	GetServices(namespace string, opts ...GetServicesOption) ([]*Service, error)
 	String() string
 }

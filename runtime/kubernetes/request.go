@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/w-h-a/pkg/runtime"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type request struct {
@@ -79,6 +80,8 @@ func (r *request) request() (*http.Request, error) {
 	if len(r.params) > 0 {
 		url += "?" + r.params.Encode()
 	}
+
+	log.Infof("HERE IS MY URL: %+v", url)
 
 	// build request
 	req, err := http.NewRequest(r.method, url, r.body)

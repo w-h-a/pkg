@@ -42,10 +42,16 @@ func (r *request) setResource(n string) *request {
 func (r *request) setParams(p *params) *request {
 	for k, v := range p.labelSelector {
 		// create new key=value
-		pair := fmt.Sprintf("%s=%s", k, v)
+		value := fmt.Sprintf("%s=%s", k, v)
+
+		// check if there is already a value
+		label := r.params.Get("labelSelector")
+		if len(label) > 0 {
+			value = fmt.Sprintf("%s,%s", label, value)
+		}
 
 		// set it
-		r.params.Set("labelSelector", pair)
+		r.params.Set("labelSelector", value)
 	}
 
 	return r

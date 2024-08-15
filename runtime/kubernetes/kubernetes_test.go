@@ -24,7 +24,7 @@ var tests = []testcase{
 		},
 		Token:  "my fake token",
 		Method: "GET",
-		URL:    "/api/v1/namespaces/default/services/",
+		URL:    "/api/v1/namespaces/another/services/",
 	},
 	{
 		NewReqWrapper: func(namespace string, options *runtime.RuntimeOptions) *request {
@@ -40,7 +40,7 @@ var tests = []testcase{
 		},
 		Token:  "my fake token",
 		Method: "GET",
-		URL:    "/apis/apps/v1/namespaces/default/deployments/?labelSelector=foo%3Dbar",
+		URL:    "/apis/apps/v1/namespaces/another/deployments/?labelSelector=foo%3Dbar",
 	},
 }
 
@@ -55,9 +55,13 @@ var wrappedHandler = func(test *testcase, t *testing.T) http.HandlerFunc {
 }
 
 func TestKubernetes(t *testing.T) {
-	for _, test := range tests {
+	for i, test := range tests {
 		ts := httptest.NewServer(wrappedHandler(&test, t))
-		req := test.NewReqWrapper("default", &runtime.RuntimeOptions{
+		namespace := "default"
+		if i%2 == 0 {
+			namespace = "another"
+		}
+		req := test.NewReqWrapper(namespace, &runtime.RuntimeOptions{
 			Host:        ts.URL,
 			BearerToken: test.Token,
 			Client:      &http.Client{},

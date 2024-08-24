@@ -63,7 +63,7 @@ func GetServicesWithVersion(v string) GetServicesOption {
 	}
 }
 
-func NewGetOptions(opts ...GetServicesOption) GetServicesOptions {
+func NewGetServicesOptions(opts ...GetServicesOption) GetServicesOptions {
 	options := GetServicesOptions{}
 
 	for _, fn := range opts {

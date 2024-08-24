@@ -11,7 +11,6 @@ import (
 type SidecarOption func(o *SidecarOptions)
 
 type SidecarOptions struct {
-	Id          string
 	ServiceName string
 	HttpPort    Port
 	RpcPort     Port
@@ -26,12 +25,6 @@ type SidecarOptions struct {
 type Port struct {
 	Port     string
 	Protocol string
-}
-
-func SidecarWithId(id string) SidecarOption {
-	return func(o *SidecarOptions) {
-		o.Id = id
-	}
 }
 
 func SidecarWithServiceName(n string) SidecarOption {
@@ -84,7 +77,6 @@ func SidecarWithBrokers(b map[string]broker.Broker) SidecarOption {
 
 func NewSidecarOptions(opts ...SidecarOption) SidecarOptions {
 	options := SidecarOptions{
-		Id:      defaultID,
 		Stores:  map[string]store.Store{},
 		Brokers: map[string]broker.Broker{},
 		Context: context.Background(),

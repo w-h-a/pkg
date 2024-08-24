@@ -1,12 +1,7 @@
 package sidecar
 
 import (
-	"github.com/google/uuid"
 	"github.com/w-h-a/pkg/store"
-)
-
-var (
-	defaultID = uuid.New().String()
 )
 
 type Sidecar interface {

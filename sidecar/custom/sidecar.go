@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -48,11 +49,7 @@ func (s *customSidecar) SaveStateToStore(storeId string, state []*store.Record) 
 	}
 
 	for _, record := range state {
-		key := fmt.Sprintf("%s:%s", s.options.Id, record.Key)
-		if err := st.Write(&store.Record{
-			Key:   key,
-			Value: record.Value,
-		}); err != nil {
+		if err := st.Write(record); err != nil {
 			return err
 		}
 	}
@@ -66,9 +63,7 @@ func (s *customSidecar) RetrieveStateFromStore(storeId, key string) ([]*store.Re
 		return nil, nil
 	}
 
-	prefix := fmt.Sprintf("%s:%s", s.options.Id, key)
-
-	recs, err := st.Read(prefix, store.ReadWithPrefix())
+	recs, err := st.Read(key, store.ReadWithPrefix())
 	if err != nil {
 		return nil, err
 	}
@@ -185,11 +180,31 @@ func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) e
 }
 
 func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
-	url := fmt.Sprintf("http://%s:%s", s.options.ServiceName, s.options.ServicePort)
+	var rsp *sidecar.Event
+	var err error
 
-	rsp, err := s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
-	if err != nil {
-		return err
+	if s.options.ServicePort.Protocol == "rpc" {
+		// TODO: refactor
+		url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort)
+
+		serviceTitle := strings.Title(s.options.ServiceName)
+
+		eventTitle := strings.Title(event.EventName)
+
+		// TODO: not a great assumption
+		method := fmt.Sprintf("%s.%s", serviceTitle, eventTitle)
+
+		rsp, err = s.sendEventViaRpc(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, method, url, event)
+		if err != nil {
+			return err
+		}
+	} else {
+		url := fmt.Sprintf("http://%s:%s", s.options.ServiceName, s.options.ServicePort)
+
+		rsp, err = s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
+		if err != nil {
+			return err
+		}
 	}
 
 	if rsp != nil {
@@ -215,6 +230,26 @@ func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUr
 	rsp := &sidecar.Event{}
 
 	if err := s.options.HttpClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
+		return nil, err
+	}
+
+	return rsp, nil
+}
+
+func (s *customSidecar) sendEventViaRpc(namespace, name, port, method, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
+	p, _ := strconv.Atoi(port)
+
+	req := s.options.RpcClient.NewRequest(
+		client.RequestWithNamespace(namespace),
+		client.RequestWithName(name),
+		client.RequestWithPort(p),
+		client.RequestWithMethod(method),
+		client.RequestWithUnmarshaledRequest(event),
+	)
+
+	rsp := &sidecar.Event{}
+
+	if err := s.options.RpcClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
 		return nil, err
 	}
 

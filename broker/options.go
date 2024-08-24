@@ -6,8 +6,6 @@ type BrokerOption func(o *BrokerOptions)
 
 type BrokerOptions struct {
 	Nodes            []string
-	Topic            string
-	Group            string
 	PublishOptions   PublishOptions
 	SubscribeOptions SubscribeOptions
 	Context          context.Context
@@ -16,18 +14,6 @@ type BrokerOptions struct {
 func BrokerWithNodes(addrs ...string) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.Nodes = addrs
-	}
-}
-
-func BrokerWithTopic(topic string) BrokerOption {
-	return func(o *BrokerOptions) {
-		o.Topic = topic
-	}
-}
-
-func BrokerWithGroup(group string) BrokerOption {
-	return func(o *BrokerOptions) {
-		o.Group = group
 	}
 }
 
@@ -64,11 +50,13 @@ func NewBrokerOptions(opts ...BrokerOption) BrokerOptions {
 type PublishOption func(o *PublishOptions)
 
 type PublishOptions struct {
+	Topic   string
 	Context context.Context
 }
 
 type SubscribeOption func(o *SubscribeOptions)
 
 type SubscribeOptions struct {
+	Group   string
 	Context context.Context
 }

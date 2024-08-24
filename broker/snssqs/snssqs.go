@@ -8,6 +8,7 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/google/uuid"
 	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
@@ -33,18 +34,34 @@ func (b *snssqs) Publish(data interface{}, options broker.PublishOptions) error 
 		return err
 	}
 
-	if err := b.snsClient.ProduceToTopic(bs, b.options.Topic); err != nil {
+	if err := b.snsClient.ProduceToTopic(bs, options.Topic); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *snssqs) Subscribe(callback func([]byte) error, options broker.SubscribeOptions) {
-	for {
-		b.sqsClient.ConsumeFromGroup(callback, b.options.Group, options)
-		time.Sleep(time.Second)
+func (b *snssqs) Subscribe(callback func([]byte) error, options broker.SubscribeOptions) broker.Subscriber {
+	sub := &subscriber{
+		options: options,
+		id:      uuid.New().String(),
+		handler: callback,
+		exit:    make(chan struct{}),
 	}
+
+	go func() {
+		for {
+			select {
+			case <-sub.exit:
+				return
+			default:
+				b.sqsClient.ConsumeFromGroup(sub)
+				time.Sleep(time.Second)
+			}
+		}
+	}()
+
+	return sub
 }
 
 func (b *snssqs) String() string {

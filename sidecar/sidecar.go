@@ -15,5 +15,6 @@ type Sidecar interface {
 	SaveStateToStore(store string, state []*store.Record) error
 	RetrieveStateFromStore(store, key string) ([]*store.Record, error)
 	ReadEventsFromBroker(broker, eventName string)
+	UnsubscribeFromBroker(broker string) error
 	String() string
 }

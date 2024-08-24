@@ -32,7 +32,7 @@ func (c *snsClient) ProduceToTopic(bs []byte, topic string) error {
 }
 
 type SqsClient interface {
-	ConsumeFromGroup(callback func([]byte) error, group string, options broker.SubscribeOptions)
+	ConsumeFromGroup(sub broker.Subscriber)
 }
 
 type sqsClient struct {
@@ -41,16 +41,16 @@ type sqsClient struct {
 	waitTimeSeconds   int32
 }
 
-func (c *sqsClient) ConsumeFromGroup(callback func([]byte) error, group string, options broker.SubscribeOptions) {
+func (c *sqsClient) ConsumeFromGroup(sub broker.Subscriber) {
 	result, err := c.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
-		QueueUrl:              aws.String(group),
+		QueueUrl:              aws.String(sub.Options().Group),
 		MaxNumberOfMessages:   1,
 		VisibilityTimeout:     c.visibilityTimeout,
 		WaitTimeSeconds:       c.waitTimeSeconds,
 		MessageAttributeNames: []string{"All"},
 	})
 	if err != nil {
-		log.Errorf("failed to receive sqs message from group %s: %s", group, err.Error())
+		log.Errorf("failed to receive sqs message from group %s: %s", sub.Options().Group, err.Error())
 		return
 	}
 
@@ -60,12 +60,12 @@ func (c *sqsClient) ConsumeFromGroup(callback func([]byte) error, group string, 
 
 	for _, msg := range result.Messages {
 		body := msg.Body
-		if err := callback([]byte(*body)); err != nil {
-			log.Errorf("failed to handle message from group %s: %s", group, err)
+		if err := sub.Handler([]byte(*body)); err != nil {
+			log.Errorf("failed to handle message from group %s: %s", sub.Options().Group, err)
 		} else {
 			msgHandle := msg.ReceiptHandle
 			c.DeleteMessage(context.Background(), &sqs.DeleteMessageInput{
-				QueueUrl:      aws.String(group),
+				QueueUrl:      aws.String(sub.Options().Group),
 				ReceiptHandle: msgHandle,
 			})
 		}

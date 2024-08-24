@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
@@ -14,7 +16,9 @@ import (
 )
 
 type customSidecar struct {
-	options sidecar.SidecarOptions
+	options     sidecar.SidecarOptions
+	subscribers map[string]broker.Subscriber
+	mtx         sync.RWMutex
 }
 
 func (s *customSidecar) Options() sidecar.SidecarOptions {
@@ -79,22 +83,59 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId, eventName string) {
 		return
 	}
 
-	go func() {
-		bk.Subscribe(func(b []byte) error {
-			var body interface{}
-			if err := json.Unmarshal(b, &body); err != nil {
-				return err
-			}
+	s.mtx.RLock()
 
-			event := &sidecar.Event{
-				Data:      body,
-				EventName: eventName,
-				CreatedAt: time.Now(),
-			}
+	_, ok = s.subscribers[brokerId]
+	if ok {
+		log.Warnf("a subscriber for broker %s was already found", brokerId)
+		s.mtx.RUnlock()
+		return
+	}
 
-			return s.postEventToApp(event)
-		}, bk.Options().SubscribeOptions)
-	}()
+	s.mtx.RUnlock()
+
+	sub := bk.Subscribe(func(b []byte) error {
+		var body interface{}
+		if err := json.Unmarshal(b, &body); err != nil {
+			return err
+		}
+
+		event := &sidecar.Event{
+			Data:      body,
+			EventName: eventName,
+			CreatedAt: time.Now(),
+		}
+
+		return s.postEventToApp(event)
+	}, bk.Options().SubscribeOptions)
+
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	s.subscribers[brokerId] = sub
+}
+
+func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
+	s.mtx.RLock()
+
+	sub, ok := s.subscribers[brokerId]
+	if !ok {
+		s.mtx.RUnlock()
+		return nil
+	}
+
+	s.mtx.RUnlock()
+
+	if err := sub.Unsubscribe(); err != nil {
+		return err
+	}
+
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
+	delete(s.subscribers, brokerId)
+
+	return nil
 }
 
 func (s *customSidecar) String() string {
@@ -184,7 +225,9 @@ func NewSidecar(opts ...sidecar.SidecarOption) sidecar.Sidecar {
 	options := sidecar.NewSidecarOptions(opts...)
 
 	s := &customSidecar{
-		options: options,
+		options:     options,
+		subscribers: map[string]broker.Subscriber{},
+		mtx:         sync.RWMutex{},
 	}
 
 	return s

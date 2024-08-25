@@ -29,11 +29,9 @@ func BrokerWithSubscribeOptions(options SubscribeOptions) BrokerOption {
 	}
 }
 
-func NewBrokerOptions(publishOpts []PublishOption, subscribeOpts []SubscribeOption, opts []BrokerOption) BrokerOptions {
+func NewBrokerOptions(opts ...BrokerOption) BrokerOptions {
 	options := BrokerOptions{
-		PublishOptions:   NewPublishOptions(publishOpts...),
-		SubscribeOptions: NewSubscribeOptions(subscribeOpts...),
-		Context:          context.Background(),
+		Context: context.Background(),
 	}
 
 	for _, fn := range opts {

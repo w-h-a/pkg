@@ -105,8 +105,8 @@ func (b *snssqs) configure() error {
 	return nil
 }
 
-func NewBroker(publishOpts []broker.PublishOption, subscribeOpts []broker.SubscribeOption, opts []broker.BrokerOption) broker.Broker {
-	options := broker.NewBrokerOptions(publishOpts, subscribeOpts, opts)
+func NewBroker(opts ...broker.BrokerOption) broker.Broker {
+	options := broker.NewBrokerOptions(opts...)
 
 	b := &snssqs{
 		options: options,

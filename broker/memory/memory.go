@@ -81,8 +81,8 @@ func (b *memory) String() string {
 	return "memory"
 }
 
-func NewBroker(opts ...broker.BrokerOption) broker.Broker {
-	options := broker.NewBrokerOptions(opts...)
+func NewBroker(publishOpts []broker.PublishOption, subscribeOpts []broker.SubscribeOption, opts []broker.BrokerOption) broker.Broker {
+	options := broker.NewBrokerOptions(publishOpts, subscribeOpts, opts)
 
 	b := &memory{
 		options:     options,

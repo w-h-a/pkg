@@ -29,15 +29,11 @@ func BrokerWithSubscribeOptions(options SubscribeOptions) BrokerOption {
 	}
 }
 
-func NewBrokerOptions(opts ...BrokerOption) BrokerOptions {
+func NewBrokerOptions(publishOpts []PublishOption, subscribeOpts []SubscribeOption, opts []BrokerOption) BrokerOptions {
 	options := BrokerOptions{
-		PublishOptions: PublishOptions{
-			Context: context.Background(),
-		},
-		SubscribeOptions: SubscribeOptions{
-			Context: context.Background(),
-		},
-		Context: context.Background(),
+		PublishOptions:   NewPublishOptions(publishOpts...),
+		SubscribeOptions: NewSubscribeOptions(subscribeOpts...),
+		Context:          context.Background(),
 	}
 
 	for _, fn := range opts {
@@ -54,9 +50,33 @@ type PublishOptions struct {
 	Context context.Context
 }
 
+func NewPublishOptions(opts ...PublishOption) PublishOptions {
+	options := PublishOptions{
+		Context: context.Background(),
+	}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
+}
+
 type SubscribeOption func(o *SubscribeOptions)
 
 type SubscribeOptions struct {
 	Group   string
 	Context context.Context
+}
+
+func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
+	options := SubscribeOptions{
+		Context: context.Background(),
+	}
+
+	for _, fn := range opts {
+		fn(&options)
+	}
+
+	return options
 }

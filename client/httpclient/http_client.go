@@ -240,7 +240,7 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 
 	log.Infof("RSP BEFORE %+v", rsp)
 
-	if err := marshaler.Unmarshal(bs, rsp); err != nil {
+	if err := marshaler.Unmarshal(bs, &rsp); err != nil {
 		return errorutils.InternalServerError("client", err.Error())
 	}
 

@@ -237,7 +237,7 @@ func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUr
 		return nil, err
 	}
 
-	log.Infof("RESPONSE FROM APP %+v", rsp)
+	log.Infof("RESPONSE FROM APP %+v", rsp.State)
 
 	return rsp, nil
 }

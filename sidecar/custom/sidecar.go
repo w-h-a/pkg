@@ -43,6 +43,12 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 		return nil
 	}
 
+	log.Infof("RECEIVED STATE %+v", state)
+
+	log.Infof("ID", state.StoreId)
+
+	log.Infof("RECORDS %+v", state.Records)
+
 	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
 		return nil

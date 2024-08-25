@@ -148,7 +148,7 @@ func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 		if err := s.sendEventToTarget(target, event); err != nil {
 			return err
 		}
-		log.Infof("successfully send event %s to target %s", event.EventName, target)
+		log.Infof("successfully sent event %s to target %s", event.EventName, target)
 	}
 
 	return nil
@@ -199,6 +199,7 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 			return err
 		}
 	} else {
+		log.Infof("WE SUCCESSFULLY GET HERE")
 		rsp, err = s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
 		if err != nil {
 			return err

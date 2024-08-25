@@ -8,7 +8,7 @@ import "google/protobuf/any.proto";
 
 // sidecar save state request/response
 message SaveStateRequest {
-    string store = 1;
+    string storeId = 1;
     repeated KeyVal records = 2;
 }
 
@@ -16,7 +16,7 @@ message SaveStateResponse {}
 
 // sidecar get state request/response
 message GetStateRequest {
-    string store = 1;
+    string storeId = 1;
     string key = 2;
 }
 

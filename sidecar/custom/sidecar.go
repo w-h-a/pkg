@@ -163,7 +163,7 @@ func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) e
 	} else {
 		name := fmt.Sprintf("%s-action", target)
 
-		url := fmt.Sprintf("http://%s:%s", name, s.options.HttpPort.Port)
+		url := fmt.Sprintf("%s:%s", name, s.options.HttpPort.Port)
 
 		newEvent := &sidecar.Event{
 			EventName: event.EventName,
@@ -183,10 +183,10 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 	var rsp *sidecar.Event
 	var err error
 
+	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort)
+
 	if s.options.ServicePort.Protocol == "rpc" {
 		// TODO: refactor
-		url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort)
-
 		serviceTitle := strings.Title(s.options.ServiceName)
 
 		eventTitle := strings.Title(event.EventName)
@@ -199,8 +199,6 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 			return err
 		}
 	} else {
-		url := fmt.Sprintf("http://%s:%s", s.options.ServiceName, s.options.ServicePort)
-
 		rsp, err = s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
 		if err != nil {
 			return err

@@ -38,17 +38,17 @@ func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
 	return err
 }
 
-func (s *customSidecar) SaveStateToStore(storeId string, state []*store.Record) error {
-	if len(state) == 0 {
+func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
+	if len(state.Records) == 0 {
 		return nil
 	}
 
-	st, ok := s.options.Stores[storeId]
+	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
 		return nil
 	}
 
-	for _, record := range state {
+	for _, record := range state.Records {
 		if err := st.Write(record); err != nil {
 			return err
 		}
@@ -139,7 +139,7 @@ func (s *customSidecar) String() string {
 
 func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 	if event.State != nil && len(event.State.Records) > 0 {
-		if err := s.SaveStateToStore(event.State.StoreId, event.State.Records); err != nil {
+		if err := s.SaveStateToStore(event.State); err != nil {
 			return err
 		}
 	}

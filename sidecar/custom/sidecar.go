@@ -71,7 +71,7 @@ func (s *customSidecar) RetrieveStateFromStore(storeId, key string) ([]*store.Re
 	return recs, nil
 }
 
-func (s *customSidecar) ReadEventsFromBroker(brokerId, eventName string) {
+func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 	bk, ok := s.options.Brokers[brokerId]
 	if !ok {
 		log.Warnf("broker %s was not found", brokerId)
@@ -97,7 +97,7 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId, eventName string) {
 
 		event := &sidecar.Event{
 			Data:      body,
-			EventName: eventName,
+			EventName: brokerId,
 			CreatedAt: time.Now(),
 		}
 

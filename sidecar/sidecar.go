@@ -9,7 +9,7 @@ type Sidecar interface {
 	OnEventPublished(event *Event) error
 	SaveStateToStore(store string, state []*store.Record) error
 	RetrieveStateFromStore(store, key string) ([]*store.Record, error)
-	ReadEventsFromBroker(broker, eventName string)
+	ReadEventsFromBroker(broker string)
 	UnsubscribeFromBroker(broker string) error
 	String() string
 }

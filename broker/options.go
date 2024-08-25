@@ -50,6 +50,12 @@ type PublishOptions struct {
 	Context context.Context
 }
 
+func PublishWithTopic(topic string) PublishOption {
+	return func(o *PublishOptions) {
+		o.Topic = topic
+	}
+}
+
 func NewPublishOptions(opts ...PublishOption) PublishOptions {
 	options := PublishOptions{
 		Context: context.Background(),
@@ -67,6 +73,12 @@ type SubscribeOption func(o *SubscribeOptions)
 type SubscribeOptions struct {
 	Group   string
 	Context context.Context
+}
+
+func SubscribeWithGroup(group string) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.Group = group
+	}
 }
 
 func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {

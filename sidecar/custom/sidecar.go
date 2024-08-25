@@ -55,7 +55,7 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 	}
 
 	for _, record := range state.Records {
-		if err := st.Write(record); err != nil {
+		if err := st.Write(&record); err != nil {
 			return err
 		}
 	}
@@ -144,8 +144,8 @@ func (s *customSidecar) String() string {
 }
 
 func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
-	if event.State != nil && len(event.State.Records) > 0 {
-		if err := s.SaveStateToStore(event.State); err != nil {
+	if len(event.State.Records) > 0 {
+		if err := s.SaveStateToStore(&event.State); err != nil {
 			return err
 		}
 	}

@@ -234,6 +234,7 @@ func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUr
 	rsp := &sidecar.Event{}
 
 	if err := s.options.HttpClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
+		log.Errorf("RECEIVED ERR %+v", err)
 		return nil, err
 	}
 

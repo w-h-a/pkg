@@ -183,7 +183,7 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 	var rsp *sidecar.Event
 	var err error
 
-	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort)
+	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
 
 	if s.options.ServicePort.Protocol == "rpc" {
 		// TODO: refactor
@@ -216,8 +216,6 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 
 func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
 	p, _ := strconv.Atoi(port)
-
-	log.Infof("NAMESPACE %s NAME %s PORT %s ENDPOINT %s URL %s EVENT %+v", namespace, name, port, endpoint, baseUrl, event)
 
 	req := s.options.HttpClient.NewRequest(
 		client.RequestWithNamespace(namespace),

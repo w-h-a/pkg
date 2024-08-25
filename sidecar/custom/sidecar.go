@@ -199,7 +199,6 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 			return err
 		}
 	} else {
-		log.Infof("WE SUCCESSFULLY GET HERE")
 		rsp, err = s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
 		if err != nil {
 			return err
@@ -217,6 +216,8 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 
 func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
 	p, _ := strconv.Atoi(port)
+
+	log.Infof("NAMESPACE %s NAME %s PORT %s ENDPOINT %s URL %s EVENT %+v", namespace, name, port, endpoint, baseUrl, event)
 
 	req := s.options.HttpClient.NewRequest(
 		client.RequestWithNamespace(namespace),

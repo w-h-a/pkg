@@ -59,9 +59,18 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 			Key: record.Key,
 		}
 
-		bs, err := json.Marshal(record.Value)
-		if err != nil {
-			return err
+		data := record.Value
+
+		var bs []byte
+
+		if p, ok := data.([]byte); ok {
+			bs = p
+		} else {
+			p, err := json.Marshal(data)
+			if err != nil {
+				return err
+			}
+			bs = p
 		}
 
 		storeRecord.Value = bs

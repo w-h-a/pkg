@@ -55,7 +55,18 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 	}
 
 	for _, record := range state.Records {
-		if err := st.Write(&record); err != nil {
+		storeRecord := &store.Record{
+			Key: record.Key,
+		}
+
+		bs, err := json.Marshal(record.Value)
+		if err != nil {
+			return err
+		}
+
+		storeRecord.Value = bs
+
+		if err := st.Write(storeRecord); err != nil {
 			return err
 		}
 	}
@@ -84,8 +95,6 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 		return
 	}
 
-	log.Infof("SUB BROKERS %+v", s.options.Brokers)
-
 	s.mtx.RLock()
 
 	_, ok = s.subscribers[brokerId]
@@ -108,8 +117,6 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 			EventName: brokerId,
 			CreatedAt: time.Now(),
 		}
-
-		log.Infof("HANDLING VIA SUB")
 
 		return s.postEventToApp(event)
 	}, bk.Options().SubscribeOptions)
@@ -165,10 +172,8 @@ func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 }
 
 func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) error {
-	log.Infof("BROKERS %+v", s.options.Brokers)
 	bk, ok := s.options.Brokers[target]
 	if ok {
-		log.Infof("PUBLISHING")
 		if err := bk.Publish(event.Data, bk.Options().PublishOptions); err != nil {
 			return fmt.Errorf("failed to send event %s to target %s: %v", event.EventName, target, err)
 		}

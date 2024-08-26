@@ -263,8 +263,7 @@ func (c *grpcClient) next(request client.Request, options client.CallOptions) (f
 func (c *grpcClient) call(ctx context.Context, address string, req client.Request, rsp interface{}, options client.CallOptions) error {
 	header := map[string]string{}
 
-	md, ok := metadatautils.FromContext(ctx)
-	if ok {
+	if md, ok := metadatautils.FromContext(ctx); ok {
 		for k, v := range md {
 			header[k] = v
 		}

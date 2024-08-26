@@ -33,7 +33,7 @@ func (k *kubernetesRuntime) Options() runtime.RuntimeOptions {
 }
 
 func (k *kubernetesRuntime) GetServices(namespace string, opts ...runtime.GetServicesOption) ([]*runtime.Service, error) {
-	options := runtime.NewGetOptions(opts...)
+	options := runtime.NewGetServicesOptions(opts...)
 
 	labels := map[string]string{}
 
@@ -74,8 +74,8 @@ func (k *kubernetesRuntime) GetServices(namespace string, opts ...runtime.GetSer
 		// TODO: annotations/statuses from deployments/pods => metadata
 		service := &runtime.Service{
 			Namespace: namespace,
-			Version:   version,
 			Name:      name,
+			Version:   version,
 			Address:   address,
 		}
 
@@ -89,6 +89,26 @@ func (k *kubernetesRuntime) GetServices(namespace string, opts ...runtime.GetSer
 	}
 
 	return services, nil
+}
+
+func (k *kubernetesRuntime) IsServicePresent(name, namespace string) bool {
+	return false
+}
+
+func (k *kubernetesRuntime) CreateService(name, namespace string, labels map[string]string) error {
+	return nil
+}
+
+func (k *kubernetesRuntime) UpdateDeployment(obj interface{}) {
+
+}
+
+func (k *kubernetesRuntime) Start() error {
+	return nil
+}
+
+func (k *kubernetesRuntime) Stop() error {
+	return nil
 }
 
 func (k *kubernetesRuntime) String() string {

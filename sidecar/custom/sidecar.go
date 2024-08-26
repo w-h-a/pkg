@@ -178,7 +178,7 @@ func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) e
 	bk, ok := s.options.Brokers[target]
 	if ok {
 		if err := bk.Publish(event.Data, bk.Options().PublishOptions); err != nil {
-			return fmt.Errorf("failed to send event %s to target %s: %v", event.EventName, target, err)
+			return err
 		}
 	} else {
 		name := fmt.Sprintf("%s-action", target)

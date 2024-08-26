@@ -12,7 +12,6 @@ import (
 
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/runtime"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
@@ -234,17 +233,9 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 		return errorutils.InternalServerError("client", err.Error())
 	}
 
-	log.Infof("RECEIVED %d bytes", len(bs))
-
-	log.Infof("RECEIVED %s", string(bs))
-
-	log.Infof("RSP BEFORE %+v", rsp)
-
 	if err := marshaler.Unmarshal(bs, &rsp); err != nil {
 		return errorutils.InternalServerError("client", err.Error())
 	}
-
-	log.Infof("RSP AFTER %+v", rsp)
 
 	return nil
 }

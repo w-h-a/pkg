@@ -43,12 +43,6 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 		return nil
 	}
 
-	log.Infof("RECEIVED STATE %+v", state)
-
-	log.Infof("ID", state.StoreId)
-
-	log.Infof("RECORDS %+v", state.Records)
-
 	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
 		return nil
@@ -254,11 +248,8 @@ func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUr
 	rsp := &sidecar.Event{}
 
 	if err := s.options.HttpClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
-		log.Errorf("RECEIVED ERR %+v", err)
 		return nil, err
 	}
-
-	log.Infof("RESPONSE FROM APP %+v", rsp.State)
 
 	return rsp, nil
 }

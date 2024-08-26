@@ -84,6 +84,8 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 		return
 	}
 
+	log.Infof("SUB BROKERS %+v", s.options.Brokers)
+
 	s.mtx.RLock()
 
 	_, ok = s.subscribers[brokerId]
@@ -163,6 +165,7 @@ func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 }
 
 func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) error {
+	log.Infof("BROKERS %+v", s.options.Brokers)
 	bk, ok := s.options.Brokers[target]
 	if ok {
 		log.Infof("PUBLISHING")

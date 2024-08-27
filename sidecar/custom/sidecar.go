@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -164,11 +163,36 @@ func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 		}
 	}
 
+	if len(event.To) > 0 {
+		if len(event.Concurrent) > 0 {
+			s.sendEventToTargetsConcurrently(event)
+		} else {
+			if err := s.sendEventToTargetsSequentially(event); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *customSidecar) sendEventToTargetsConcurrently(event *sidecar.Event) {
 	for _, target := range event.To {
-		if err := s.sendEventToTarget(target, event); err != nil {
+		go func() {
+			err := s.sendEventToTarget(target, event)
+			if err != nil {
+				log.Errorf("failed to send event %s to target %s: %v", event.EventName, target, err)
+			}
+		}()
+	}
+}
+
+func (s *customSidecar) sendEventToTargetsSequentially(event *sidecar.Event) error {
+	for _, target := range event.To {
+		err := s.sendEventToTarget(target, event)
+		if err != nil {
 			return err
 		}
-		log.Infof("successfully sent event %s to target %s", event.EventName, target)
 	}
 
 	return nil
@@ -181,6 +205,7 @@ func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) e
 			return err
 		}
 	} else {
+		// TODO: rm
 		name := fmt.Sprintf("%s-action", target)
 
 		url := fmt.Sprintf("%s:%s", name, s.options.HttpPort.Port)
@@ -206,15 +231,7 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
 
 	if s.options.ServicePort.Protocol == "rpc" {
-		// TODO: refactor
-		serviceTitle := strings.Title(s.options.ServiceName)
-
-		eventTitle := strings.Title(event.EventName)
-
-		// TODO: not a great assumption
-		method := fmt.Sprintf("%s.%s", serviceTitle, eventTitle)
-
-		rsp, err = s.sendEventViaRpc(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, method, url, event)
+		rsp, err = s.sendEventViaRpc(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
 		if err != nil {
 			return err
 		}
@@ -233,6 +250,8 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 
 	return nil
 }
+
+// TODO: if we bind to the service at startup, we could have one client and only one of these methods
 
 func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
 	p, _ := strconv.Atoi(port)

@@ -5,11 +5,12 @@ import (
 )
 
 type Event struct {
-	EventName string      `json:"eventName,omitempty"`
-	To        []string    `json:"to,omitempty"`
-	CreatedAt time.Time   `json:"createdAt,omitempty"`
-	State     State       `json:"state,omitempty"`
-	Data      interface{} `json:"data,omitempty"`
+	EventName  string      `json:"eventName,omitempty"`
+	To         []string    `json:"to,omitempty"`
+	Concurrent string      `json:"concurrent,omitempty"`
+	State      State       `json:"state,omitempty"`
+	Data       interface{} `json:"data,omitempty"`
+	CreatedAt  time.Time   `json:"createdAt,omitempty"`
 }
 
 type State struct {

@@ -6,13 +6,13 @@ option go_package = "github.com/w-h-a/pkg/proto/action";
 
 import "google/protobuf/any.proto";
 
-// sidecar save state request/response
-message SaveStateRequest {
+// sidecar post state request/response
+message PostStateRequest {
     string storeId = 1;
     repeated KeyVal records = 2;
 }
 
-message SaveStateResponse {}
+message PostStateResponse {}
 
 // sidecar get state request/response
 message GetStateRequest {
@@ -23,6 +23,14 @@ message GetStateRequest {
 message GetStateResponse {
     google.protobuf.Any value = 1;
 }
+
+// sidecar delete state request/response
+message DeleteStateRequest {
+    string storeId = 1;
+    string key = 2;
+}
+
+message DeleteStateResponse {}
 
 // utils
 message KeyVal {

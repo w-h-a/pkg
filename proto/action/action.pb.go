@@ -21,8 +21,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// sidecar save state request/response
-type SaveStateRequest struct {
+// sidecar post state request/response
+type PostStateRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -31,8 +31,8 @@ type SaveStateRequest struct {
 	Records []*KeyVal `protobuf:"bytes,2,rep,name=records,proto3" json:"records,omitempty"`
 }
 
-func (x *SaveStateRequest) Reset() {
-	*x = SaveStateRequest{}
+func (x *PostStateRequest) Reset() {
+	*x = PostStateRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_action_action_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -40,13 +40,13 @@ func (x *SaveStateRequest) Reset() {
 	}
 }
 
-func (x *SaveStateRequest) String() string {
+func (x *PostStateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SaveStateRequest) ProtoMessage() {}
+func (*PostStateRequest) ProtoMessage() {}
 
-func (x *SaveStateRequest) ProtoReflect() protoreflect.Message {
+func (x *PostStateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_action_action_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,33 +58,33 @@ func (x *SaveStateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SaveStateRequest.ProtoReflect.Descriptor instead.
-func (*SaveStateRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PostStateRequest.ProtoReflect.Descriptor instead.
+func (*PostStateRequest) Descriptor() ([]byte, []int) {
 	return file_proto_action_action_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *SaveStateRequest) GetStoreId() string {
+func (x *PostStateRequest) GetStoreId() string {
 	if x != nil {
 		return x.StoreId
 	}
 	return ""
 }
 
-func (x *SaveStateRequest) GetRecords() []*KeyVal {
+func (x *PostStateRequest) GetRecords() []*KeyVal {
 	if x != nil {
 		return x.Records
 	}
 	return nil
 }
 
-type SaveStateResponse struct {
+type PostStateResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *SaveStateResponse) Reset() {
-	*x = SaveStateResponse{}
+func (x *PostStateResponse) Reset() {
+	*x = PostStateResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_proto_action_action_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -92,13 +92,13 @@ func (x *SaveStateResponse) Reset() {
 	}
 }
 
-func (x *SaveStateResponse) String() string {
+func (x *PostStateResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SaveStateResponse) ProtoMessage() {}
+func (*PostStateResponse) ProtoMessage() {}
 
-func (x *SaveStateResponse) ProtoReflect() protoreflect.Message {
+func (x *PostStateResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_action_action_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -110,8 +110,8 @@ func (x *SaveStateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SaveStateResponse.ProtoReflect.Descriptor instead.
-func (*SaveStateResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PostStateResponse.ProtoReflect.Descriptor instead.
+func (*PostStateResponse) Descriptor() ([]byte, []int) {
 	return file_proto_action_action_proto_rawDescGZIP(), []int{1}
 }
 
@@ -218,6 +218,100 @@ func (x *GetStateResponse) GetValue() *anypb.Any {
 	return nil
 }
 
+// sidecar delete state request/response
+type DeleteStateRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	StoreId string `protobuf:"bytes,1,opt,name=storeId,proto3" json:"storeId,omitempty"`
+	Key     string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+}
+
+func (x *DeleteStateRequest) Reset() {
+	*x = DeleteStateRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_action_action_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteStateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteStateRequest) ProtoMessage() {}
+
+func (x *DeleteStateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_action_action_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteStateRequest.ProtoReflect.Descriptor instead.
+func (*DeleteStateRequest) Descriptor() ([]byte, []int) {
+	return file_proto_action_action_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteStateRequest) GetStoreId() string {
+	if x != nil {
+		return x.StoreId
+	}
+	return ""
+}
+
+func (x *DeleteStateRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type DeleteStateResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DeleteStateResponse) Reset() {
+	*x = DeleteStateResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_action_action_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteStateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteStateResponse) ProtoMessage() {}
+
+func (x *DeleteStateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_action_action_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteStateResponse.ProtoReflect.Descriptor instead.
+func (*DeleteStateResponse) Descriptor() ([]byte, []int) {
+	return file_proto_action_action_proto_rawDescGZIP(), []int{5}
+}
+
 // utils
 type KeyVal struct {
 	state         protoimpl.MessageState
@@ -231,7 +325,7 @@ type KeyVal struct {
 func (x *KeyVal) Reset() {
 	*x = KeyVal{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_action_action_proto_msgTypes[4]
+		mi := &file_proto_action_action_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -244,7 +338,7 @@ func (x *KeyVal) String() string {
 func (*KeyVal) ProtoMessage() {}
 
 func (x *KeyVal) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_action_action_proto_msgTypes[4]
+	mi := &file_proto_action_action_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,7 +351,7 @@ func (x *KeyVal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyVal.ProtoReflect.Descriptor instead.
 func (*KeyVal) Descriptor() ([]byte, []int) {
-	return file_proto_action_action_proto_rawDescGZIP(), []int{4}
+	return file_proto_action_action_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *KeyVal) GetKey() string {
@@ -281,12 +375,12 @@ var file_proto_action_action_proto_rawDesc = []byte{
 	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x06, 0x61, 0x63, 0x74,
 	0x69, 0x6f, 0x6e, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x56,
-	0x0a, 0x10, 0x53, 0x61, 0x76, 0x65, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x0a, 0x10, 0x50, 0x6f, 0x73, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x07, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x12, 0x28, 0x0a, 0x07,
 	0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e, 0x2e,
 	0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x4b, 0x65, 0x79, 0x56, 0x61, 0x6c, 0x52, 0x07, 0x72,
-	0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x22, 0x13, 0x0a, 0x11, 0x53, 0x61, 0x76, 0x65, 0x53, 0x74,
+	0x65, 0x63, 0x6f, 0x72, 0x64, 0x73, 0x22, 0x13, 0x0a, 0x11, 0x50, 0x6f, 0x73, 0x74, 0x53, 0x74,
 	0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3d, 0x0a, 0x0f, 0x47,
 	0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18,
 	0x0a, 0x07, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
@@ -295,14 +389,20 @@ var file_proto_action_action_proto_rawDesc = []byte{
 	0x74, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a,
 	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e,
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
-	0x41, 0x6e, 0x79, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x46, 0x0a, 0x06, 0x4b, 0x65,
-	0x79, 0x56, 0x61, 0x6c, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x2a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x52, 0x05, 0x76, 0x61, 0x6c,
-	0x75, 0x65, 0x42, 0x23, 0x5a, 0x21, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
-	0x2f, 0x77, 0x2d, 0x68, 0x2d, 0x61, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x41, 0x6e, 0x79, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x40, 0x0a, 0x12, 0x44, 0x65,
+	0x6c, 0x65, 0x74, 0x65, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x18, 0x0a, 0x07, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x49, 0x64, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65,
+	0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x22, 0x15, 0x0a, 0x13,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x46, 0x0a, 0x06, 0x4b, 0x65, 0x79, 0x56, 0x61, 0x6c, 0x12, 0x10, 0x0a,
+	0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12,
+	0x2a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x41, 0x6e, 0x79, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x23, 0x5a, 0x21, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x77, 0x2d, 0x68, 0x2d, 0x61, 0x2f,
+	0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -317,19 +417,21 @@ func file_proto_action_action_proto_rawDescGZIP() []byte {
 	return file_proto_action_action_proto_rawDescData
 }
 
-var file_proto_action_action_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_proto_action_action_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_action_action_proto_goTypes = []interface{}{
-	(*SaveStateRequest)(nil),  // 0: action.SaveStateRequest
-	(*SaveStateResponse)(nil), // 1: action.SaveStateResponse
-	(*GetStateRequest)(nil),   // 2: action.GetStateRequest
-	(*GetStateResponse)(nil),  // 3: action.GetStateResponse
-	(*KeyVal)(nil),            // 4: action.KeyVal
-	(*anypb.Any)(nil),         // 5: google.protobuf.Any
+	(*PostStateRequest)(nil),    // 0: action.PostStateRequest
+	(*PostStateResponse)(nil),   // 1: action.PostStateResponse
+	(*GetStateRequest)(nil),     // 2: action.GetStateRequest
+	(*GetStateResponse)(nil),    // 3: action.GetStateResponse
+	(*DeleteStateRequest)(nil),  // 4: action.DeleteStateRequest
+	(*DeleteStateResponse)(nil), // 5: action.DeleteStateResponse
+	(*KeyVal)(nil),              // 6: action.KeyVal
+	(*anypb.Any)(nil),           // 7: google.protobuf.Any
 }
 var file_proto_action_action_proto_depIdxs = []int32{
-	4, // 0: action.SaveStateRequest.records:type_name -> action.KeyVal
-	5, // 1: action.GetStateResponse.value:type_name -> google.protobuf.Any
-	5, // 2: action.KeyVal.value:type_name -> google.protobuf.Any
+	6, // 0: action.PostStateRequest.records:type_name -> action.KeyVal
+	7, // 1: action.GetStateResponse.value:type_name -> google.protobuf.Any
+	7, // 2: action.KeyVal.value:type_name -> google.protobuf.Any
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -344,7 +446,7 @@ func file_proto_action_action_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_proto_action_action_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SaveStateRequest); i {
+			switch v := v.(*PostStateRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -356,7 +458,7 @@ func file_proto_action_action_proto_init() {
 			}
 		}
 		file_proto_action_action_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SaveStateResponse); i {
+			switch v := v.(*PostStateResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -392,6 +494,30 @@ func file_proto_action_action_proto_init() {
 			}
 		}
 		file_proto_action_action_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteStateRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_action_action_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteStateResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_action_action_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*KeyVal); i {
 			case 0:
 				return &v.state
@@ -410,7 +536,7 @@ func file_proto_action_action_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_action_action_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

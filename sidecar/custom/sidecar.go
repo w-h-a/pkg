@@ -92,15 +92,15 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 }
 
 func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
+	var err error
+
 	if len(event.To) == 0 {
-		return nil
+		err = s.actOnEventFromApp(event)
+	} else {
+		err = s.postEventToApp(event)
 	}
 
-	if err := s.actOnEventFromApp(event); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (s *customSidecar) ReadEventsFromBroker(brokerId string) {

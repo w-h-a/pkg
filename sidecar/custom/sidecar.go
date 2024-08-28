@@ -97,6 +97,7 @@ func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
 	if len(event.To) > 0 {
 		err = s.actOnEventFromApp(event)
 	} else {
+		// TODO: rm
 		err = s.postEventToApp(event)
 	}
 

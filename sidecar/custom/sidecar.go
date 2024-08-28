@@ -94,7 +94,7 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
 	var err error
 
-	if len(event.To) == 0 {
+	if len(event.To) > 0 {
 		err = s.actOnEventFromApp(event)
 	} else {
 		err = s.postEventToApp(event)

@@ -25,18 +25,6 @@ func (s *customSidecar) Options() sidecar.SidecarOptions {
 	return s.options
 }
 
-func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
-	var err error
-
-	if len(event.To) > 0 {
-		err = s.actOnEventFromApp(event)
-	} else {
-		err = s.postEventToApp(event)
-	}
-
-	return err
-}
-
 func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 	if len(state.Records) == 0 {
 		return nil
@@ -88,6 +76,31 @@ func (s *customSidecar) RetrieveStateFromStore(storeId, key string) ([]*store.Re
 	}
 
 	return recs, nil
+}
+
+func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
+	st, ok := s.options.Stores[storeId]
+	if !ok {
+		return nil
+	}
+
+	if err := st.Delete(key); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
+	if len(event.To) == 0 {
+		return nil
+	}
+
+	if err := s.actOnEventFromApp(event); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
@@ -163,13 +176,15 @@ func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
 		}
 	}
 
-	if len(event.To) > 0 {
-		if len(event.Concurrent) > 0 {
-			s.sendEventToTargetsConcurrently(event)
-		} else {
-			if err := s.sendEventToTargetsSequentially(event); err != nil {
-				return err
-			}
+	if len(event.To) == 0 {
+		return nil
+	}
+
+	if len(event.Concurrent) > 0 {
+		s.sendEventToTargetsConcurrently(event)
+	} else {
+		if err := s.sendEventToTargetsSequentially(event); err != nil {
+			return err
 		}
 	}
 
@@ -242,10 +257,12 @@ func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
 		}
 	}
 
-	if rsp != nil {
-		if err := s.actOnEventFromApp(rsp); err != nil {
-			return err
-		}
+	if rsp == nil {
+		return nil
+	}
+
+	if err := s.actOnEventFromApp(rsp); err != nil {
+		return err
 	}
 
 	return nil

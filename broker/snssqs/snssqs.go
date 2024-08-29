@@ -30,9 +30,16 @@ func (b *snssqs) Options() broker.BrokerOptions {
 }
 
 func (b *snssqs) Publish(data interface{}, options broker.PublishOptions) error {
-	bs, err := json.Marshal(data)
-	if err != nil {
-		return err
+	var bs []byte
+
+	if p, ok := data.([]byte); ok {
+		bs = p
+	} else {
+		p, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+		bs = p
 	}
 
 	if err := b.snsClient.ProduceToTopic(bs, options.Topic); err != nil {

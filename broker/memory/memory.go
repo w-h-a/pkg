@@ -27,9 +27,16 @@ func (b *memory) Publish(data interface{}, options broker.PublishOptions) error 
 	}
 	b.mtx.RUnlock()
 
-	bs, err := json.Marshal(data)
-	if err != nil {
-		return err
+	var bs []byte
+
+	if p, ok := data.([]byte); ok {
+		bs = p
+	} else {
+		p, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+		bs = p
 	}
 
 	for _, sub := range subsOfThisTopic {

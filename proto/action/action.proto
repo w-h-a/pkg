@@ -6,6 +6,20 @@ option go_package = "github.com/w-h-a/pkg/proto/action";
 
 import "google/protobuf/any.proto";
 
+// domain
+message Event {
+    string eventName = 1;
+    repeated string to = 2;
+    string concurrent = 3;
+    google.protobuf.Any data = 4;
+    // TODO createdAt
+}
+
+message KeyVal {
+    string key = 1;
+    google.protobuf.Any value = 2;
+}
+
 // sidecar post state request/response
 message PostStateRequest {
     string storeId = 1;
@@ -32,8 +46,9 @@ message DeleteStateRequest {
 
 message DeleteStateResponse {}
 
-// utils
-message KeyVal {
-    string key = 1;
-    google.protobuf.Any value = 2;
+// sidecar publish request/response
+message PublishRequest {
+    Event event = 1;
 }
+
+message PublishResponse {}

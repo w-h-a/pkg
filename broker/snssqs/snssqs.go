@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultVisibilityTimeout int32 = 4
+	defaultVisibilityTimeout int32 = 8
 	defaultWaitSeconds       int32 = 8
 )
 

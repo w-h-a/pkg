@@ -2,6 +2,7 @@ package snssqs
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
@@ -42,6 +43,10 @@ type sqsClient struct {
 	waitTimeSeconds   int32
 }
 
+type sqsMsg struct {
+	Message string `json:"message"`
+}
+
 func (c *sqsClient) ConsumeFromGroup(sub broker.Subscriber) {
 	result, err := c.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
 		QueueUrl:              c.queueUrl,
@@ -61,14 +66,23 @@ func (c *sqsClient) ConsumeFromGroup(sub broker.Subscriber) {
 
 	for _, msg := range result.Messages {
 		body := msg.Body
-		if err := sub.Handler([]byte(*body)); err != nil {
-			log.Errorf("failed to handle message from group %s: %s", sub.Options().Group, err)
-		} else {
-			msgHandle := msg.ReceiptHandle
-			c.DeleteMessage(context.Background(), &sqs.DeleteMessageInput{
-				QueueUrl:      aws.String(sub.Options().Group),
-				ReceiptHandle: msgHandle,
-			})
+
+		var sqsMsg sqsMsg
+
+		if err := json.Unmarshal([]byte(*body), &sqsMsg); err != nil {
+			log.Errorf("failed to unmarshal message from group %s: %s", sub.Options().Group, err)
+			continue
 		}
+
+		if err := sub.Handler([]byte(sqsMsg.Message)); err != nil {
+			log.Errorf("failed to handle message from group %s: %s", sub.Options().Group, err)
+			continue
+		}
+
+		msgHandle := msg.ReceiptHandle
+		c.DeleteMessage(context.Background(), &sqs.DeleteMessageInput{
+			QueueUrl:      aws.String(sub.Options().Group),
+			ReceiptHandle: msgHandle,
+		})
 	}
 }

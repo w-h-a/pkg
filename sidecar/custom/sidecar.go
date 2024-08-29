@@ -91,17 +91,16 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 	return nil
 }
 
-func (s *customSidecar) OnEventPublished(event *sidecar.Event) error {
-	var err error
-
-	if len(event.To) > 0 {
-		err = s.actOnEventFromApp(event)
-	} else {
-		// TODO: rm
-		err = s.postEventToApp(event)
+func (s *customSidecar) WriteEventToBroker(event *sidecar.Event) error {
+	if len(event.To) == 0 {
+		return nil
 	}
 
-	return err
+	if err := s.actOnEventFromService(event); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
@@ -134,8 +133,8 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 			CreatedAt: time.Now(),
 		}
 
-		return s.postEventToApp(event)
-	}, bk.Options().SubscribeOptions)
+		return s.sendEventToService(event)
+	}, *bk.Options().SubscribeOptions)
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -170,13 +169,7 @@ func (s *customSidecar) String() string {
 	return "custom"
 }
 
-func (s *customSidecar) actOnEventFromApp(event *sidecar.Event) error {
-	if len(event.State.Records) > 0 {
-		if err := s.SaveStateToStore(&event.State); err != nil {
-			return err
-		}
-	}
-
+func (s *customSidecar) actOnEventFromService(event *sidecar.Event) error {
 	if len(event.To) == 0 {
 		return nil
 	}
@@ -216,99 +209,41 @@ func (s *customSidecar) sendEventToTargetsSequentially(event *sidecar.Event) err
 
 func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) error {
 	bk, ok := s.options.Brokers[target]
-	if ok {
-		if err := bk.Publish(event.Data, bk.Options().PublishOptions); err != nil {
-			return err
-		}
-	} else {
-		// TODO: rm
-		name := fmt.Sprintf("%s-action", target)
-
-		url := fmt.Sprintf("%s:%s", name, s.options.HttpPort.Port)
-
-		newEvent := &sidecar.Event{
-			EventName: event.EventName,
-			Data:      event.Data,
-			CreatedAt: time.Now(),
-		}
-
-		if _, err := s.sendEventViaHttp(name, name, s.options.HttpPort.Port, "publish", url, newEvent); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *customSidecar) postEventToApp(event *sidecar.Event) error {
-	var rsp *sidecar.Event
-	var err error
-
-	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
-
-	if s.options.ServicePort.Protocol == "rpc" {
-		rsp, err = s.sendEventViaRpc(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
-		if err != nil {
-			return err
-		}
-	} else {
-		rsp, err = s.sendEventViaHttp(s.options.ServiceName, s.options.ServiceName, s.options.ServicePort.Port, event.EventName, url, event)
-		if err != nil {
-			return err
-		}
-	}
-
-	if rsp == nil {
+	if !ok {
 		return nil
 	}
 
-	if err := s.actOnEventFromApp(rsp); err != nil {
+	if err := bk.Publish(event.Data, *bk.Options().PublishOptions); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// TODO: if we bind to the service at startup, we could have one client and only one of these methods
+func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
+	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
 
-func (s *customSidecar) sendEventViaHttp(namespace, name, port, endpoint, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
-	p, _ := strconv.Atoi(port)
+	p, _ := strconv.Atoi(s.options.ServicePort.Port)
 
-	req := s.options.HttpClient.NewRequest(
-		client.RequestWithNamespace(namespace),
-		client.RequestWithName(name),
+	req := s.options.Client.NewRequest(
+		client.RequestWithNamespace(s.options.ServiceName),
+		client.RequestWithName(s.options.ServiceName),
 		client.RequestWithPort(p),
-		client.RequestWithMethod(endpoint),
+		client.RequestWithMethod(event.EventName),
 		client.RequestWithUnmarshaledRequest(event),
 	)
 
 	rsp := &sidecar.Event{}
 
-	if err := s.options.HttpClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
-		return nil, err
+	if err := s.options.Client.Call(context.Background(), req, rsp, client.CallWithAddress(url)); err != nil {
+		return err
 	}
 
-	return rsp, nil
-}
-
-func (s *customSidecar) sendEventViaRpc(namespace, name, port, method, baseUrl string, event *sidecar.Event) (*sidecar.Event, error) {
-	p, _ := strconv.Atoi(port)
-
-	req := s.options.RpcClient.NewRequest(
-		client.RequestWithNamespace(namespace),
-		client.RequestWithName(name),
-		client.RequestWithPort(p),
-		client.RequestWithMethod(method),
-		client.RequestWithUnmarshaledRequest(event),
-	)
-
-	rsp := &sidecar.Event{}
-
-	if err := s.options.RpcClient.Call(context.Background(), req, rsp, client.CallWithAddress(baseUrl)); err != nil {
-		return nil, err
+	if err := s.actOnEventFromService(rsp); err != nil {
+		return err
 	}
 
-	return rsp, nil
+	return nil
 }
 
 func NewSidecar(opts ...sidecar.SidecarOption) sidecar.Sidecar {

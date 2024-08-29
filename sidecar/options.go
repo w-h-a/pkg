@@ -15,8 +15,7 @@ type SidecarOptions struct {
 	HttpPort    Port
 	RpcPort     Port
 	ServicePort Port
-	HttpClient  client.Client
-	RpcClient   client.Client
+	Client      client.Client
 	Stores      map[string]store.Store
 	Brokers     map[string]broker.Broker
 	Context     context.Context
@@ -51,15 +50,9 @@ func SidecarWithServicePort(p Port) SidecarOption {
 	}
 }
 
-func SidecarWithHttpClient(c client.Client) SidecarOption {
+func SidecarWithClient(c client.Client) SidecarOption {
 	return func(o *SidecarOptions) {
-		o.HttpClient = c
-	}
-}
-
-func SidecarWithRpcClient(c client.Client) SidecarOption {
-	return func(o *SidecarOptions) {
-		o.RpcClient = c
+		o.Client = c
 	}
 }
 

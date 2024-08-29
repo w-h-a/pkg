@@ -127,6 +127,10 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 			return err
 		}
 
+		log.Infof("WE RECEIVE: %+v", body)
+
+		log.Infof("BROKER: %s", brokerId)
+
 		event := &sidecar.Event{
 			Data:      body,
 			EventName: brokerId,

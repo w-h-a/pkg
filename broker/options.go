@@ -6,8 +6,8 @@ type BrokerOption func(o *BrokerOptions)
 
 type BrokerOptions struct {
 	Nodes            []string
-	PublishOptions   PublishOptions
-	SubscribeOptions SubscribeOptions
+	PublishOptions   *PublishOptions
+	SubscribeOptions *SubscribeOptions
 	Context          context.Context
 }
 
@@ -17,13 +17,13 @@ func BrokerWithNodes(addrs ...string) BrokerOption {
 	}
 }
 
-func BrokerWithPublishOptions(options PublishOptions) BrokerOption {
+func BrokerWithPublishOptions(options *PublishOptions) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.PublishOptions = options
 	}
 }
 
-func BrokerWithSubscribeOptions(options SubscribeOptions) BrokerOption {
+func BrokerWithSubscribeOptions(options *SubscribeOptions) BrokerOption {
 	return func(o *BrokerOptions) {
 		o.SubscribeOptions = options
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -77,7 +78,7 @@ func (b *snssqs) configure() error {
 		b.sqsClient = sqs
 	}
 
-	if b.snsClient != nil && b.sqsClient != nil {
+	if b.snsClient != nil || b.sqsClient != nil {
 		return nil
 	}
 
@@ -86,21 +87,34 @@ func (b *snssqs) configure() error {
 		return err
 	}
 
-	b.snsClient = &snsClient{sns.NewFromConfig(cfg)}
-
-	visibilityTimeout := defaultVisibilityTimeout
-
-	waitTimeSeconds := defaultWaitSeconds
-
-	if timeout, ok := GetVisibilityTimeoutFromContext(b.options.SubscribeOptions.Context); ok {
-		visibilityTimeout = timeout
+	if b.options.PublishOptions != nil {
+		b.snsClient = &snsClient{sns.NewFromConfig(cfg)}
 	}
 
-	if waitTime, ok := GetWaitTimeSecondsFromContext(b.options.SubscribeOptions.Context); ok {
-		waitTimeSeconds = waitTime
-	}
+	if b.options.SubscribeOptions != nil {
+		visibilityTimeout := defaultVisibilityTimeout
 
-	b.sqsClient = &sqsClient{sqs.NewFromConfig(cfg), visibilityTimeout, waitTimeSeconds}
+		waitTimeSeconds := defaultWaitSeconds
+	
+		if timeout, ok := GetVisibilityTimeoutFromContext(b.options.SubscribeOptions.Context); ok {
+			visibilityTimeout = timeout
+		}
+	
+		if waitTime, ok := GetWaitTimeSecondsFromContext(b.options.SubscribeOptions.Context); ok {
+			waitTimeSeconds = waitTime
+		}
+	
+		client := sqs.NewFromConfig(cfg)
+	
+		url, err := client.GetQueueUrl(context.Background(), &sqs.GetQueueUrlInput{
+			QueueName: aws.String(b.options.SubscribeOptions.Group),
+		})
+		if err != nil {
+			return err
+		}
+	
+		b.sqsClient = &sqsClient{client, url.QueueUrl, visibilityTimeout, waitTimeSeconds}
+	}
 
 	return nil
 }

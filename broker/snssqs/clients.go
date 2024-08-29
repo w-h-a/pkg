@@ -37,13 +37,14 @@ type SqsClient interface {
 
 type sqsClient struct {
 	*sqs.Client
+	queueUrl          *string
 	visibilityTimeout int32
 	waitTimeSeconds   int32
 }
 
 func (c *sqsClient) ConsumeFromGroup(sub broker.Subscriber) {
 	result, err := c.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
-		QueueUrl:              aws.String(sub.Options().Group),
+		QueueUrl:              c.queueUrl,
 		MaxNumberOfMessages:   1,
 		VisibilityTimeout:     c.visibilityTimeout,
 		WaitTimeSeconds:       c.waitTimeSeconds,

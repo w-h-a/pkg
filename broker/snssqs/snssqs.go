@@ -95,24 +95,24 @@ func (b *snssqs) configure() error {
 		visibilityTimeout := defaultVisibilityTimeout
 
 		waitTimeSeconds := defaultWaitSeconds
-	
+
 		if timeout, ok := GetVisibilityTimeoutFromContext(b.options.SubscribeOptions.Context); ok {
 			visibilityTimeout = timeout
 		}
-	
+
 		if waitTime, ok := GetWaitTimeSecondsFromContext(b.options.SubscribeOptions.Context); ok {
 			waitTimeSeconds = waitTime
 		}
-	
+
 		client := sqs.NewFromConfig(cfg)
-	
+
 		url, err := client.GetQueueUrl(context.Background(), &sqs.GetQueueUrlInput{
 			QueueName: aws.String(b.options.SubscribeOptions.Group),
 		})
 		if err != nil {
 			return err
 		}
-	
+
 		b.sqsClient = &sqsClient{client, url.QueueUrl, visibilityTimeout, waitTimeSeconds}
 	}
 

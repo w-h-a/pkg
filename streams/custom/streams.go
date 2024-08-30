@@ -2,13 +2,13 @@ package custom
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/w-h-a/pkg/client"
 	pb "github.com/w-h-a/pkg/proto/streams"
 	"github.com/w-h-a/pkg/streams"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/datautils"
 )
 
 const (
@@ -136,16 +136,9 @@ func (s *customStream) Consume(id string) (streams.Subscriber, error) {
 func (s *customStream) Produce(topic string, data interface{}, opts ...streams.ProduceOption) error {
 	options := streams.NewProduceOptions(opts...)
 
-	var bytes []byte
-
-	if p, ok := data.([]byte); ok {
-		bytes = p
-	} else {
-		p, err := json.Marshal(data)
-		if err != nil {
-			return streams.ErrEncodingData
-		}
-		bytes = p
+	bs, err := datautils.Stringify(data)
+	if err != nil {
+		return streams.ErrEncodingData
 	}
 
 	req := s.streams.NewRequest(
@@ -156,7 +149,7 @@ func (s *customStream) Produce(topic string, data interface{}, opts ...streams.P
 		client.RequestWithUnmarshaledRequest(
 			&pb.ProduceRequest{
 				Topic:    topic,
-				Payload:  bytes,
+				Payload:  bs,
 				Metadata: options.Metadata,
 			},
 		),

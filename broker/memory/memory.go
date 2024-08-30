@@ -1,11 +1,11 @@
 package memory
 
 import (
-	"encoding/json"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/w-h-a/pkg/broker"
+	"github.com/w-h-a/pkg/utils/datautils"
 )
 
 type memory struct {
@@ -27,16 +27,9 @@ func (b *memory) Publish(data interface{}, options broker.PublishOptions) error 
 	}
 	b.mtx.RUnlock()
 
-	var bs []byte
-
-	if p, ok := data.([]byte); ok {
-		bs = p
-	} else {
-		p, err := json.Marshal(data)
-		if err != nil {
-			return err
-		}
-		bs = p
+	bs, err := datautils.Stringify(data)
+	if err != nil {
+		return err
 	}
 
 	for _, sub := range subsOfThisTopic {

@@ -2,7 +2,6 @@ package snssqs
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/datautils"
 )
 
 const (
@@ -30,16 +30,9 @@ func (b *snssqs) Options() broker.BrokerOptions {
 }
 
 func (b *snssqs) Publish(data interface{}, options broker.PublishOptions) error {
-	var bs []byte
-
-	if p, ok := data.([]byte); ok {
-		bs = p
-	} else {
-		p, err := json.Marshal(data)
-		if err != nil {
-			return err
-		}
-		bs = p
+	bs, err := datautils.Stringify(data)
+	if err != nil {
+		return err
 	}
 
 	if err := b.snsClient.ProduceToTopic(bs, options.Topic); err != nil {

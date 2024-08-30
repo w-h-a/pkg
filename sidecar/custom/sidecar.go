@@ -13,6 +13,7 @@ import (
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/datautils"
 )
 
 type customSidecar struct {
@@ -42,16 +43,9 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 
 		data := record.Value
 
-		var bs []byte
-
-		if p, ok := data.([]byte); ok {
-			bs = p
-		} else {
-			p, err := json.Marshal(data)
-			if err != nil {
-				return err
-			}
-			bs = p
+		bs, err := datautils.Stringify(data)
+		if err != nil {
+			return err
 		}
 
 		storeRecord.Value = bs

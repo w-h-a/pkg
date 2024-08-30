@@ -28,6 +28,15 @@ message PostStateRequest {
 
 message PostStateResponse {}
 
+// sidecar list state request/response
+message ListStateRequest {
+    string storeId = 1;
+}
+
+message ListStateResponse {
+    repeated KeyVal records = 1;
+}
+
 // sidecar get state request/response
 message GetStateRequest {
     string storeId = 1;
@@ -35,7 +44,7 @@ message GetStateRequest {
 }
 
 message GetStateResponse {
-    google.protobuf.Any value = 1;
+    repeated KeyVal records = 1;
 }
 
 // sidecar delete state request/response

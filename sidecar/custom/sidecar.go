@@ -58,13 +58,28 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 	return nil
 }
 
-func (s *customSidecar) RetrieveStateFromStore(storeId, key string) ([]*store.Record, error) {
+func (c *customSidecar) ListStateFromStore(storeId string) ([]*store.Record, error) {
+	st, ok := c.options.Stores[storeId]
+	if !ok {
+		return nil, nil
+	}
+
+	// TODO: limit + offset
+	recs, err := st.Read("", store.ReadWithPrefix())
+	if err != nil {
+		return nil, err
+	}
+
+	return recs, nil
+}
+
+func (s *customSidecar) SingleStateFromStore(storeId, key string) ([]*store.Record, error) {
 	st, ok := s.options.Stores[storeId]
 	if !ok {
 		return nil, nil
 	}
 
-	recs, err := st.Read(key, store.ReadWithPrefix())
+	recs, err := st.Read(key)
 	if err != nil {
 		return nil, err
 	}

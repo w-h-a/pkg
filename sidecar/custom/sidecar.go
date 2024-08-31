@@ -33,6 +33,7 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 
 	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
+		log.Warnf("store %s was not found", state.StoreId)
 		return nil
 	}
 
@@ -61,6 +62,7 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 func (c *customSidecar) ListStateFromStore(storeId string) ([]*store.Record, error) {
 	st, ok := c.options.Stores[storeId]
 	if !ok {
+		log.Warnf("store %s was not found", storeId)
 		return nil, nil
 	}
 
@@ -76,6 +78,7 @@ func (c *customSidecar) ListStateFromStore(storeId string) ([]*store.Record, err
 func (s *customSidecar) SingleStateFromStore(storeId, key string) ([]*store.Record, error) {
 	st, ok := s.options.Stores[storeId]
 	if !ok {
+		log.Warnf("store %s was not found", storeId)
 		return nil, nil
 	}
 
@@ -90,6 +93,7 @@ func (s *customSidecar) SingleStateFromStore(storeId, key string) ([]*store.Reco
 func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 	st, ok := s.options.Stores[storeId]
 	if !ok {
+		log.Warnf("store %s was not found", storeId)
 		return nil
 	}
 
@@ -219,6 +223,7 @@ func (s *customSidecar) sendEventToTargetsSequentially(event *sidecar.Event) err
 func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) error {
 	bk, ok := s.options.Brokers[target]
 	if !ok {
+		log.Warnf("broker %s was not found", target)
 		return nil
 	}
 

@@ -20,32 +20,14 @@ func NewSecretOptions(opts ...SecretOption) SecretOptions {
 	return options
 }
 
-type EncryptOption func(o *EncryptOptions)
+type GetSecretOption func(o *GetSecretOptions)
 
-type EncryptOptions struct {
+type GetSecretOptions struct {
 	Context context.Context
 }
 
-func NewEncryptOptions(opts ...EncryptOption) EncryptOptions {
-	options := EncryptOptions{
-		Context: context.Background(),
-	}
-
-	for _, fn := range opts {
-		fn(&options)
-	}
-
-	return options
-}
-
-type DecryptOption func(o *DecryptOptions)
-
-type DecryptOptions struct {
-	Context context.Context
-}
-
-func NewDecryptOptions(opts ...DecryptOption) DecryptOptions {
-	options := DecryptOptions{
+func NewGetSecretOptions(opts ...GetSecretOption) GetSecretOptions {
+	options := GetSecretOptions{
 		Context: context.Background(),
 	}
 

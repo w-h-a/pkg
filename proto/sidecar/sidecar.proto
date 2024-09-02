@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package action;
+package sidecar;
 
-option go_package = "github.com/w-h-a/pkg/proto/action";
+option go_package = "github.com/w-h-a/pkg/proto/sidecar";
 
 import "google/protobuf/any.proto";
 

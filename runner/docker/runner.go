@@ -4,8 +4,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/runner"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type dockerRunner struct {

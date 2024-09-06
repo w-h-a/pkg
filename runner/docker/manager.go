@@ -94,7 +94,7 @@ func (*dockerManager) outputs(cmd *exec.Cmd) error {
 			}
 		}(ioPair.in, ioPair.out)
 	}
-	
+
 	return nil
 }
 

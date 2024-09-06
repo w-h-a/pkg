@@ -7,12 +7,12 @@ style:
 	goimports -l -w ./api
 	goimports -l -w ./broker
 	goimports -l -w ./client
+	goimports -l -w ./runner
 	goimports -l -w ./runtime
 	goimports -l -w ./security
 	goimports -l -w ./server
 	goimports -l -w ./sidecar
 	goimports -l -w ./store
-	goimports -l -w ./streams
 	goimports -l -w ./telemetry
 	goimports -l -w ./utils
 
@@ -47,10 +47,6 @@ proto-restore:
 .PHONY: proto-runtime
 proto-runtime:
 	protoc proto/runtime/*.proto --go_out=paths=source_relative:. --proto_path=.
-
-.PHONY: proto-streams
-proto-streams:
-	protoc proto/streams/*.proto --go_out=paths=source_relative:. --proto_path=.
 
 .PHONY: proto-cron
 proto-cron:

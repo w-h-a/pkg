@@ -28,6 +28,12 @@ func (s *cockroachStore) Options() store.StoreOptions {
 	return s.options
 }
 
+// TODO: retry
+/* for loop with max retries
+**	go call a function that (a) calls exponential function (b) sleeps for the duration and (c) calls actual write that sends error to chan
+**  if err from chan is nil, stop
+**  else, keep looping
+ */
 func (s *cockroachStore) Write(rec *store.Record, opts ...store.WriteOption) error {
 	var err error
 

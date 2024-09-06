@@ -137,6 +137,7 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 }
 
 func (c *httpClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
+	// TODO: implement
 	return nil, nil
 }
 

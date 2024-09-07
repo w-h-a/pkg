@@ -25,7 +25,7 @@ func (d *dockerManager) Options() runner.ManagerOptions {
 }
 
 func (d *dockerManager) Apply() error {
-	cmd := exec.Command("docker", "compose", "--file", d.options.File.Path, "up", "--build", "--detach")
+	cmd := exec.Command("docker", "compose", "--file", d.options.File.Path, "up", "--build")
 
 	if err := d.outputs(cmd); err != nil {
 		return err

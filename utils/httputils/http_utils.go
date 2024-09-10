@@ -6,7 +6,26 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
+
+func HttpGetNTimes(url string, n int) ([]byte, error) {
+	var rsp []byte
+
+	var err error
+
+	for i := n - 1; i >= 0; i-- {
+		rsp, err = HttpGet(url)
+
+		if i == 0 || err == nil {
+			break
+		}
+
+		time.Sleep(time.Second)
+	}
+
+	return rsp, err
+}
 
 func HttpGet(url string) ([]byte, error) {
 	rsp, err := http.Get(SanitizeHttpUrl(url))

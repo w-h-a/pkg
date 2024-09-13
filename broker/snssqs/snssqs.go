@@ -100,7 +100,7 @@ func (b *snssqs) configure() error {
 		b.snsClient = &snsClient{sns.NewFromConfig(
 			cfg,
 			func(o *sns.Options) {
-				o.EndpointResolverV2 = &snsResolver{*b.options.PublishOptions}
+				o.EndpointResolverV2 = &snsResolver{b.options.Nodes}
 			},
 		)}
 	}
@@ -121,7 +121,7 @@ func (b *snssqs) configure() error {
 		client := sqs.NewFromConfig(
 			cfg,
 			func(o *sqs.Options) {
-				o.EndpointResolverV2 = &sqsResolver{*b.options.SubscribeOptions}
+				o.EndpointResolverV2 = &sqsResolver{b.options.Nodes}
 			},
 		)
 

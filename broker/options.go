@@ -44,13 +44,20 @@ func NewBrokerOptions(opts ...BrokerOption) BrokerOptions {
 type PublishOption func(o *PublishOptions)
 
 type PublishOptions struct {
-	Topic   string
-	Context context.Context
+	Topic    string
+	Endpoint string
+	Context  context.Context
 }
 
 func PublishWithTopic(topic string) PublishOption {
 	return func(o *PublishOptions) {
 		o.Topic = topic
+	}
+}
+
+func PublishWithEndpoint(endpoint string) PublishOption {
+	return func(o *PublishOptions) {
+		o.Endpoint = endpoint
 	}
 }
 
@@ -69,13 +76,20 @@ func NewPublishOptions(opts ...PublishOption) PublishOptions {
 type SubscribeOption func(o *SubscribeOptions)
 
 type SubscribeOptions struct {
-	Group   string
-	Context context.Context
+	Group    string
+	Endpoint string
+	Context  context.Context
 }
 
 func SubscribeWithGroup(group string) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.Group = group
+	}
+}
+
+func SubscribeWithEndpoint(endpoint string) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.Endpoint = endpoint
 	}
 }
 

@@ -88,13 +88,21 @@ func (b *snssqs) configure() error {
 		return nil
 	}
 
-	cfg, err := awsconfig.LoadDefaultConfig(context.Background(), awsconfig.WithRegion("us-west-2"))
+	cfg, err := awsconfig.LoadDefaultConfig(
+		context.Background(),
+		awsconfig.WithRegion("us-west-2"),
+	)
 	if err != nil {
 		return err
 	}
 
 	if b.options.PublishOptions != nil {
-		b.snsClient = &snsClient{sns.NewFromConfig(cfg)}
+		b.snsClient = &snsClient{sns.NewFromConfig(
+			cfg,
+			func(o *sns.Options) {
+				o.EndpointResolverV2 = &snsResolver{*b.options.PublishOptions}
+			},
+		)}
 	}
 
 	if b.options.SubscribeOptions != nil {
@@ -110,7 +118,12 @@ func (b *snssqs) configure() error {
 			waitTimeSeconds = waitTime
 		}
 
-		client := sqs.NewFromConfig(cfg)
+		client := sqs.NewFromConfig(
+			cfg,
+			func(o *sqs.Options) {
+				o.EndpointResolverV2 = &sqsResolver{*b.options.SubscribeOptions}
+			},
+		)
 
 		url, err := client.GetQueueUrl(context.Background(), &sqs.GetQueueUrlInput{
 			QueueName: aws.String(b.options.SubscribeOptions.Group),

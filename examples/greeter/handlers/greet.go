@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
 
-type GreetController interface {
+type GreetHandler interface {
 	Greet(ctx context.Context, req *proto.GreetRequest, rsp *proto.GreetResponse) error
 }
 
-type greetController struct {}
+type greetHandler struct {}
 
-func (c *greetController) Greet(ctx context.Context, req *proto.GreetRequest, rsp *proto.GreetResponse) error {
+func (c *greetHandler) Greet(ctx context.Context, req *proto.GreetRequest, rsp *proto.GreetResponse) error {
 	md, _ := metadatautils.FromContext(ctx)
 	log.Infof("received Greeter.Greet request with metadata: %v", md)
 
@@ -24,17 +24,17 @@ func (c *greetController) Greet(ctx context.Context, req *proto.GreetRequest, rs
 	return nil
 }
 
-func NewGreetController() GreetController {
-	return &greetController{}
+func NewGreetHandler() GreetHandler {
+	return &greetHandler{}
 }
 
 type Greeter struct {
-	GreetController
+	GreetHandler
 }
 
-func RegisterGreetController(s server.Server, controller GreetController, opts ...server.ControllerOption) error {
-	return s.RegisterController(
-		s.NewController(
+func RegisterGreetHandler(s server.Server, controller GreetHandler, opts ...server.HandlerOption) error {
+	return s.Handle(
+		s.NewHandler(
 			&Greeter{controller},
 			opts...,
 		),

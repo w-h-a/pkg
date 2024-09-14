@@ -9,18 +9,18 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func ToControllerHandler(grpcFormattedMethod string) (controller string, handler string, err error) {
+func ToHandlerMethod(grpcFormattedMethod string) (handler string, method string, err error) {
 	parts := strings.Split(grpcFormattedMethod, "/")
 
 	if len(parts) != 3 || len(parts[1]) == 0 || len(parts[2]) == 0 {
-		return controller, handler, fmt.Errorf("malformed method name: %v", grpcFormattedMethod)
+		return handler, method, fmt.Errorf("malformed method name: %v", grpcFormattedMethod)
 	}
 
-	controller = parts[1]
+	handler = parts[1]
 
-	handler = parts[2]
+	method = parts[2]
 
-	return controller, handler, nil
+	return handler, method, nil
 }
 
 func ToErrorCode(err error) codes.Code {

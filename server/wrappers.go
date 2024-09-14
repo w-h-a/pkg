@@ -2,6 +2,6 @@ package server
 
 import "context"
 
-type ControllerWrapper func(ControllerFunc) ControllerFunc
+type HandlerWrapper func(HandlerFunc) HandlerFunc
 
-type ControllerFunc func(ctx context.Context, req Request, rsp interface{}) error
+type HandlerFunc func(ctx context.Context, req Request, rsp interface{}) error

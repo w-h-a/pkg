@@ -7,14 +7,14 @@ import (
 type ServerOption func(o *ServerOptions)
 
 type ServerOptions struct {
-	Namespace          string
-	Name               string
-	Id                 string
-	Version            string
-	Address            string
-	Metadata           map[string]string
-	ControllerWrappers []ControllerWrapper
-	Context            context.Context
+	Namespace       string
+	Name            string
+	Id              string
+	Version         string
+	Address         string
+	Metadata        map[string]string
+	HandlerWrappers []HandlerWrapper
+	Context         context.Context
 }
 
 func ServerWithNamespace(n string) ServerOption {
@@ -53,9 +53,9 @@ func ServerWithMetadata(md map[string]string) ServerOption {
 	}
 }
 
-func WrapController(ws ...ControllerWrapper) ServerOption {
+func WrapHandler(ws ...HandlerWrapper) ServerOption {
 	return func(o *ServerOptions) {
-		o.ControllerWrappers = append(o.ControllerWrappers, ws...)
+		o.HandlerWrappers = append(o.HandlerWrappers, ws...)
 	}
 }
 
@@ -141,6 +141,6 @@ func NewRequestOptions(opts ...RequestOption) RequestOptions {
 	return options
 }
 
-type ControllerOption func(o *ControllerOptions)
+type HandlerOption func(o *HandlerOptions)
 
-type ControllerOptions struct{}
+type HandlerOptions struct{}

@@ -12,8 +12,8 @@ var (
 
 type Server interface {
 	Options() ServerOptions
-	NewController(c interface{}, opts ...ControllerOption) Controller
-	RegisterController(c Controller) error
+	NewHandler(c interface{}, opts ...HandlerOption) Handler
+	Handle(c Handler) error
 	Run() error
 	String() string
 }

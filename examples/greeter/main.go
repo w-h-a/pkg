@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/w-h-a/pkg/examples/greeter/controllers"
+	"github.com/w-h-a/pkg/examples/greeter/handlers"
 	"github.com/w-h-a/pkg/server"
 	"github.com/w-h-a/pkg/server/grpcserver"
 	"github.com/w-h-a/pkg/telemetry/log"
@@ -15,11 +15,11 @@ func main() {
 		server.ServerWithNamespace("app"),
 		server.ServerWithName("greeter"),
 		server.ServerWithVersion("v1.0.0"),
-		server.WrapController(controllerLogWrapper),
+		server.WrapHandler(handlerLogWrapper),
 	)
 
-	if err := controllers.RegisterGreetController(grpcServer, controllers.NewGreetController()); err != nil {
-		log.Fatalf("failed to register controller: %v", err)
+	if err := handlers.RegisterGreetHandler(grpcServer, handlers.NewGreetHandler()); err != nil {
+		log.Fatalf("failed to register handler: %v", err)
 	}
 
 	if err := grpcServer.Run(); err != nil {
@@ -27,7 +27,7 @@ func main() {
 	}
 }
 
-func controllerLogWrapper(fn server.ControllerFunc) server.ControllerFunc {
+func handlerLogWrapper(fn server.HandlerFunc) server.HandlerFunc {
 	return func(ctx context.Context, req server.Request, rsp interface{}) error {
 		if strings.HasPrefix(req.Method(), "Health.") {
 			return fn(ctx, req, rsp)

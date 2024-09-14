@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/w-h-a/pkg/server"
-	"github.com/w-h-a/pkg/server/grpcserver/controllers"
+	"github.com/w-h-a/pkg/server/grpcserver/handlers"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
@@ -32,41 +32,41 @@ var (
 )
 
 type grpcServer struct {
-	options     server.ServerOptions
-	server      *grpc.Server
-	controllers map[string]*grpcController
-	started     bool
-	exit        chan chan error
-	mtx         sync.RWMutex
-	wg          *sync.WaitGroup
+	options  server.ServerOptions
+	server   *grpc.Server
+	handlers map[string]*grpcHandler
+	started  bool
+	exit     chan chan error
+	mtx      sync.RWMutex
+	wg       *sync.WaitGroup
 }
 
 func (s *grpcServer) Options() server.ServerOptions {
 	return s.options
 }
 
-func (s *grpcServer) NewController(c interface{}, opts ...server.ControllerOption) server.Controller {
-	return NewController(c, opts...)
+func (s *grpcServer) NewHandler(c interface{}, opts ...server.HandlerOption) server.Handler {
+	return NewHandler(c, opts...)
 }
 
-func (s *grpcServer) RegisterController(c server.Controller) error {
-	controller, ok := c.(*grpcController)
+func (s *grpcServer) Handle(h server.Handler) error {
+	handler, ok := h.(*grpcHandler)
 	if !ok {
-		return fmt.Errorf("invalid controller: expected *grpcController")
+		return fmt.Errorf("invalid handler: expected *grpcHandler")
 	}
 
-	if len(controller.handlers) == 0 {
-		return fmt.Errorf("invalid controller: no handler functions")
+	if len(handler.methods) == 0 {
+		return fmt.Errorf("invalid handler: no methods")
 	}
 
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
-	if _, ok := s.controllers[c.Name()]; ok {
-		return fmt.Errorf("controller %+v is already registered", controller)
+	if _, ok := s.handlers[h.Name()]; ok {
+		return fmt.Errorf("handler %+v is already registered", handler)
 	}
 
-	s.controllers[c.Name()] = controller
+	s.handlers[h.Name()] = handler
 
 	return nil
 }
@@ -97,9 +97,9 @@ func (s *grpcServer) start() error {
 	}
 	s.mtx.RUnlock()
 
-	if err := controllers.RegisterHealthController(
+	if err := handlers.RegisterHealthHandler(
 		s,
-		controllers.NewHealthController(
+		handlers.NewHealthHandler(
 			fmt.Sprintf("%s.%s:%s %s", s.options.Name, s.options.Namespace, s.options.Version, s.options.Id),
 		),
 	); err != nil {
@@ -208,7 +208,7 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 		return status.Errorf(codes.Internal, "method is not present in context")
 	}
 
-	controllerName, handlerName, err := ToControllerHandler(grpcFormattedMethod)
+	handlerName, methodName, err := ToHandlerMethod(grpcFormattedMethod)
 	if err != nil {
 		return status.New(codes.InvalidArgument, err.Error()).Err()
 	}
@@ -243,30 +243,30 @@ func (s *grpcServer) handle(_ interface{}, stream grpc.ServerStream) error {
 	}
 
 	s.mtx.Lock()
-	controller := s.controllers[controllerName]
+	handler := s.handlers[handlerName]
 	s.mtx.Unlock()
 
-	if controller == nil {
-		return status.New(codes.Unimplemented, fmt.Sprintf("unknown controller %s", controllerName)).Err()
-	}
-
-	handler := controller.handlers[handlerName]
-
 	if handler == nil {
-		return status.New(codes.Unimplemented, fmt.Sprintf("unknown method %s.%s", controllerName, handlerName)).Err()
+		return status.New(codes.Unimplemented, fmt.Sprintf("unknown handler %s", handlerName)).Err()
 	}
 
-	if handler.stream {
-		return s.processStream(stream, controller, handler, contentType, ctx)
+	method := handler.methods[methodName]
+
+	if method == nil {
+		return status.New(codes.Unimplemented, fmt.Sprintf("unknown method %s.%s", handlerName, methodName)).Err()
 	}
 
-	return s.processRequest(stream, controller, handler, contentType, ctx)
+	if method.stream {
+		return s.processStream(stream, handler, method, contentType, ctx)
+	}
+
+	return s.processRequest(stream, handler, method, contentType, ctx)
 }
 
-func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
-	req := reflect.New(handler.reqType.Elem())
+func (s *grpcServer) processRequest(stream grpc.ServerStream, handler *grpcHandler, method *grpcMethod, contentType string, ctx context.Context) error {
+	req := reflect.New(method.reqType.Elem())
 
-	rsp := reflect.New(handler.rspType.Elem())
+	rsp := reflect.New(method.rspType.Elem())
 
 	if err := stream.RecvMsg(req.Interface()); err != nil {
 		return err
@@ -294,13 +294,13 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		}()
 
 		args := []reflect.Value{
-			controller.receiver,
+			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(request.Unmarshaled()),
 			reflect.ValueOf(response),
 		}
 
-		vals := handler.method.Call(args)
+		vals := method.value.Call(args)
 
 		if e := vals[0].Interface(); e != nil {
 			err = e.(error)
@@ -309,8 +309,8 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		return
 	}
 
-	for i := len(s.options.ControllerWrappers); i > 0; i-- {
-		fn = s.options.ControllerWrappers[i-1](fn)
+	for i := len(s.options.HandlerWrappers); i > 0; i-- {
+		fn = s.options.HandlerWrappers[i-1](fn)
 	}
 
 	statusCode := codes.OK
@@ -321,7 +321,7 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 		NewRequest(
 			server.RequestWithNamespace(s.options.Namespace),
 			server.RequestWithName(s.options.Name),
-			server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
+			server.RequestWithMethod(fmt.Sprintf("%s.%s", handler.name, method.name)),
 			server.RequestWithContentType(contentType),
 			server.RequestWithUnmarshaledRequest(req.Interface()),
 			server.RequestWithMarshaledRequest(bytes),
@@ -340,15 +340,15 @@ func (s *grpcServer) processRequest(stream grpc.ServerStream, controller *grpcCo
 	return status.New(statusCode, statusDesc).Err()
 }
 
-func (s *grpcServer) processStream(stream grpc.ServerStream, controller *grpcController, handler *grpcHandler, contentType string, ctx context.Context) error {
+func (s *grpcServer) processStream(stream grpc.ServerStream, handler *grpcHandler, method *grpcMethod, contentType string, ctx context.Context) error {
 	fn := func(ctx context.Context, request server.Request, stream interface{}) (err error) {
 		args := []reflect.Value{
-			controller.receiver,
+			handler.receiver,
 			reflect.ValueOf(ctx),
 			reflect.ValueOf(stream),
 		}
 
-		vals := handler.method.Call(args)
+		vals := method.value.Call(args)
 
 		if e := vals[0].Interface(); e != nil {
 			err = e.(error)
@@ -357,8 +357,8 @@ func (s *grpcServer) processStream(stream grpc.ServerStream, controller *grpcCon
 		return
 	}
 
-	for i := len(s.options.ControllerWrappers); i > 0; i-- {
-		fn = s.options.ControllerWrappers[i-1](fn)
+	for i := len(s.options.HandlerWrappers); i > 0; i-- {
+		fn = s.options.HandlerWrappers[i-1](fn)
 	}
 
 	statusCode := codes.OK
@@ -367,7 +367,7 @@ func (s *grpcServer) processStream(stream grpc.ServerStream, controller *grpcCon
 	r := NewRequest(
 		server.RequestWithNamespace(s.options.Namespace),
 		server.RequestWithName(s.options.Name),
-		server.RequestWithMethod(fmt.Sprintf("%s.%s", controller.name, handler.name)),
+		server.RequestWithMethod(fmt.Sprintf("%s.%s", handler.name, method.name)),
 		server.RequestWithContentType(contentType),
 		server.RequestWithStream(),
 	)
@@ -406,11 +406,11 @@ func NewServer(opts ...server.ServerOption) server.Server {
 	options := server.NewServerOptions(opts...)
 
 	s := &grpcServer{
-		options:     options,
-		controllers: map[string]*grpcController{},
-		exit:        make(chan chan error),
-		mtx:         sync.RWMutex{},
-		wg:          &sync.WaitGroup{},
+		options:  options,
+		handlers: map[string]*grpcHandler{},
+		exit:     make(chan chan error),
+		mtx:      sync.RWMutex{},
+		wg:       &sync.WaitGroup{},
 	}
 
 	grpcOptions := []grpc.ServerOption{

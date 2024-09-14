@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"context"
@@ -8,21 +8,21 @@ import (
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
-type HealthController interface {
+type HealthHandler interface {
 	Check(ctx context.Context, req *health.HealthRequest, rsp *health.HealthResponse) error
 	Log(ctx context.Context, req *health.LogRequest, rsp *health.LogResponse) error
 }
 
-type healthController struct {
+type healthHandler struct {
 	log log.Log
 }
 
-func (c *healthController) Check(ctx context.Context, req *health.HealthRequest, rsp *health.HealthResponse) error {
+func (c *healthHandler) Check(ctx context.Context, req *health.HealthRequest, rsp *health.HealthResponse) error {
 	rsp.Status = "ok"
 	return nil
 }
 
-func (c *healthController) Log(ctx context.Context, req *health.LogRequest, rsp *health.LogResponse) error {
+func (c *healthHandler) Log(ctx context.Context, req *health.LogRequest, rsp *health.LogResponse) error {
 	opts := []log.ReadOption{}
 
 	count := int(req.Count)
@@ -55,22 +55,22 @@ func (c *healthController) Log(ctx context.Context, req *health.LogRequest, rsp 
 	return nil
 }
 
-func NewHealthController(name string) HealthController {
+func NewHealthHandler(name string) HealthHandler {
 	log.SetName(name)
 
-	return &healthController{
+	return &healthHandler{
 		log: log.GetLogger(),
 	}
 }
 
 type Health struct {
-	HealthController
+	HealthHandler
 }
 
-func RegisterHealthController(s server.Server, controller HealthController, opts ...server.ControllerOption) error {
-	return s.RegisterController(
-		s.NewController(
-			&Health{controller},
+func RegisterHealthHandler(s server.Server, handler HealthHandler, opts ...server.HandlerOption) error {
+	return s.Handle(
+		s.NewHandler(
+			&Health{handler},
 			opts...,
 		),
 	)

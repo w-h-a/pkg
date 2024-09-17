@@ -2,6 +2,7 @@ package snssqs
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -76,6 +77,10 @@ func (b *snssqs) String() string {
 }
 
 func (b *snssqs) configure() error {
+	if len(b.options.Nodes) == 0 {
+		return fmt.Errorf("broker addresses are required")
+	}
+
 	if sns, ok := GetSnsClientFromContext(b.options.Context); ok {
 		b.snsClient = sns
 	}

@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 type httpApi struct {
 	options api.ApiOptions
 	mux     *http.ServeMux
+	started bool
 	exit    chan chan error
 	mtx     sync.RWMutex
 }
@@ -25,6 +27,7 @@ func (a *httpApi) Options() api.ApiOptions {
 }
 
 func (a *httpApi) Handle(path string, handler http.Handler) {
+	// TODO: rm this
 	h := handlers.CombinedLoggingHandler(os.Stdout, handler)
 
 	for _, wrapper := range a.options.HandlerWrappers {
@@ -53,6 +56,20 @@ func (a *httpApi) String() string {
 }
 
 func (a *httpApi) start() error {
+	a.mtx.RLock()
+	if a.started {
+		a.mtx.RUnlock()
+		return nil
+	}
+	a.mtx.RUnlock()
+
+	// TODO: log.SetLog(a.options.Logger)
+	log.SetName(fmt.Sprintf("%s.%s:%s %s", a.options.Name, a.options.Namespace, a.options.Version, a.options.Id))
+
+	// TODO: register health handler
+
+	// TODO: init exporters?
+
 	var listener net.Listener
 
 	var err error
@@ -82,13 +99,34 @@ func (a *httpApi) start() error {
 		ch <- listener.Close()
 	}()
 
+	a.mtx.Lock()
+	a.started = true
+	a.mtx.Unlock()
+
 	return nil
 }
 
 func (a *httpApi) stop() error {
+	a.mtx.RLock()
+	if !a.started {
+		a.mtx.RUnlock()
+		return nil
+	}
+	a.mtx.RUnlock()
+
 	ch := make(chan error)
+
+	// signal start loop
 	a.exit <- ch
-	return <-ch
+
+	// wait for errors
+	err := <-ch
+
+	a.mtx.Lock()
+	a.started = false
+	a.mtx.Unlock()
+
+	return err
 }
 
 func NewApi(opts ...api.ApiOption) api.Api {

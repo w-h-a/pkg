@@ -7,6 +7,7 @@ import (
 	"github.com/w-h-a/pkg/telemetry/buffer/memory"
 )
 
+// TODO: put this in its own memory pkg
 type defaultLog struct {
 	options LogOptions
 	buffer  buffer.Buffer

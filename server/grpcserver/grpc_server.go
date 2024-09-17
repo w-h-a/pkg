@@ -97,6 +97,9 @@ func (s *grpcServer) start() error {
 	}
 	s.mtx.RUnlock()
 
+	// TODO: just do log.SetLogger(s.options.Logger) and log.SetName(name) here
+
+	// TODO: refactor
 	if err := handlers.RegisterHealthHandler(
 		s,
 		handlers.NewHealthHandler(
@@ -105,6 +108,8 @@ func (s *grpcServer) start() error {
 	); err != nil {
 		return err
 	}
+
+	// TODO: init exporters?
 
 	listener, err := net.Listen("tcp", s.options.Address)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/exec"
 	"sync"
-	"time"
 
 	"github.com/w-h-a/pkg/runner"
 )
@@ -34,17 +33,23 @@ func (p *customProcess) Apply() error {
 		p.upCmd.Env = append(p.upCmd.Env, k+"="+v)
 	}
 
-	errCh := make(chan error)
+	// errCh := make(chan error)
 
-	go func() {
-		err := p.upCmd.Start()
-		for p.upCmd.Process == nil {
-			time.Sleep(1 * time.Second)
-		}
-		errCh <- err
-	}()
+	// go func() {
+	// 	err := p.upCmd.Start()
+	// 	for p.upCmd.Process == nil {
+	// 		time.Sleep(1 * time.Second)
+	// 	}
+	// 	errCh <- err
+	// }()
 
-	return <-errCh
+	// return <-errCh
+
+	if err := p.upCmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *customProcess) Destroy() error {

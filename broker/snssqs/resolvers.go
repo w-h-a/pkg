@@ -13,11 +13,8 @@ type snsResolver struct {
 	nodes []string
 }
 
+// TODO: figure out defaults
 func (r *snsResolver) ResolveEndpoint(ctx context.Context, params sns.EndpointParameters) (transport.Endpoint, error) {
-	if len(r.nodes) == 0 {
-		return sns.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
-	}
-
 	u, err := url.Parse(r.nodes[0])
 	if err != nil {
 		return transport.Endpoint{}, err
@@ -32,11 +29,8 @@ type sqsResolver struct {
 	nodes []string
 }
 
+// TODO: figure out defaults
 func (r *sqsResolver) ResolveEndpoint(ctx context.Context, params sqs.EndpointParameters) (transport.Endpoint, error) {
-	if len(r.nodes) == 0 {
-		return sqs.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
-	}
-
 	u, err := url.Parse(r.nodes[0])
 	if err != nil {
 		return transport.Endpoint{}, err

@@ -11,8 +11,10 @@ type ApiOption func(o *ApiOptions)
 type ApiOptions struct {
 	Namespace       string
 	Name            string
+	Id              string
 	Version         string
 	Address         string
+	Metadata        map[string]string
 	EnableTLS       bool
 	CertProvider    cert.CertProvider
 	Hosts           []string
@@ -32,6 +34,12 @@ func ApiWithName(n string) ApiOption {
 	}
 }
 
+func ApiWithId(id string) ApiOption {
+	return func(o *ApiOptions) {
+		o.Id = id
+	}
+}
+
 func ApiWithVersion(v string) ApiOption {
 	return func(o *ApiOptions) {
 		o.Version = v
@@ -41,6 +49,12 @@ func ApiWithVersion(v string) ApiOption {
 func ApiWithAddress(addr string) ApiOption {
 	return func(o *ApiOptions) {
 		o.Address = addr
+	}
+}
+
+func ApiWithMetadata(md map[string]string) ApiOption {
+	return func(o *ApiOptions) {
+		o.Metadata = md
 	}
 }
 
@@ -70,7 +84,13 @@ func WrapHandler(w HandlerWrapper) ApiOption {
 
 func NewApiOptions(opts ...ApiOption) ApiOptions {
 	options := ApiOptions{
-		Context: context.Background(),
+		Namespace: defaultNamespace,
+		Name:      defaultName,
+		Id:        defaultID,
+		Version:   defaultVersion,
+		Address:   defaultAddress,
+		Metadata:  map[string]string{},
+		Context:   context.Background(),
 	}
 
 	for _, fn := range opts {

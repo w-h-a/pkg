@@ -1,7 +1,6 @@
 package custom
 
 import (
-	"os"
 	"os/exec"
 	"sync"
 
@@ -56,15 +55,15 @@ func (p *customProcess) Destroy() error {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
 
-	if p.upCmd != nil && p.upCmd.Process != nil {
-		if err := p.upCmd.Process.Signal(os.Interrupt); err != nil {
-			return err
-		}
-	}
+	// if p.upCmd != nil && p.upCmd.Process != nil {
+	// 	if err := p.upCmd.Process.Signal(os.Interrupt); err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	if len(p.options.DownBinPath) == 0 {
-		return nil
-	}
+	// if len(p.options.DownBinPath) == 0 {
+	// 	return nil
+	// }
 
 	p.downCmd = exec.Command(p.options.DownBinPath, p.options.DownArgs...)
 

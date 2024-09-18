@@ -1,7 +1,7 @@
 package runner
 
-type Manager interface {
-	Options() ManagerOptions
+type Process interface {
+	Options() ProcessOptions
 	Apply() error
 	Destroy() error
 	String() string

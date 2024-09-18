@@ -1,11 +1,10 @@
 package runner
 
-import (
-	"testing"
-)
+import "testing"
 
 const (
-	FailExitCode = 1
+	SuccessExitCode = 0
+	FailExitCode    = 1
 )
 
 type TestRunner interface {

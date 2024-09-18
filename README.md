@@ -7,7 +7,7 @@
 | api       | http                | build gateway servers      |
 | broker    | sns+sqs             | asynchronous communication |
 | client    | grpc, http          | synchronous communication  |
-| runner    | custom              | setup and run tests        |
+| runner    | docker, binary      | setup and run tests        |
 | runtime   | kubernetes          | service management         |
 | security  | jwts, ssm, autocert | tokens, secrets, and certs |
 | server    | grpc                | build backend servers      |

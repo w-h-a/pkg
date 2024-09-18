@@ -43,12 +43,19 @@ func NewRunnerOptions(opts ...RunnerOption) RunnerOptions {
 type ProcessOption func(o *ProcessOptions)
 
 type ProcessOptions struct {
+	Id          string
 	UpBinPath   string
 	UpArgs      []string
 	DownBinPath string
 	DownArgs    []string
 	EnvVars     map[string]string
 	Context     context.Context
+}
+
+func ProcessWithId(id string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.Id = id
+	}
 }
 
 func ProcessWithUpBinPath(path string) ProcessOption {

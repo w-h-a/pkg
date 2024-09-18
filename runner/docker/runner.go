@@ -1,4 +1,4 @@
-package custom
+package docker
 
 import (
 	"sync"
@@ -8,7 +8,7 @@ import (
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
-type customRunner struct {
+type dockerRunner struct {
 	options     runner.RunnerOptions
 	inactive    []runner.Process
 	inactiveMtx sync.RWMutex
@@ -16,11 +16,11 @@ type customRunner struct {
 	activeMtx   sync.RWMutex
 }
 
-func (r *customRunner) Options() runner.RunnerOptions {
+func (r *dockerRunner) Options() runner.RunnerOptions {
 	return r.options
 }
 
-func (r *customRunner) Start(m *testing.M) int {
+func (r *dockerRunner) Start(m *testing.M) int {
 	defer r.Stop()
 
 	if err := r.register(); err != nil {
@@ -34,15 +34,15 @@ func (r *customRunner) Start(m *testing.M) int {
 	return m.Run()
 }
 
-func (r *customRunner) Stop() {
+func (r *dockerRunner) Stop() {
 	r.destroy()
 }
 
-func (r *customRunner) String() string {
-	return "custom"
+func (r *dockerRunner) String() string {
+	return "docker"
 }
 
-func (r *customRunner) register() error {
+func (r *dockerRunner) register() error {
 	for _, p := range r.options.Processes {
 		r.inactiveMtx.Lock()
 		r.inactive = append(r.inactive, p)
@@ -52,10 +52,10 @@ func (r *customRunner) register() error {
 	return nil
 }
 
-func (r *customRunner) apply() error {
+func (r *dockerRunner) apply() error {
 	for p := r.dequeue(); p != nil; p = r.dequeue() {
 		if err := p.Apply(); err != nil {
-			log.Errorf("failed to apply %s: %v", p.Options().UpBinPath, err)
+			log.Errorf("failed to apply %s: %v", p.Options().Id, err)
 			return err
 		}
 
@@ -63,23 +63,23 @@ func (r *customRunner) apply() error {
 		r.active = append(r.active, p)
 		r.activeMtx.Unlock()
 
-		log.Infof("successfully applied %s", p.Options().UpBinPath)
+		log.Infof("successfully applied %s", p.Options().Id)
 	}
 
 	return nil
 }
 
-func (r *customRunner) destroy() {
+func (r *dockerRunner) destroy() {
 	for p := r.pop(); p != nil; p = r.pop() {
 		if err := p.Destroy(); err != nil {
-			log.Errorf("failed to destroy process: %v", err)
+			log.Errorf("failed to destroy process %s: %v", p.Options().Id, err)
 		} else {
-			log.Infof("successfully destroyed process")
+			log.Infof("successfully destroyed process %s", p.Options().Id)
 		}
 	}
 }
 
-func (r *customRunner) dequeue() runner.Process {
+func (r *dockerRunner) dequeue() runner.Process {
 	r.inactiveMtx.Lock()
 	defer r.inactiveMtx.Unlock()
 
@@ -94,7 +94,7 @@ func (r *customRunner) dequeue() runner.Process {
 	return m
 }
 
-func (r *customRunner) pop() runner.Process {
+func (r *dockerRunner) pop() runner.Process {
 	r.activeMtx.Lock()
 	defer r.activeMtx.Unlock()
 
@@ -112,7 +112,7 @@ func (r *customRunner) pop() runner.Process {
 func NewTestRunner(opts ...runner.RunnerOption) runner.TestRunner {
 	options := runner.NewRunnerOptions(opts...)
 
-	r := &customRunner{
+	r := &dockerRunner{
 		options:     options,
 		inactive:    []runner.Process{},
 		inactiveMtx: sync.RWMutex{},

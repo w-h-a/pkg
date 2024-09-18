@@ -1,4 +1,4 @@
-package custom
+package docker
 
 import (
 	"os/exec"
@@ -7,18 +7,18 @@ import (
 	"github.com/w-h-a/pkg/runner"
 )
 
-type customProcess struct {
+type dockerProcess struct {
 	options runner.ProcessOptions
 	upCmd   *exec.Cmd
 	downCmd *exec.Cmd
 	mtx     sync.RWMutex
 }
 
-func (p *customProcess) Options() runner.ProcessOptions {
+func (p *dockerProcess) Options() runner.ProcessOptions {
 	return p.options
 }
 
-func (p *customProcess) Apply() error {
+func (p *dockerProcess) Apply() error {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
 
@@ -28,22 +28,6 @@ func (p *customProcess) Apply() error {
 		return err
 	}
 
-	for k, v := range p.options.EnvVars {
-		p.upCmd.Env = append(p.upCmd.Env, k+"="+v)
-	}
-
-	// errCh := make(chan error)
-
-	// go func() {
-	// 	err := p.upCmd.Start()
-	// 	for p.upCmd.Process == nil {
-	// 		time.Sleep(1 * time.Second)
-	// 	}
-	// 	errCh <- err
-	// }()
-
-	// return <-errCh
-
 	if err := p.upCmd.Run(); err != nil {
 		return err
 	}
@@ -51,19 +35,9 @@ func (p *customProcess) Apply() error {
 	return nil
 }
 
-func (p *customProcess) Destroy() error {
+func (p *dockerProcess) Destroy() error {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
-
-	// if p.upCmd != nil && p.upCmd.Process != nil {
-	// 	if err := p.upCmd.Process.Signal(os.Interrupt); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// if len(p.options.DownBinPath) == 0 {
-	// 	return nil
-	// }
 
 	p.downCmd = exec.Command(p.options.DownBinPath, p.options.DownArgs...)
 
@@ -78,14 +52,14 @@ func (p *customProcess) Destroy() error {
 	return nil
 }
 
-func (p *customProcess) String() string {
-	return "custom"
+func (p *dockerProcess) String() string {
+	return "docker"
 }
 
 func NewProcess(opts ...runner.ProcessOption) runner.Process {
 	options := runner.NewProcessOptions(opts...)
 
-	p := &customProcess{
+	p := &dockerProcess{
 		options: options,
 		mtx:     sync.RWMutex{},
 	}

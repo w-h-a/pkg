@@ -19,16 +19,3 @@ func GetHandlerFuncsFromContext(ctx context.Context) (map[string]http.HandlerFun
 	funs, ok := ctx.Value(handlerFuncsKey{}).(map[string]http.HandlerFunc)
 	return funs, ok
 }
-
-type portKey struct{}
-
-func ProcessWithPort(p int) runner.ProcessOption {
-	return func(o *runner.ProcessOptions) {
-		o.Context = context.WithValue(o.Context, portKey{}, p)
-	}
-}
-
-func GetPortFromContext(ctx context.Context) (int, bool) {
-	p, ok := ctx.Value(portKey{}).(int)
-	return p, ok
-}

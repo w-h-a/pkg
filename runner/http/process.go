@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/w-h-a/pkg/runner"
@@ -71,8 +72,12 @@ func NewProcess(opts ...runner.ProcessOption) runner.Process {
 
 	var port int
 
-	if prt, ok := GetPortFromContext(options.Context); ok {
-		port = prt
+	if prt, ok := options.EnvVars["PORT"]; ok {
+		var err error
+		port, err = strconv.Atoi(prt)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))

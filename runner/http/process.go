@@ -37,6 +37,7 @@ func (p *httpProcess) Apply() error {
 
 	go func() {
 		<-p.exit
+		log.Infof("http process received interrupt signal")
 		p.errCh <- p.server.Shutdown(context.Background())
 	}()
 
@@ -84,6 +85,8 @@ func NewProcess(opts ...runner.ProcessOption) runner.Process {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Infof("http service is listening on port %d", port)
 
 	p := &httpProcess{
 		options:  options,

@@ -34,7 +34,7 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
 		log.Warnf("store %s was not found", state.StoreId)
-		return nil
+		return sidecar.ErrComponentNotFound
 	}
 
 	for _, record := range state.Records {
@@ -224,7 +224,7 @@ func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) e
 	bk, ok := s.options.Brokers[target]
 	if !ok {
 		log.Warnf("broker %s was not found", target)
-		return nil
+		return sidecar.ErrComponentNotFound
 	}
 
 	if err := bk.Publish(event.Data, *bk.Options().PublishOptions); err != nil {

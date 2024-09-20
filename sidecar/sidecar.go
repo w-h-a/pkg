@@ -1,7 +1,13 @@
 package sidecar
 
 import (
+	"errors"
+
 	"github.com/w-h-a/pkg/store"
+)
+
+var (
+	ErrComponentNotFound = errors.New("component not found")
 )
 
 type Sidecar interface {

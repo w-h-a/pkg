@@ -8,6 +8,10 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type ioPair struct {
@@ -71,4 +75,66 @@ func GetFreePort() (int, error) {
 	defer listener.Close()
 
 	return listener.Addr().(*net.TCPAddr).Port, nil
+}
+
+type ParallelTest struct {
+	funs []func(c *assert.CollectT)
+	mtx  sync.RWMutex
+}
+
+func (p *ParallelTest) Add(fun func(c *assert.CollectT)) {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.funs = append(p.funs, fun)
+}
+
+func (p *ParallelTest) worker(jobCh <-chan func()) {
+	for job := range jobCh {
+		job()
+	}
+}
+
+func NewParallelTest(t *testing.T, funs ...func(c *assert.CollectT)) *ParallelTest {
+	p := &ParallelTest{
+		funs: funs,
+	}
+
+	t.Cleanup(func() {
+		p.mtx.Lock()
+		defer p.mtx.Unlock()
+
+		t.Helper()
+
+		jobCh := make(chan func(), len(p.funs))
+
+		workerCount := 4
+
+		for i := 0; i < workerCount; i++ {
+			go p.worker(jobCh)
+		}
+
+		cs := make([]*assert.CollectT, len(p.funs))
+
+		var wg sync.WaitGroup
+
+		wg.Add(len(p.funs))
+
+		for i := range p.funs {
+			cs[i] = &assert.CollectT{}
+
+			jobCh <- func() {
+				defer wg.Done()
+				defer recover()
+
+				p.funs[i](cs[i])
+			}
+		}
+
+		wg.Wait()
+
+		close(jobCh)
+	})
+
+	return p
 }

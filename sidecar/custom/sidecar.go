@@ -243,7 +243,9 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 		client.RequestWithNamespace(s.options.ServiceName),
 		client.RequestWithName(s.options.ServiceName),
 		client.RequestWithPort(p),
+		// TODO: make this better
 		client.RequestWithMethod(event.EventName),
+		// TODO: does the service accept proto?
 		client.RequestWithUnmarshaledRequest(event),
 	)
 

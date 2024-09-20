@@ -89,7 +89,9 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 	}))
 
 	s := &HttpSubscriber{
-		proc: http.NewProcess(opts...),
+		proc:  http.NewProcess(opts...),
+		event: event,
+		exit:  exit,
 	}
 
 	return s

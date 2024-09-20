@@ -31,8 +31,6 @@ func (s *customSidecar) SaveStateToStore(state *sidecar.State) error {
 		return nil
 	}
 
-	log.Infof("STATE %#+v", state)
-
 	st, ok := s.options.Stores[state.StoreId]
 	if !ok {
 		log.Warnf("store %s was not found", state.StoreId)

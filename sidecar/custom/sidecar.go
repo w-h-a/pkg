@@ -63,7 +63,7 @@ func (c *customSidecar) ListStateFromStore(storeId string) ([]*store.Record, err
 	st, ok := c.options.Stores[storeId]
 	if !ok {
 		log.Warnf("store %s was not found", storeId)
-		return nil, nil
+		return nil, sidecar.ErrComponentNotFound
 	}
 
 	// TODO: limit + offset
@@ -79,7 +79,7 @@ func (s *customSidecar) SingleStateFromStore(storeId, key string) ([]*store.Reco
 	st, ok := s.options.Stores[storeId]
 	if !ok {
 		log.Warnf("store %s was not found", storeId)
-		return nil, nil
+		return nil, sidecar.ErrComponentNotFound
 	}
 
 	recs, err := st.Read(key)
@@ -94,7 +94,7 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 	st, ok := s.options.Stores[storeId]
 	if !ok {
 		log.Warnf("store %s was not found", storeId)
-		return nil
+		return sidecar.ErrComponentNotFound
 	}
 
 	if err := st.Delete(key); err != nil {
@@ -106,11 +106,16 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 
 func (s *customSidecar) WriteEventToBroker(event *sidecar.Event) error {
 	if len(event.To) == 0 {
+		log.Warnf("event %#+event has no address", event)
 		return nil
 	}
 
-	if err := s.actOnEventFromService(event); err != nil {
-		return err
+	if len(event.Concurrent) > 0 {
+		s.sendEventToTargetsConcurrently(event)
+	} else {
+		if err := s.sendEventToTargetsSequentially(event); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -182,22 +187,6 @@ func (s *customSidecar) String() string {
 	return "custom"
 }
 
-func (s *customSidecar) actOnEventFromService(event *sidecar.Event) error {
-	if len(event.To) == 0 {
-		return nil
-	}
-
-	if len(event.Concurrent) > 0 {
-		s.sendEventToTargetsConcurrently(event)
-	} else {
-		if err := s.sendEventToTargetsSequentially(event); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (s *customSidecar) sendEventToTargetsConcurrently(event *sidecar.Event) {
 	for _, target := range event.To {
 		go func() {
@@ -252,10 +241,6 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 	rsp := &sidecar.Event{}
 
 	if err := s.options.Client.Call(context.Background(), req, rsp, client.CallWithAddress(url)); err != nil {
-		return err
-	}
-
-	if err := s.actOnEventFromService(rsp); err != nil {
 		return err
 	}
 

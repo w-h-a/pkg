@@ -83,6 +83,11 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 		}))
 	}
 
+	opts = append(opts, http.HttpProcessWithHandlerFuncs("/health/check", func(w gohttp.ResponseWriter, r *gohttp.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("ok"))
+	}))
+
 	s := &HttpSubscriber{
 		proc: http.NewProcess(opts...),
 	}

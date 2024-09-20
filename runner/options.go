@@ -9,9 +9,9 @@ import (
 type RunnerOption func(o *RunnerOptions)
 
 type RunnerOptions struct {
-	Id      string
-	Files   []File
-	Context context.Context
+	Id        string
+	Processes []Process
+	Context   context.Context
 }
 
 func RunnerWithId(id string) RunnerOption {
@@ -20,17 +20,17 @@ func RunnerWithId(id string) RunnerOption {
 	}
 }
 
-func RunnerWithFiles(files ...File) RunnerOption {
+func RunnerWithProcesses(ps ...Process) RunnerOption {
 	return func(o *RunnerOptions) {
-		o.Files = files
+		o.Processes = ps
 	}
 }
 
 func NewRunnerOptions(opts ...RunnerOption) RunnerOptions {
 	options := RunnerOptions{
-		Id:      uuid.New().String(),
-		Files:   []File{},
-		Context: context.Background(),
+		Id:        uuid.New().String(),
+		Processes: []Process{},
+		Context:   context.Background(),
 	}
 
 	for _, fn := range opts {
@@ -40,22 +40,60 @@ func NewRunnerOptions(opts ...RunnerOption) RunnerOptions {
 	return options
 }
 
-type ManagerOption func(o *ManagerOptions)
+type ProcessOption func(o *ProcessOptions)
 
-type ManagerOptions struct {
-	File    File
-	Context context.Context
+type ProcessOptions struct {
+	Id          string
+	UpBinPath   string
+	UpArgs      []string
+	DownBinPath string
+	DownArgs    []string
+	EnvVars     map[string]string
+	Context     context.Context
 }
 
-func ManagerWithFile(file File) ManagerOption {
-	return func(o *ManagerOptions) {
-		o.File = file
+func ProcessWithId(id string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.Id = id
 	}
 }
 
-func NewManagerOptions(opts ...ManagerOption) ManagerOptions {
-	options := ManagerOptions{
-		Context: context.Background(),
+func ProcessWithUpBinPath(path string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.UpBinPath = path
+	}
+}
+
+func ProcessWithUpArgs(args ...string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.UpArgs = args
+	}
+}
+
+func ProcessWithDownBinPath(path string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.DownBinPath = path
+	}
+}
+
+func ProcessWithDownArgs(args ...string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.DownArgs = args
+	}
+}
+
+func ProcessWithEnvVars(envs map[string]string) ProcessOption {
+	return func(o *ProcessOptions) {
+		o.EnvVars = envs
+	}
+}
+
+func NewProcessOptions(opts ...ProcessOption) ProcessOptions {
+	options := ProcessOptions{
+		UpArgs:   []string{},
+		DownArgs: []string{},
+		EnvVars:  map[string]string{},
+		Context:  context.Background(),
 	}
 
 	for _, fn := range opts {

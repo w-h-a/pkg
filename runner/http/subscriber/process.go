@@ -14,7 +14,6 @@ import (
 type HttpSubscriber struct {
 	proc  runner.Process
 	event chan *RouteEvent
-	exit  chan struct{}
 }
 
 func (p *HttpSubscriber) Options() runner.ProcessOptions {
@@ -26,12 +25,12 @@ func (p *HttpSubscriber) Apply() error {
 }
 
 func (p *HttpSubscriber) Destroy() error {
-	close(p.exit)
+	close(p.event)
 	return p.proc.Destroy()
 }
 
 func (p *HttpSubscriber) String() string {
-	return "httpSubscriber"
+	return "HttpSubscriber"
 }
 
 func (p *HttpSubscriber) Receive() *RouteEvent {
@@ -57,10 +56,8 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 
 	event := make(chan *RouteEvent, 100)
 
-	exit := make(chan struct{})
-
 	for _, route := range routes {
-		opts = append(opts, http.HttpProcessWithHandlerFuncs(route, func(w gohttp.ResponseWriter, r *gohttp.Request) {
+		opts = append(opts, http.HttpProcessWithHandlers(route, func(w gohttp.ResponseWriter, r *gohttp.Request) {
 			var sidecarEvent sidecar.Event
 
 			if err := json.NewDecoder(r.Body).Decode(&sidecarEvent); err != nil {
@@ -70,9 +67,6 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 			}
 
 			select {
-			case <-exit:
-				w.WriteHeader(500)
-				return
 			case <-r.Context().Done():
 				w.WriteHeader(500)
 				return
@@ -83,7 +77,7 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 		}))
 	}
 
-	opts = append(opts, http.HttpProcessWithHandlerFuncs("/health/check", func(w gohttp.ResponseWriter, r *gohttp.Request) {
+	opts = append(opts, http.HttpProcessWithHandlers("/health/check", func(w gohttp.ResponseWriter, r *gohttp.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("ok"))
 	}))
@@ -91,7 +85,6 @@ func NewSubscriber(opts ...runner.ProcessOption) *HttpSubscriber {
 	s := &HttpSubscriber{
 		proc:  http.NewProcess(opts...),
 		event: event,
-		exit:  exit,
 	}
 
 	return s

@@ -11,6 +11,7 @@ style:
 	goimports -l -w ./runtime
 	goimports -l -w ./security
 	goimports -l -w ./server
+	goimports -l -w ./serverv2
 	goimports -l -w ./sidecar
 	goimports -l -w ./store
 	goimports -l -w ./telemetry

@@ -202,7 +202,7 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 		return sidecar.ErrInvalidGroupName
 	}
 
-	if s.options.ServicePort.Protocol == "rpc" {
+	if s.options.ServicePort.Protocol == "grpc" {
 		caser := cases.Title(language.English)
 		receiver := caser.String(parts[0])
 		method := caser.String(parts[1])

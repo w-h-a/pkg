@@ -9,11 +9,11 @@ import (
 
 type handlerFuncsKey struct{}
 
-func HttpProcessWithHandlerFuncs(route string, fun http.HandlerFunc) runner.ProcessOption {
+func HttpProcessWithHandlers(route string, fun http.HandlerFunc) runner.ProcessOption {
 	return func(o *runner.ProcessOptions) {
 		funs := map[string]http.HandlerFunc{}
 
-		if m, ok := GetHandlerFuncsFromContext(o.Context); ok && m != nil {
+		if m, ok := GetHandlersFromContext(o.Context); ok && m != nil {
 			m[route] = fun
 			funs = m
 		} else {
@@ -24,7 +24,7 @@ func HttpProcessWithHandlerFuncs(route string, fun http.HandlerFunc) runner.Proc
 	}
 }
 
-func GetHandlerFuncsFromContext(ctx context.Context) (map[string]http.HandlerFunc, bool) {
+func GetHandlersFromContext(ctx context.Context) (map[string]http.HandlerFunc, bool) {
 	funs, ok := ctx.Value(handlerFuncsKey{}).(map[string]http.HandlerFunc)
 	return funs, ok
 }

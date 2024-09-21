@@ -8,6 +8,7 @@ import (
 
 var (
 	ErrComponentNotFound = errors.New("component not found")
+	ErrInvalidGroupName  = errors.New("subscriber group name should be of form <group>-<topic>")
 )
 
 type Sidecar interface {

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
-	"time"
 
 	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/client"
@@ -14,6 +14,8 @@ import (
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/datautils"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type customSidecar struct {
@@ -105,17 +107,14 @@ func (s *customSidecar) RemoveStateFromStore(storeId, key string) error {
 }
 
 func (s *customSidecar) WriteEventToBroker(event *sidecar.Event) error {
-	if len(event.To) == 0 {
-		log.Warnf("event %#+event has no address", event)
-		return nil
+	bk, ok := s.options.Brokers[event.EventName]
+	if !ok {
+		log.Warnf("broker %s was not found", event.EventName)
+		return sidecar.ErrComponentNotFound
 	}
 
-	if len(event.Concurrent) > 0 {
-		s.sendEventToTargetsConcurrently(event)
-	} else {
-		if err := s.sendEventToTargetsSequentially(event); err != nil {
-			return err
-		}
+	if err := bk.Publish(event.Data, *bk.Options().PublishOptions); err != nil {
+		return err
 	}
 
 	return nil
@@ -146,9 +145,8 @@ func (s *customSidecar) ReadEventsFromBroker(brokerId string) {
 		}
 
 		event := &sidecar.Event{
-			Data:      body,
 			EventName: brokerId,
-			CreatedAt: time.Now(),
+			Data:      body,
 		}
 
 		return s.sendEventToService(event)
@@ -187,56 +185,47 @@ func (s *customSidecar) String() string {
 	return "custom"
 }
 
-func (s *customSidecar) sendEventToTargetsConcurrently(event *sidecar.Event) {
-	for _, target := range event.To {
-		go func() {
-			err := s.sendEventToTarget(target, event)
-			if err != nil {
-				log.Errorf("failed to send event %s to target %s: %v", event.EventName, target, err)
-			}
-		}()
-	}
-}
-
-func (s *customSidecar) sendEventToTargetsSequentially(event *sidecar.Event) error {
-	for _, target := range event.To {
-		err := s.sendEventToTarget(target, event)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *customSidecar) sendEventToTarget(target string, event *sidecar.Event) error {
-	bk, ok := s.options.Brokers[target]
-	if !ok {
-		log.Warnf("broker %s was not found", target)
-		return sidecar.ErrComponentNotFound
-	}
-
-	if err := bk.Publish(event.Data, *bk.Options().PublishOptions); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
 
 	p, _ := strconv.Atoi(s.options.ServicePort.Port)
 
-	req := s.options.Client.NewRequest(
+	opts := []client.RequestOption{
 		client.RequestWithNamespace(s.options.ServiceName),
 		client.RequestWithName(s.options.ServiceName),
 		client.RequestWithPort(p),
-		// TODO: make this better
-		client.RequestWithMethod(event.EventName),
-		// TODO: does the service accept proto?
-		client.RequestWithUnmarshaledRequest(event),
-	)
+	}
+
+	parts := strings.Split(event.EventName, "-")
+
+	if len(parts) != 2 {
+		return sidecar.ErrInvalidGroupName
+	}
+
+	if s.options.ServicePort.Protocol == "rpc" {
+		caser := cases.Title(language.English)
+		receiver := caser.String(parts[0])
+		method := caser.String(parts[1])
+		pbEvent, err := sidecar.SerializeEvent(event)
+		if err != nil {
+			return err
+		}
+		opts = append(
+			opts,
+			client.RequestWithMethod(fmt.Sprintf("%s.%s", receiver, method)),
+			client.RequestWithUnmarshaledRequest(pbEvent),
+		)
+	} else {
+		receiver := strings.ToLower(parts[0])
+		method := strings.ToLower(parts[1])
+		opts = append(
+			opts,
+			client.RequestWithMethod(fmt.Sprintf("%s/%s", receiver, method)),
+			client.RequestWithUnmarshaledRequest(event),
+		)
+	}
+
+	req := s.options.Client.NewRequest(opts...)
 
 	rsp := &sidecar.Event{}
 

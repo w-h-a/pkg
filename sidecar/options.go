@@ -13,7 +13,7 @@ type SidecarOption func(o *SidecarOptions)
 type SidecarOptions struct {
 	ServiceName string
 	HttpPort    Port
-	RpcPort     Port
+	GrpcPort    Port
 	ServicePort Port
 	Client      client.Client
 	Stores      map[string]store.Store
@@ -38,9 +38,9 @@ func SidecarWithHttpPort(p Port) SidecarOption {
 	}
 }
 
-func SidecarWithRpcPort(p Port) SidecarOption {
+func SidecarWithGrpcPort(p Port) SidecarOption {
 	return func(o *SidecarOptions) {
-		o.RpcPort = p
+		o.GrpcPort = p
 	}
 }
 

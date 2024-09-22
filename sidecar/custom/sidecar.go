@@ -227,7 +227,7 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 
 	req := s.options.Client.NewRequest(opts...)
 
-	rsp := &sidecar.Event{}
+	var rsp interface{}
 
 	if err := s.options.Client.Call(context.Background(), req, rsp, client.CallWithAddress(url)); err != nil {
 		return err

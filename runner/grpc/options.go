@@ -9,22 +9,22 @@ import (
 
 type handlerFuncsKey struct{}
 
-func GrpcProcessWithHandlers(funs ...*grpc.Handler) runner.ProcessOption {
+func GrpcProcessWithHandlers(hs ...*grpc.Handler) runner.ProcessOption {
 	return func(o *runner.ProcessOptions) {
-		funs := []*grpc.Handler{}
+		handlers := []*grpc.Handler{}
 
-		if m, ok := GetHandlersFromContext(o.Context); ok && m != nil {
-			m = append(m, funs...)
-			funs = m
+		if s, ok := GetHandlersFromContext(o.Context); ok && s != nil {
+			s = append(s, hs...)
+			handlers = s
 		} else {
-			funs = append(funs, funs...)
+			handlers = append(handlers, hs...)
 		}
 
-		o.Context = context.WithValue(o.Context, handlerFuncsKey{}, funs)
+		o.Context = context.WithValue(o.Context, handlerFuncsKey{}, handlers)
 	}
 }
 
 func GetHandlersFromContext(ctx context.Context) ([]*grpc.Handler, bool) {
-	funs, ok := ctx.Value(handlerFuncsKey{}).([]*grpc.Handler)
-	return funs, ok
+	hs, ok := ctx.Value(handlerFuncsKey{}).([]*grpc.Handler)
+	return hs, ok
 }

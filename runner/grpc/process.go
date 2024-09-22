@@ -53,7 +53,6 @@ func NewProcess(opts ...runner.ProcessOption) runner.Process {
 
 	if handlers, ok := GetHandlersFromContext(options.Context); ok {
 		for _, handler := range handlers {
-			log.Infof("WE HAVE THIS HANDLER %+#v", handler)
 			if err := grpcServer.Handle(handler); err != nil {
 				log.Fatal(err)
 			}

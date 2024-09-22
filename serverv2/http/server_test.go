@@ -10,7 +10,7 @@ import (
 	"github.com/w-h-a/pkg/serverv2"
 )
 
-func TestHttpApi(t *testing.T) {
+func TestHttpServer(t *testing.T) {
 	testResponse := "hello world"
 
 	s := NewServer(

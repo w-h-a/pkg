@@ -54,11 +54,11 @@ func NewHandler(handler interface{}) *Handler {
 	// get the name of the handler struct
 	nameOfHandler := reflect.Indirect(valueOfHandler).Type().Name()
 
-	c := &Handler{
+	h := &Handler{
 		Name:     nameOfHandler,
 		Receiver: valueOfHandler,
 		Methods:  methods,
 	}
 
-	return c
+	return h
 }

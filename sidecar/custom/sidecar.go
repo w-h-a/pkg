@@ -181,6 +181,23 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 	return nil
 }
 
+func (s *customSidecar) ReadFromSecretStore(secretStore string, name string) (*sidecar.Secret, error) {
+	sc, ok := s.options.Secrets[secretStore]
+	if !ok {
+		log.Warnf("secret store %s was not found", secretStore)
+		return nil, sidecar.ErrComponentNotFound
+	}
+
+	mp, err := sc.GetSecret(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sidecar.Secret{
+		Data: mp,
+	}, nil
+}
+
 func (s *customSidecar) String() string {
 	return "custom"
 }

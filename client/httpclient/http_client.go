@@ -38,10 +38,6 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 		return errorutils.InternalServerError("client", "req is nil")
 	}
 
-	if rsp == nil {
-		return errorutils.InternalServerError("client", "rsp is nil")
-	}
-
 	callOptions := client.NewCallOptions(&c.options.CallOptions, opts...)
 
 	next, err := c.next(req, callOptions)

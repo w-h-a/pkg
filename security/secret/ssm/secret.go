@@ -20,10 +20,8 @@ func (s *ssmSecret) Options() secret.SecretOptions {
 }
 
 // TODO: retry
-func (s *ssmSecret) GetSecret(name string, opts ...secret.GetSecretOption) (map[string]string, error) {
-	options := secret.NewGetSecretOptions(opts...)
-
-	value, err := s.ssmClient.GetValue(options.Prefix, name)
+func (s *ssmSecret) GetSecret(name string) (map[string]string, error) {
+	value, err := s.ssmClient.GetValue(name)
 	if err != nil {
 		return nil, err
 	}

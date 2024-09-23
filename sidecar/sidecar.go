@@ -20,6 +20,6 @@ type Sidecar interface {
 	WriteEventToBroker(event *Event) error
 	ReadEventsFromBroker(broker string)
 	UnsubscribeFromBroker(broker string) error
-	ReadFromSecretStore(secretStore string, name, prefix string) (*Secret, error)
+	ReadFromSecretStore(secretStore string, name string) (*Secret, error)
 	String() string
 }

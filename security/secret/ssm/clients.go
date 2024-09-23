@@ -8,16 +8,16 @@ import (
 )
 
 type SsmClient interface {
-	GetValue(prefix, name string) (string, error)
+	GetValue(name string) (string, error)
 }
 
 type ssmClient struct {
 	*ssm.Client
 }
 
-func (c *ssmClient) GetValue(prefix, name string) (string, error) {
+func (c *ssmClient) GetValue(name string) (string, error) {
 	input := &ssm.GetParameterInput{
-		Name:           aws.String(prefix + name),
+		Name:           aws.String(name),
 		WithDecryption: aws.Bool(true),
 	}
 

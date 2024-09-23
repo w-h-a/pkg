@@ -26,28 +26,3 @@ func NewSecretOptions(opts ...SecretOption) SecretOptions {
 
 	return options
 }
-
-type GetSecretOption func(o *GetSecretOptions)
-
-type GetSecretOptions struct {
-	Prefix  string
-	Context context.Context
-}
-
-func GetSecretWithPrefix(prefix string) GetSecretOption {
-	return func(o *GetSecretOptions) {
-		o.Prefix = prefix
-	}
-}
-
-func NewGetSecretOptions(opts ...GetSecretOption) GetSecretOptions {
-	options := GetSecretOptions{
-		Context: context.Background(),
-	}
-
-	for _, fn := range opts {
-		fn(&options)
-	}
-
-	return options
-}

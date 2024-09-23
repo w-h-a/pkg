@@ -23,9 +23,7 @@ func TestSecret(t *testing.T) {
 }
 
 func TestSecretWithPrefix(t *testing.T) {
-	s := NewSecret(
-		secret.SecretWithPrefix("TEST_"),
-	)
+	s := NewSecret()
 
 	t.Setenv("TEST_SECRET", "test1")
 	t.Setenv("test_secret", "test2")
@@ -35,7 +33,7 @@ func TestSecretWithPrefix(t *testing.T) {
 	require.Equal(t, "test3", os.Getenv("FOOP_SECRET"))
 
 	t.Run("Get", func(t *testing.T) {
-		rsp, err := s.GetSecret("SECRET")
+		rsp, err := s.GetSecret("SECRET", secret.GetSecretWithPrefix("TEST_"))
 		require.NoError(t, err)
 		require.NotNil(t, rsp)
 		require.Len(t, rsp, 1)

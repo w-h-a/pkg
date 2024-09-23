@@ -10,6 +10,7 @@ import (
 
 	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/client"
+	"github.com/w-h-a/pkg/security/secret"
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
@@ -181,14 +182,14 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 	return nil
 }
 
-func (s *customSidecar) ReadFromSecretStore(secretStore string, name string) (*sidecar.Secret, error) {
+func (s *customSidecar) ReadFromSecretStore(secretStore string, name, prefix string) (*sidecar.Secret, error) {
 	sc, ok := s.options.Secrets[secretStore]
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
 		return nil, sidecar.ErrComponentNotFound
 	}
 
-	mp, err := sc.GetSecret(name)
+	mp, err := sc.GetSecret(name, secret.GetSecretWithPrefix(prefix))
 	if err != nil {
 		return nil, err
 	}

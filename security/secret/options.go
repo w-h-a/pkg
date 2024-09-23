@@ -6,19 +6,12 @@ type SecretOption func(o *SecretOptions)
 
 type SecretOptions struct {
 	Nodes   []string
-	Prefix  string
 	Context context.Context
 }
 
 func SecretWithNodes(addrs ...string) SecretOption {
 	return func(o *SecretOptions) {
 		o.Nodes = addrs
-	}
-}
-
-func SecretWithPrefix(prefix string) SecretOption {
-	return func(o *SecretOptions) {
-		o.Prefix = prefix
 	}
 }
 
@@ -37,7 +30,14 @@ func NewSecretOptions(opts ...SecretOption) SecretOptions {
 type GetSecretOption func(o *GetSecretOptions)
 
 type GetSecretOptions struct {
+	Prefix  string
 	Context context.Context
+}
+
+func GetSecretWithPrefix(prefix string) GetSecretOption {
+	return func(o *GetSecretOptions) {
+		o.Prefix = prefix
+	}
 }
 
 func NewGetSecretOptions(opts ...GetSecretOption) GetSecretOptions {

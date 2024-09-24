@@ -20,14 +20,14 @@ func (s *ssmSecret) Options() secret.SecretOptions {
 }
 
 // TODO: retry
-func (s *ssmSecret) GetSecret(name string) (map[string]string, error) {
-	value, err := s.ssmClient.GetValue(name)
+func (s *ssmSecret) GetSecret(key string) (map[string]string, error) {
+	value, err := s.ssmClient.GetValue(s.options.Prefix + key)
 	if err != nil {
 		return nil, err
 	}
 
 	return map[string]string{
-		name: value,
+		key: value,
 	}, nil
 }
 

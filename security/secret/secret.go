@@ -2,6 +2,6 @@ package secret
 
 type Secret interface {
 	Options() SecretOptions
-	GetSecret(name string) (map[string]string, error)
+	GetSecret(key string) (map[string]string, error)
 	String() string
 }

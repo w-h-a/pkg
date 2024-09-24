@@ -15,7 +15,7 @@ func (s *envSecret) Options() secret.SecretOptions {
 }
 
 func (s *envSecret) GetSecret(name string) (map[string]string, error) {
-	value := os.Getenv(name)
+	value := os.Getenv(s.options.Prefix + name)
 
 	return map[string]string{
 		name: value,

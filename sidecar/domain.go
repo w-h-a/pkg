@@ -14,3 +14,7 @@ type Record struct {
 	Key   string      `json:"key,omitempty"`
 	Value interface{} `json:"value,omitempty"`
 }
+
+type Secret struct {
+	Data map[string]string `json:"data,omitempty"`
+}

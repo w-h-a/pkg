@@ -5,6 +5,7 @@ import (
 
 	"github.com/w-h-a/pkg/broker"
 	"github.com/w-h-a/pkg/client"
+	"github.com/w-h-a/pkg/security/secret"
 	"github.com/w-h-a/pkg/store"
 )
 
@@ -18,6 +19,7 @@ type SidecarOptions struct {
 	Client      client.Client
 	Stores      map[string]store.Store
 	Brokers     map[string]broker.Broker
+	Secrets     map[string]secret.Secret
 	Context     context.Context
 }
 
@@ -68,10 +70,17 @@ func SidecarWithBrokers(b map[string]broker.Broker) SidecarOption {
 	}
 }
 
+func SidecarWithSecrets(s map[string]secret.Secret) SidecarOption {
+	return func(o *SidecarOptions) {
+		o.Secrets = s
+	}
+}
+
 func NewSidecarOptions(opts ...SidecarOption) SidecarOptions {
 	options := SidecarOptions{
 		Stores:  map[string]store.Store{},
 		Brokers: map[string]broker.Broker{},
+		Secrets: map[string]secret.Secret{},
 		Context: context.Background(),
 	}
 

@@ -16,6 +16,8 @@ func TestLogger(t *testing.T) {
 	logger := NewLog(log.LogWithPrefix(service), LogWithSize(size))
 	require.Equal(t, size, logger.(*defaultLog).buffer.Options().Size)
 
+	log.SetLogger(logger)
+
 	log.Info("foobar")
 
 	log.SetLevel(log.LevelDebug)

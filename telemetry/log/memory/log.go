@@ -65,7 +65,5 @@ func NewLog(opts ...log.LogOption) log.Log {
 		l.buffer = memory.NewBuffer()
 	}
 
-	log.SetLogger(l)
-
 	return l
 }

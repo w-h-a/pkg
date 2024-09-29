@@ -308,5 +308,7 @@ func NewServer(opts ...serverv2.ServerOption) serverv2.Server {
 		exit:     make(chan struct{}),
 	}
 
+	log.SetLogger(s.options.Logger)
+
 	return s
 }

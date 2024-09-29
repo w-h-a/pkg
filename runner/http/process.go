@@ -58,6 +58,7 @@ func NewProcess(opts ...runner.ProcessOption) runner.Process {
 		serverv2.ServerWithName(options.Id),
 		serverv2.ServerWithVersion("0.1.0"),
 		serverv2.ServerWithAddress(fmt.Sprintf(":%d", port)),
+		serverv2.ServerWithLogger(options.Logger),
 	)
 
 	if err := httpServer.Handle(router); err != nil {

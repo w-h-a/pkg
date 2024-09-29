@@ -1,31 +1,32 @@
-package log
+package memory
 
 import (
 	golog "log"
 
 	"github.com/w-h-a/pkg/telemetry/buffer"
 	"github.com/w-h-a/pkg/telemetry/buffer/memory"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 // TODO: put this in its own memory pkg
 type defaultLog struct {
-	options LogOptions
+	options log.LogOptions
 	buffer  buffer.Buffer
 }
 
-func (l *defaultLog) Options() LogOptions {
+func (l *defaultLog) Options() log.LogOptions {
 	return l.options
 }
 
-func (l *defaultLog) Write(r Record) error {
+func (l *defaultLog) Write(r log.Record) error {
 	out := l.options.Format(r)
 	golog.Print(out)
 	l.buffer.Put(out)
 	return nil
 }
 
-func (l *defaultLog) Read(opts ...ReadOption) ([]Record, error) {
-	options := NewReadOptions(opts...)
+func (l *defaultLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
+	options := log.NewReadOptions(opts...)
 
 	entries := []*buffer.Entry{}
 
@@ -33,10 +34,10 @@ func (l *defaultLog) Read(opts ...ReadOption) ([]Record, error) {
 		entries = l.buffer.Get(options.Count)
 	}
 
-	records := []Record{}
+	records := []log.Record{}
 
 	for _, entry := range entries {
-		record := Record{
+		record := log.Record{
 			Message:   entry.Value,
 			Timestamp: entry.Timestamp,
 		}
@@ -51,12 +52,17 @@ func (l *defaultLog) String() string {
 	return "default"
 }
 
-func NewLog(opts ...LogOption) Log {
-	options := NewLogOptions(opts...)
+func NewLog(opts ...log.LogOption) log.Log {
+	options := log.NewLogOptions(opts...)
 
 	l := &defaultLog{
 		options: options,
-		buffer:  memory.NewBuffer(buffer.BufferWithSize(options.Size)),
+	}
+
+	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
+		l.buffer = memory.NewBuffer(buffer.BufferWithSize(s))
+	} else {
+		l.buffer = memory.NewBuffer()
 	}
 
 	return l

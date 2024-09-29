@@ -1,10 +1,11 @@
-package log
+package memory
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 func TestLogger(t *testing.T) {
@@ -12,20 +13,20 @@ func TestLogger(t *testing.T) {
 
 	service := "service.namespace"
 
-	logger = NewLog(LogWithSize(size))
+	logger := NewLog(log.LogWithPrefix(service), LogWithSize(size))
 	require.Equal(t, size, logger.(*defaultLog).buffer.Options().Size)
 
-	SetName(service)
+	log.SetLogger(logger)
 
-	Info("foobar")
+	log.Info("foobar")
 
-	SetLevel(LevelDebug)
+	log.SetLevel(log.LevelDebug)
 
-	Debugf("foo %s", "bar")
+	log.Debugf("foo %s", "bar")
 
 	expected := []string{"foobar", "foo bar"}
 
-	entries, err := logger.Read(ReadWithCount(len(expected)))
+	entries, err := logger.Read(log.ReadWithCount(len(expected)))
 	require.NoError(t, err)
 
 	for i, entry := range entries {

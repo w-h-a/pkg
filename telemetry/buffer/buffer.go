@@ -1,7 +1,7 @@
 package buffer
 
 var (
-	DefaultSize = 1000
+	defaultSize = 1024
 )
 
 type Buffer interface {

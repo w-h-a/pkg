@@ -8,15 +8,15 @@ import (
 )
 
 var (
-	logger Log        = NewLog()
 	level  Level      = LevelInfo
 	prefix string     = ""
-	size   int        = 1024
 	format FormatFunc = func(r Record) string {
 		b, _ := json.Marshal(r)
 		return string(b)
 	}
 )
+
+var logger Log
 
 type Log interface {
 	Options() LogOptions
@@ -41,14 +41,6 @@ func SetLevel(l Level) {
 
 func GetLevel() Level {
 	return level
-}
-
-func SetPrefix(p string) {
-	prefix = p
-}
-
-func SetName(name string) {
-	prefix = fmt.Sprintf("[%s]", name)
 }
 
 // Trace provides trace level logging
@@ -130,8 +122,8 @@ func WithLevelf(l Level, format string, v ...interface{}) {
 }
 
 func log(l Level, v ...interface{}) {
-	if len(prefix) > 0 {
-		v = append([]interface{}{prefix, " "}, v...)
+	if len(logger.Options().Prefix) > 0 {
+		v = append([]interface{}{logger.Options().Prefix, " "}, v...)
 	}
 
 	logger.Write(
@@ -144,8 +136,8 @@ func log(l Level, v ...interface{}) {
 }
 
 func logf(l Level, format string, v ...interface{}) {
-	if len(prefix) > 0 {
-		format = prefix + " " + format
+	if len(logger.Options().Prefix) > 0 {
+		format = logger.Options().Prefix + " " + format
 	}
 
 	logger.Write(

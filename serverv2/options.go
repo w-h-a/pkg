@@ -1,6 +1,10 @@
 package serverv2
 
-import "context"
+import (
+	"context"
+
+	"github.com/w-h-a/pkg/telemetry/log"
+)
 
 type ServerOption func(o *ServerOptions)
 
@@ -10,6 +14,7 @@ type ServerOptions struct {
 	Id        string
 	Version   string
 	Address   string
+	Logger    log.Log
 	Context   context.Context
 }
 
@@ -43,6 +48,12 @@ func ServerWithAddress(addr string) ServerOption {
 	}
 }
 
+func ServerWithLogger(l log.Log) ServerOption {
+	return func(o *ServerOptions) {
+		o.Logger = l
+	}
+}
+
 func NewServerOptions(opts ...ServerOption) ServerOptions {
 	options := ServerOptions{
 		Namespace: defaultNamespace,
@@ -50,6 +61,7 @@ func NewServerOptions(opts ...ServerOption) ServerOptions {
 		Id:        defaultID,
 		Version:   defaultVersion,
 		Address:   defaultAddress,
+		Logger:    defaultLogger,
 		Context:   context.Background(),
 	}
 

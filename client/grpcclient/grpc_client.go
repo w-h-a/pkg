@@ -45,6 +45,7 @@ func (c *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 		return err
 	}
 
+	// TODO: check if we already have a deadline
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithTimeout(ctx, callOptions.RequestTimeout)
 	defer cancel()

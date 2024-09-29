@@ -84,8 +84,7 @@ func (s *server) Run() error {
 	}
 	s.mtx.RUnlock()
 
-	// TODO: log.SetLog(s.options.Logger)
-	log.SetName(fmt.Sprintf("%s.%s:%s %s", s.options.Name, s.options.Namespace, s.options.Version, s.options.Id))
+	log.SetLogger(s.options.Logger)
 
 	// TODO: init exporters here?
 

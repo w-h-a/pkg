@@ -120,5 +120,7 @@ func NewTestRunner(opts ...RunnerOption) *TestRunner {
 		activeMtx:   sync.RWMutex{},
 	}
 
+	log.SetLogger(r.options.Logger)
+
 	return r
 }

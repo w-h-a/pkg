@@ -13,14 +13,12 @@ func TestLogger(t *testing.T) {
 
 	service := "service.namespace"
 
-	logger := NewLog(log.LogWithPrefix(service), LogWithSize(size))
+	logger := NewLog(log.LogWithPrefix(service), log.LogWithLevel(log.LevelDebug), LogWithSize(size))
 	require.Equal(t, size, logger.(*defaultLog).buffer.Options().Size)
 
 	log.SetLogger(logger)
 
 	log.Info("foobar")
-
-	log.SetLevel(log.LevelDebug)
 
 	log.Debugf("foo %s", "bar")
 

@@ -9,6 +9,7 @@ type LogOption func(o *LogOptions)
 
 type LogOptions struct {
 	Prefix  string
+	Level   Level
 	Format  FormatFunc
 	Context context.Context
 }
@@ -16,6 +17,12 @@ type LogOptions struct {
 func LogWithPrefix(prefix string) LogOption {
 	return func(o *LogOptions) {
 		o.Prefix = fmt.Sprintf("[%s]", prefix)
+	}
+}
+
+func LogWithLevel(l Level) LogOption {
+	return func(o *LogOptions) {
+		o.Level = l
 	}
 }
 
@@ -28,6 +35,7 @@ func LogWithFormat(f FormatFunc) LogOption {
 func NewLogOptions(opts ...LogOption) LogOptions {
 	options := LogOptions{
 		Prefix:  prefix,
+		Level:   level,
 		Format:  format,
 		Context: context.Background(),
 	}

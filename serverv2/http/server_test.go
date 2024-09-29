@@ -8,9 +8,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/pkg/serverv2"
+	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/telemetry/log/memory"
 )
 
 func TestHttpServer(t *testing.T) {
+	logger := memory.NewLog()
+
+	log.SetLogger(logger)
+	
 	testResponse := "hello world"
 
 	s := NewServer(

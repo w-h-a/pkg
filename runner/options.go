@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/w-h-a/pkg/telemetry/log"
-	"github.com/w-h-a/pkg/telemetry/log/memory"
 )
 
 type RunnerOption func(o *RunnerOptions)
@@ -13,7 +11,6 @@ type RunnerOption func(o *RunnerOptions)
 type RunnerOptions struct {
 	Id        string
 	Processes []Process
-	Logger    log.Log
 	Context   context.Context
 }
 
@@ -29,17 +26,10 @@ func RunnerWithProcesses(ps ...Process) RunnerOption {
 	}
 }
 
-func RunnerWithLogger(l log.Log) RunnerOption {
-	return func(o *RunnerOptions) {
-		o.Logger = l
-	}
-}
-
 func NewRunnerOptions(opts ...RunnerOption) RunnerOptions {
 	options := RunnerOptions{
 		Id:        uuid.New().String(),
 		Processes: []Process{},
-		Logger:    memory.NewLog(),
 		Context:   context.Background(),
 	}
 
@@ -59,7 +49,6 @@ type ProcessOptions struct {
 	DownBinPath string
 	DownArgs    []string
 	EnvVars     map[string]string
-	Logger      log.Log
 	Context     context.Context
 }
 
@@ -99,18 +88,11 @@ func ProcessWithEnvVars(envs map[string]string) ProcessOption {
 	}
 }
 
-func ProcessWithLogger(l log.Log) ProcessOption {
-	return func(o *ProcessOptions) {
-		o.Logger = l
-	}
-}
-
 func NewProcessOptions(opts ...ProcessOption) ProcessOptions {
 	options := ProcessOptions{
 		UpArgs:   []string{},
 		DownArgs: []string{},
 		EnvVars:  map[string]string{},
-		Logger:   memory.NewLog(),
 		Context:  context.Background(),
 	}
 

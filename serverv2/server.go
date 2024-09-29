@@ -2,7 +2,6 @@ package serverv2
 
 import (
 	"github.com/google/uuid"
-	"github.com/w-h-a/pkg/telemetry/log/memory"
 )
 
 var (
@@ -11,7 +10,6 @@ var (
 	defaultID        = uuid.New().String()
 	defaultVersion   = "v0.1.0"
 	defaultAddress   = ":0"
-	defaultLogger    = memory.NewLog()
 )
 
 type Server interface {

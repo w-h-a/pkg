@@ -35,14 +35,6 @@ func GetLogger() Log {
 	return logger
 }
 
-func SetLevel(l Level) {
-	level = l
-}
-
-func GetLevel() Level {
-	return level
-}
-
 // Trace provides trace level logging
 func Trace(v ...interface{}) {
 	WithLevel(LevelTrace, v...)
@@ -107,7 +99,7 @@ func Fatalf(format string, v ...interface{}) {
 
 // WithLevel logs with the level specified
 func WithLevel(l Level, v ...interface{}) {
-	if l > level {
+	if l > logger.Options().Level {
 		return
 	}
 	log(l, v...)
@@ -115,7 +107,7 @@ func WithLevel(l Level, v ...interface{}) {
 
 // WithLevel logs with the level specified
 func WithLevelf(l Level, format string, v ...interface{}) {
-	if l > level {
+	if l > logger.Options().Level {
 		return
 	}
 	logf(l, format, v...)

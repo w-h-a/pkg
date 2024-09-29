@@ -28,7 +28,6 @@ type Log interface {
 type FormatFunc func(Record) string
 
 func SetLogger(l Log) {
-	fmt.Printf("WE ARE SETTING LOGGER %s", l.Options().Prefix)
 	logger = l
 }
 

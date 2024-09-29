@@ -2,12 +2,12 @@ package grpc
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/w-h-a/pkg/runner"
 	"github.com/w-h-a/pkg/serverv2"
 	"github.com/w-h-a/pkg/serverv2/grpc"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type grpcProcess struct {

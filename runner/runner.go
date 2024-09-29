@@ -112,8 +112,6 @@ func (r *TestRunner) pop() Process {
 func NewTestRunner(opts ...RunnerOption) *TestRunner {
 	options := NewRunnerOptions(opts...)
 
-	log.SetLogger(options.Logger)
-
 	r := &TestRunner{
 		options:     options,
 		inactive:    []Process{},

@@ -68,8 +68,6 @@ func (s *server) Run() error {
 	}
 	s.mtx.RUnlock()
 
-	log.SetLogger(s.options.Logger)
-
 	// TODO: init exporters here?
 
 	// TODO: tls

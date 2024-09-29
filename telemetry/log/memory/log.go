@@ -18,10 +18,13 @@ func (l *defaultLog) Options() log.LogOptions {
 	return l.options
 }
 
-func (l *defaultLog) Write(r log.Record) error {
-	out := l.options.Format(r)
+func (l *defaultLog) Write(rec log.Record) error {
+	out := l.options.Format(rec)
+
 	golog.Print(out)
+
 	l.buffer.Put(out)
+
 	return nil
 }
 

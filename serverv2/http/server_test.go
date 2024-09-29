@@ -16,7 +16,7 @@ func TestHttpServer(t *testing.T) {
 	logger := memory.NewLog()
 
 	log.SetLogger(logger)
-	
+
 	testResponse := "hello world"
 
 	s := NewServer(

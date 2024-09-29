@@ -20,7 +20,7 @@ var logger Log
 
 type Log interface {
 	Options() LogOptions
-	Write(Record) error
+	Write(rec Record) error
 	Read(opts ...ReadOption) ([]Record, error)
 	String() string
 }

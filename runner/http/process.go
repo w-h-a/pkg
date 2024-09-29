@@ -2,13 +2,13 @@ package http
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/w-h-a/pkg/runner"
 	"github.com/w-h-a/pkg/serverv2"
 	"github.com/w-h-a/pkg/serverv2/http"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type httpProcess struct {

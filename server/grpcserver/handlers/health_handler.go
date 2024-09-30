@@ -56,8 +56,6 @@ func (c *healthHandler) Log(ctx context.Context, req *health.LogRequest, rsp *he
 }
 
 func NewHealthHandler(name string) HealthHandler {
-	log.SetName(name)
-
 	return &healthHandler{
 		log: log.GetLogger(),
 	}

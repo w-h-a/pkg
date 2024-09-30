@@ -1,13 +1,29 @@
 package log
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type LogOption func(o *LogOptions)
 
 type LogOptions struct {
+	Prefix  string
+	Level   Level
 	Format  FormatFunc
-	Size    int
 	Context context.Context
+}
+
+func LogWithPrefix(prefix string) LogOption {
+	return func(o *LogOptions) {
+		o.Prefix = fmt.Sprintf("[%s]", prefix)
+	}
+}
+
+func LogWithLevel(l Level) LogOption {
+	return func(o *LogOptions) {
+		o.Level = l
+	}
 }
 
 func LogWithFormat(f FormatFunc) LogOption {
@@ -16,17 +32,12 @@ func LogWithFormat(f FormatFunc) LogOption {
 	}
 }
 
-func LogWithSize(s int) LogOption {
-	return func(o *LogOptions) {
-		o.Size = s
-	}
-}
-
 func NewLogOptions(opts ...LogOption) LogOptions {
 	options := LogOptions{
-		Context: context.Background(),
+		Prefix:  prefix,
+		Level:   level,
 		Format:  format,
-		Size:    size,
+		Context: context.Background(),
 	}
 
 	for _, fn := range opts {
@@ -39,7 +50,8 @@ func NewLogOptions(opts ...LogOption) LogOptions {
 type ReadOption func(o *ReadOptions)
 
 type ReadOptions struct {
-	Count int
+	Count   int
+	Context context.Context
 }
 
 func ReadWithCount(c int) ReadOption {
@@ -49,7 +61,9 @@ func ReadWithCount(c int) ReadOption {
 }
 
 func NewReadOptions(opts ...ReadOption) ReadOptions {
-	options := ReadOptions{}
+	options := ReadOptions{
+		Context: context.Background(),
+	}
 
 	for _, fn := range opts {
 		fn(&options)

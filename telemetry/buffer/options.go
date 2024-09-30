@@ -18,7 +18,7 @@ func BufferWithSize(s int) BufferOption {
 func NewBufferOptions(opts ...BufferOption) BufferOptions {
 	options := BufferOptions{
 		Context: context.Background(),
-		Size:    DefaultSize,
+		Size:    defaultSize,
 	}
 
 	for _, fn := range opts {

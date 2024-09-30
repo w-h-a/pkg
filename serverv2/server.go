@@ -1,6 +1,8 @@
 package serverv2
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 var (
 	defaultNamespace = "default"

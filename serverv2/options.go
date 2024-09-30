@@ -1,6 +1,8 @@
 package serverv2
 
-import "context"
+import (
+	"context"
+)
 
 type ServerOption func(o *ServerOptions)
 

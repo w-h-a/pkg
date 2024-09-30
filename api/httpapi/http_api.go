@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -64,7 +63,6 @@ func (a *httpApi) start() error {
 	a.mtx.RUnlock()
 
 	// TODO: log.SetLog(a.options.Logger)
-	log.SetName(fmt.Sprintf("%s.%s:%s %s", a.options.Name, a.options.Namespace, a.options.Version, a.options.Id))
 
 	// TODO: register health handler
 

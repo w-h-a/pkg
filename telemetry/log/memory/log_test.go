@@ -14,7 +14,7 @@ func TestLogger(t *testing.T) {
 	service := "service.namespace"
 
 	logger := NewLog(log.LogWithPrefix(service), log.LogWithLevel(log.LevelDebug), LogWithSize(size))
-	require.Equal(t, size, logger.(*defaultLog).buffer.Options().Size)
+	require.Equal(t, size, logger.(*memoryLog).buffer.Options().Size)
 
 	log.SetLogger(logger)
 

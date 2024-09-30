@@ -8,17 +8,16 @@ import (
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
-// TODO: put this in its own memory pkg
-type defaultLog struct {
+type memoryLog struct {
 	options log.LogOptions
 	buffer  buffer.Buffer
 }
 
-func (l *defaultLog) Options() log.LogOptions {
+func (l *memoryLog) Options() log.LogOptions {
 	return l.options
 }
 
-func (l *defaultLog) Write(rec log.Record) error {
+func (l *memoryLog) Write(rec log.Record) error {
 	out := l.options.Format(rec)
 
 	golog.Print(out)
@@ -28,7 +27,7 @@ func (l *defaultLog) Write(rec log.Record) error {
 	return nil
 }
 
-func (l *defaultLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
+func (l *memoryLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
 	options := log.NewReadOptions(opts...)
 
 	entries := []*buffer.Entry{}
@@ -51,14 +50,14 @@ func (l *defaultLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
 	return records, nil
 }
 
-func (l *defaultLog) String() string {
-	return "default"
+func (l *memoryLog) String() string {
+	return "memory"
 }
 
 func NewLog(opts ...log.LogOption) log.Log {
 	options := log.NewLogOptions(opts...)
 
-	l := &defaultLog{
+	l := &memoryLog{
 		options: options,
 	}
 

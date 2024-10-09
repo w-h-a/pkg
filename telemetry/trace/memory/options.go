@@ -8,7 +8,7 @@ import (
 
 type sizeKey struct{}
 
-func LogWithSize(s int) trace.TraceOption {
+func TraceWithSize(s int) trace.TraceOption {
 	return func(o *trace.TraceOptions) {
 		o.Context = context.WithValue(o.Context, sizeKey{}, s)
 	}

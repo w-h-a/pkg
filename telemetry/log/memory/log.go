@@ -30,10 +30,12 @@ func (l *memoryLog) Write(rec log.Record) error {
 func (l *memoryLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
 	options := log.NewReadOptions(opts...)
 
-	entries := []*buffer.Entry{}
+	var entries []*buffer.Entry
 
 	if options.Count > 0 {
 		entries = l.buffer.Get(options.Count)
+	} else {
+		entries = l.buffer.Get(l.buffer.Options().Size)
 	}
 
 	records := []log.Record{}

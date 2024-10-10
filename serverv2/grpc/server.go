@@ -16,7 +16,9 @@ import (
 	"time"
 
 	"github.com/w-h-a/pkg/serverv2"
+	"github.com/w-h-a/pkg/serverv2/grpc/handlers"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/telemetry/trace"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
@@ -84,7 +86,20 @@ func (s *server) Run() error {
 	}
 	s.mtx.RUnlock()
 
-	// TODO: init exporters here?
+	if len(s.options.Tracer) > 0 {
+		// init trace exporters
+		switch s.options.Tracer {
+		case "memory":
+			tracer := trace.GetTracer()
+			if tracer == nil {
+				log.Fatalf("failed to init memory trace exporter: memory tracer was not set")
+			}
+			grpcTrace := handlers.NewTraceHandler(tracer)
+			s.Handle(NewHandler(grpcTrace))
+		default:
+			log.Warnf("tracer %s is not supported", s.options.Tracer)
+		}
+	}
 
 	// TODO: tls
 	listener, err := net.Listen("tcp", s.options.Address)

@@ -25,6 +25,10 @@ test:
 proto-health:
 	protoc proto/health/*.proto --go_out=paths=source_relative:. --proto_path=.
 
+.PHONY: proto-trace
+proto-trace:
+	protoc proto/trace/*.proto --go_out=paths=source_relative:. --proto_path=.
+
 .PHONY: proto-sidecar
 proto-sidecar:
 	protoc proto/sidecar/*.proto --go_out=paths=source_relative:. --proto_path=.

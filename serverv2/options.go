@@ -12,6 +12,7 @@ type ServerOptions struct {
 	Id        string
 	Version   string
 	Address   string
+	Tracer    string
 	Context   context.Context
 }
 
@@ -42,6 +43,12 @@ func ServerWithVersion(v string) ServerOption {
 func ServerWithAddress(addr string) ServerOption {
 	return func(o *ServerOptions) {
 		o.Address = addr
+	}
+}
+
+func ServerWithTracer(tracer string) ServerOption {
+	return func(o *ServerOptions) {
+		o.Tracer = tracer
 	}
 }
 

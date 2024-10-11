@@ -19,7 +19,7 @@ func ContextWithIds(ctx context.Context, traceId, parentId string) (context.Cont
 }
 
 func IdsFromContext(ctx context.Context) (traceId string, foundTrace bool, parentId string, foundParent bool) {
-	traceId, traceOk := metadatautils.GetContext(ctx, traceId)
+	traceId, traceOk := metadatautils.GetContext(ctx, traceIdKey)
 	if !traceOk {
 		return
 	}

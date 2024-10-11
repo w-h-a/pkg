@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"strings"
-
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type metadataKey struct{}
@@ -59,7 +57,6 @@ func GetContext(ctx context.Context, k string) (string, bool) {
 	}
 
 	val, ok := md[strings.ToLower(k)]
-	log.Infof("GET CONTEXT KEY %s, VALUE %s, md %#+v", k, val, md)
 
 	return val, ok
 }
@@ -93,7 +90,6 @@ func RequestToContext(r *http.Request) context.Context {
 	md := Metadata{}
 
 	for k, v := range r.Header {
-		log.Infof("KEY %s, VALUE %s", k, v)
 		md[strings.ToLower(k)] = strings.Join(v, ",")
 	}
 

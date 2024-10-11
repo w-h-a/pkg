@@ -3,11 +3,11 @@ package trace
 import "time"
 
 type Span struct {
-	Name     string
-	Id       string
-	Parent   string
-	Trace    string
-	Started  time.Time
-	Duration time.Duration
-	Metadata map[string]string
+	Name     string            `json:"name"`
+	Id       string            `json:"id"`
+	Parent   string            `json:"parent"`
+	Trace    string            `json:"trace"`
+	Started  time.Time         `json:"started"`
+	Duration time.Duration     `json:"duration"`
+	Metadata map[string]string `json:"metadata"`
 }

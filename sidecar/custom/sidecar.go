@@ -13,6 +13,7 @@ import (
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/telemetry/trace"
 	"github.com/w-h-a/pkg/utils/datautils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -181,17 +182,44 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 	return nil
 }
 
-func (s *customSidecar) ReadFromSecretStore(secretStore string, name string) (*sidecar.Secret, error) {
+func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*sidecar.Secret, error) {
+	tracer := trace.GetTracer()
+
+	if tracer == nil {
+		log.Error("failed to get tracer")
+		return nil, trace.ErrNotFound
+	}
+
+	_, span, err := tracer.Start(
+		ctx,
+		"customSidecar.ReadFromSecretStore",
+		map[string]string{
+			"secretStore": secretStore,
+			"name":        name,
+			"error":       "",
+		},
+	)
+	if err != nil {
+		log.Errorf("failed to start span: %v", err)
+		return nil, trace.ErrStart
+	}
+
 	sc, ok := s.options.Secrets[secretStore]
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
+		span.Metadata["error"] = fmt.Sprintf("secret store %s was not found", secretStore)
+		tracer.Finish(span)
 		return nil, sidecar.ErrComponentNotFound
 	}
 
 	mp, err := sc.GetSecret(name)
 	if err != nil {
+		span.Metadata["error"] = err.Error()
+		tracer.Finish(span)
 		return nil, err
 	}
+
+	tracer.Finish(span)
 
 	return &sidecar.Secret{
 		Data: mp,

@@ -1,6 +1,8 @@
 package trace
 
-import "time"
+import (
+	"time"
+)
 
 type Span struct {
 	Name     string            `json:"name"`

@@ -1,6 +1,7 @@
 package sidecar
 
 import (
+	"context"
 	"errors"
 
 	"github.com/w-h-a/pkg/store"
@@ -20,6 +21,6 @@ type Sidecar interface {
 	WriteEventToBroker(event *Event) error
 	ReadEventsFromBroker(broker string)
 	UnsubscribeFromBroker(broker string) error
-	ReadFromSecretStore(secretStore string, name string) (*Secret, error)
+	ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*Secret, error)
 	String() string
 }

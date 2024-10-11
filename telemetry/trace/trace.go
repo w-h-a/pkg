@@ -1,6 +1,14 @@
 package trace
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+	ErrNotFound = errors.New("not found")
+	ErrStart    = errors.New("failed to start span")
+)
 
 var tracer Trace
 

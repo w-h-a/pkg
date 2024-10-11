@@ -12,11 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/w-h-a/pkg/serverv2"
-	"github.com/w-h-a/pkg/serverv2/http/handlers"
 	"github.com/w-h-a/pkg/telemetry/log"
-	"github.com/w-h-a/pkg/telemetry/trace"
 )
 
 type server struct {
@@ -70,23 +67,6 @@ func (s *server) Run() error {
 		return nil
 	}
 	s.mtx.RUnlock()
-
-	if len(s.options.Tracer) > 0 {
-		// init trace exporters
-		switch s.options.Tracer {
-		case "memory":
-			tracer := trace.GetTracer()
-			if tracer == nil {
-				log.Fatalf("failed to init memory trace exporter: memory tracer was not set")
-			}
-			router := mux.NewRouter()
-			httpTrace := handlers.NewTraceHandler(tracer)
-			router.Methods("GET").Path("/").HandlerFunc(httpTrace.Read)
-			s.mux.Handle("/trace", router)
-		default:
-			log.Warnf("tracer %s is not supported", s.options.Tracer)
-		}
-	}
 
 	// TODO: tls
 	listener, err := net.Listen("tcp", s.options.Address)

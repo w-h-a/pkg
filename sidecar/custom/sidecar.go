@@ -14,6 +14,7 @@ import (
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/trace"
+	"github.com/w-h-a/pkg/telemetry/trace/memory"
 	"github.com/w-h-a/pkg/utils/datautils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -186,8 +187,9 @@ func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore str
 	tracer := trace.GetTracer()
 
 	if tracer == nil {
-		log.Error("failed to get tracer")
-		return nil, trace.ErrNotFound
+		log.Error("setting default memory tracer")
+		tracer = memory.NewTrace()
+		trace.SetTracer(tracer)
 	}
 
 	_, span, err := tracer.Start(

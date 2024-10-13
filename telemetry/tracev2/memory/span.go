@@ -15,6 +15,14 @@ func (s *memorySpan) Options() tracev2.SpanOptions {
 	return s.options
 }
 
+func (s *memorySpan) SpanData() *tracev2.SpanData {
+	return &tracev2.SpanData{
+		Name:  s.options.Name,
+		Id:    s.span.SpanContext().SpanID().String(),
+		Trace: s.span.SpanContext().TraceID().String(),
+	}
+}
+
 func (s *memorySpan) AddMetadata(md map[string]string) {
 	attrs := []attribute.KeyValue{}
 

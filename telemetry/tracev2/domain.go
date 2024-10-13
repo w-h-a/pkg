@@ -6,11 +6,11 @@ import (
 
 // TODO: status
 type SpanData struct {
-	Name     string
-	Id       string
-	Parent   string
-	Trace    string
-	Started  time.Time
-	Ended    time.Time
-	Metadata map[string]string
+	Name     string            `json:"name"`
+	Id       string            `json:"id"`
+	Parent   string            `json:"parent"`
+	Trace    string            `json:"trace"`
+	Started  time.Time         `json:"started"`
+	Ended    time.Time         `json:"ended"`
+	Metadata map[string]string `json:"metadata"`
 }

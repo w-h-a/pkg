@@ -113,7 +113,13 @@ func NewTrace(opts ...tracev2.TraceOption) tracev2.Trace {
 		tracer:  otel.Tracer(options.Name),
 	}
 
-	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
+	b, ok := GetBufferFromContext(options.Context)
+
+	log.Infof("MY CTX %+#v", options.Context)
+
+	log.Infof("MY buffer %+#v", b)
+
+	if ok && b != nil {
 		t.buffer = b
 	} else {
 		log.Fatalf("no buffer was given")

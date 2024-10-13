@@ -27,31 +27,6 @@ func NewTraceOptions(opts ...TraceOption) TraceOptions {
 	return options
 }
 
-type SpanOption func(o *SpanOptions)
-
-type SpanOptions struct {
-	Name    string
-	Context context.Context
-}
-
-func SpanWithName(name string) SpanOption {
-	return func(o *SpanOptions) {
-		o.Name = name
-	}
-}
-
-func NewSpanOptions(opts ...SpanOption) SpanOptions {
-	options := SpanOptions{
-		Context: context.Background(),
-	}
-
-	for _, fn := range opts {
-		fn(&options)
-	}
-
-	return options
-}
-
 type ReadOption func(o *ReadOptions)
 
 type ReadOptions struct {

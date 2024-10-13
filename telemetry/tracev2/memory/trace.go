@@ -2,64 +2,83 @@ package memory
 
 import (
 	"context"
+	"sync"
 
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type memoryTrace struct {
 	options tracev2.TraceOptions
 	tracer  trace.Tracer
+	span    trace.Span
 	buffer  *memoryutils.Buffer
+	mtx     sync.RWMutex
 }
 
 func (t *memoryTrace) Options() tracev2.TraceOptions {
 	return t.options
 }
 
-func (t *memoryTrace) Start(ctx context.Context, name string) (context.Context, tracev2.Span, error) {
+func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
 	// TODO: make sure we're enabled
+
+	t.mtx.Lock()
+	defer t.mtx.Unlock()
 
 	parentCtxCfg := trace.SpanContextConfig{}
 
-	parentData, err := tracev2.SpanDataFromContext(ctx)
-	if err != nil {
-		newCtx, memorySpan := t.start(ctx, name, parentCtxCfg)
-		return newCtx, memorySpan, err
+	if t.span == nil {
+		newCtx, span := t.start(ctx, name, parentCtxCfg)
+		t.span = span
+		return newCtx
 	}
 
-	parentCtxCfg.TraceID, err = trace.TraceIDFromHex(parentData.Trace)
-	if err != nil {
-		newCtx, memorySpan := t.start(ctx, name, parentCtxCfg)
-		return newCtx, memorySpan, err
-	}
+	parentCtxCfg.TraceID = t.span.SpanContext().TraceID()
 
-	parentCtxCfg.SpanID, err = trace.SpanIDFromHex(parentData.Id)
-	if err != nil {
-		newCtx, memorySpan := t.start(ctx, name, parentCtxCfg)
-		return newCtx, memorySpan, err
-	}
+	parentCtxCfg.SpanID = t.span.SpanContext().SpanID()
 
-	newCtx, memorySpan := t.start(ctx, name, parentCtxCfg)
+	newCtx, span := t.start(ctx, name, parentCtxCfg)
 
-	return newCtx, memorySpan, nil
+	t.span = span
+
+	return newCtx
 }
 
-func (t *memoryTrace) AddMetadata(span tracev2.Span, md map[string]string) {
-	if span == nil {
+func (t *memoryTrace) AddMetadata(md map[string]string) {
+	t.mtx.Lock()
+	defer t.mtx.Unlock()
+
+	if t.span == nil {
 		return
 	}
 
-	if len(md) > 0 {
-		span.AddMetadata(md)
+	if len(md) == 0 {
+		return
 	}
+
+	attrs := []attribute.KeyValue{}
+
+	for k, v := range md {
+		attrs = append(attrs, attribute.String(k, v))
+	}
+
+	if len(attrs) == 0 {
+		return
+	}
+
+	t.span.SetAttributes(attrs...)
 }
 
-func (t *memoryTrace) Finish(span tracev2.Span) {
-	span.Finish()
+func (t *memoryTrace) Finish() {
+	t.mtx.Lock()
+	defer t.mtx.Unlock()
+
+	t.span.End()
 }
 
 func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, error) {
@@ -88,21 +107,12 @@ func (t *memoryTrace) String() string {
 	return "memory"
 }
 
-func (t *memoryTrace) start(ctx context.Context, name string, parentCtxCfg trace.SpanContextConfig) (context.Context, tracev2.Span) {
+func (t *memoryTrace) start(ctx context.Context, name string, parentCtxCfg trace.SpanContextConfig) (context.Context, trace.Span) {
 	parentSpanCtx := trace.NewSpanContext(parentCtxCfg)
 
 	ctx = trace.ContextWithRemoteSpanContext(ctx, parentSpanCtx)
 
-	newCtx, span := t.tracer.Start(ctx, name)
-
-	opts := []tracev2.SpanOption{
-		tracev2.SpanWithName(name),
-		SpanWithSpan(span),
-	}
-
-	memorySpan := NewSpan(opts...)
-
-	return newCtx, memorySpan
+	return t.tracer.Start(ctx, name)
 }
 
 func NewTrace(opts ...tracev2.TraceOption) tracev2.Trace {
@@ -111,15 +121,10 @@ func NewTrace(opts ...tracev2.TraceOption) tracev2.Trace {
 	t := &memoryTrace{
 		options: options,
 		tracer:  otel.Tracer(options.Name),
+		mtx:     sync.RWMutex{},
 	}
 
-	b, ok := GetBufferFromContext(options.Context)
-
-	log.Infof("MY CTX %+#v", options.Context)
-
-	log.Infof("MY buffer %+#v", b)
-
-	if ok && b != nil {
+	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
 		t.buffer = b
 	} else {
 		log.Fatalf("no buffer was given")

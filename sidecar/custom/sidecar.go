@@ -13,7 +13,6 @@ import (
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
-	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/datautils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -185,13 +184,9 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*sidecar.Secret, error) {
 	// TODO: make sure we have a tracer
 
-	_, span, err := s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
-	if err != nil {
-		log.Errorf("failed to start span: %v", err)
-		return nil, tracev2.ErrStart
-	}
+	_ = s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
 
-	s.options.Tracer.AddMetadata(span, map[string]string{
+	s.options.Tracer.AddMetadata(map[string]string{
 		"secretStore": secretStore,
 		"name":        name,
 	})
@@ -200,20 +195,20 @@ func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore str
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
 		// TODO: update status of span
-		s.options.Tracer.Finish(span)
+		s.options.Tracer.Finish()
 		return nil, sidecar.ErrComponentNotFound
 	}
 
 	mp, err := sc.GetSecret(name)
 	if err != nil {
 		// TODO: update status of span
-		s.options.Tracer.Finish(span)
+		s.options.Tracer.Finish()
 		return nil, err
 	}
 
 	// TODO: update status of span
 
-	s.options.Tracer.Finish(span)
+	s.options.Tracer.Finish()
 
 	return &sidecar.Secret{
 		Data: mp,

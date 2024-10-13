@@ -24,7 +24,7 @@ func (t *memoryTrace) Options() tracev2.TraceOptions {
 	return t.options
 }
 
-func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
+func (t *memoryTrace) Start(ctx context.Context, name string) (context.Context, string) {
 	// TODO: make sure we're enabled
 
 	t.mtx.Lock()
@@ -42,27 +42,20 @@ func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
 
 	ctx, span := t.start(ctx, name, parentCtxCfg)
 
-	t.spans[span.SpanContext().SpanID().String()] = span
+	key := span.SpanContext().SpanID().String()
+
+	t.spans[key] = span
 
 	newCtx, _ := tracev2.ContextWithSpan(ctx, span.SpanContext().SpanID())
 
-	log.Infof("MY CTX %+#v", newCtx)
-
-	return newCtx
+	return newCtx, key
 }
 
-func (t *memoryTrace) AddMetadata(ctx context.Context, md map[string]string) {
+func (t *memoryTrace) AddMetadata(span string, md map[string]string) {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 
-	span, found := tracev2.SpanFromContext(ctx)
-	if !found {
-		return
-	}
-
-	key := string(span[:])
-
-	if t.spans[key] == nil {
+	if t.spans[span] == nil {
 		return
 	}
 
@@ -80,23 +73,16 @@ func (t *memoryTrace) AddMetadata(ctx context.Context, md map[string]string) {
 		return
 	}
 
-	t.spans[key].SetAttributes(attrs...)
+	t.spans[span].SetAttributes(attrs...)
 }
 
-func (t *memoryTrace) Finish(ctx context.Context) {
+func (t *memoryTrace) Finish(span string) {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 
-	span, found := tracev2.SpanFromContext(ctx)
-	if !found {
-		return
-	}
+	t.spans[span].End()
 
-	key := string(span[:])
-
-	t.spans[key].End()
-
-	delete(t.spans, key)
+	delete(t.spans, span)
 }
 
 func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, error) {

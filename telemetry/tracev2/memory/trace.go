@@ -33,11 +33,9 @@ func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
 	parentCtxCfg := trace.SpanContextConfig{}
 
 	if t.span == nil {
-		log.Infof("HERE IS MY ctx %+#v", ctx)
 		if traceparent, ok := tracev2.TraceParentFromContext(ctx); ok {
 			parentCtxCfg.TraceID = traceparent
 		}
-		log.Infof("HERE IS MY CFG %+#v", parentCtxCfg)
 
 		newCtx, span := t.start(ctx, name, parentCtxCfg)
 

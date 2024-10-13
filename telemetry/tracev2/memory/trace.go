@@ -46,6 +46,8 @@ func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
 
 	newCtx, _ := tracev2.ContextWithSpan(ctx, span.SpanContext().SpanID())
 
+	log.Infof("MY CTX %+#v", newCtx)
+
 	return newCtx
 }
 

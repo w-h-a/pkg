@@ -184,9 +184,9 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*sidecar.Secret, error) {
 	// TODO: make sure we have a tracer
 
-	_ = s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
+	newCtx := s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
 
-	s.options.Tracer.AddMetadata(map[string]string{
+	s.options.Tracer.AddMetadata(newCtx, map[string]string{
 		"secretStore": secretStore,
 		"name":        name,
 	})
@@ -195,20 +195,20 @@ func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore str
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
 		// TODO: update status of span
-		s.options.Tracer.Finish()
+		s.options.Tracer.Finish(newCtx)
 		return nil, sidecar.ErrComponentNotFound
 	}
 
 	mp, err := sc.GetSecret(name)
 	if err != nil {
 		// TODO: update status of span
-		s.options.Tracer.Finish()
+		s.options.Tracer.Finish(newCtx)
 		return nil, err
 	}
 
 	// TODO: update status of span
 
-	s.options.Tracer.Finish()
+	s.options.Tracer.Finish(newCtx)
 
 	return &sidecar.Secret{
 		Data: mp,

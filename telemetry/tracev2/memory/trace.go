@@ -15,7 +15,7 @@ import (
 type memoryTrace struct {
 	options tracev2.TraceOptions
 	tracer  trace.Tracer
-	span    trace.Span
+	spans   map[string]trace.Span
 	buffer  *memoryutils.Buffer
 	mtx     sync.RWMutex
 }
@@ -32,34 +32,35 @@ func (t *memoryTrace) Start(ctx context.Context, name string) context.Context {
 
 	parentCtxCfg := trace.SpanContextConfig{}
 
-	if t.span == nil {
-		if traceparent, ok := tracev2.TraceParentFromContext(ctx); ok {
-			parentCtxCfg.TraceID = traceparent
-		}
-
-		newCtx, span := t.start(ctx, name, parentCtxCfg)
-
-		t.span = span
-
-		return newCtx
+	if spanparent, ok := tracev2.SpanParentFromContext(ctx); ok {
+		parentCtxCfg.SpanID = spanparent
 	}
 
-	parentCtxCfg.TraceID = t.span.SpanContext().TraceID()
+	if traceparent, ok := tracev2.TraceParentFromContext(ctx); ok {
+		parentCtxCfg.TraceID = traceparent
+	}
 
-	parentCtxCfg.SpanID = t.span.SpanContext().SpanID()
+	ctx, span := t.start(ctx, name, parentCtxCfg)
 
-	newCtx, span := t.start(ctx, name, parentCtxCfg)
+	t.spans[span.SpanContext().SpanID().String()] = span
 
-	t.span = span
+	newCtx, _ := tracev2.ContextWithSpan(ctx, span.SpanContext().SpanID())
 
 	return newCtx
 }
 
-func (t *memoryTrace) AddMetadata(md map[string]string) {
+func (t *memoryTrace) AddMetadata(ctx context.Context, md map[string]string) {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 
-	if t.span == nil {
+	span, found := tracev2.SpanFromContext(ctx)
+	if !found {
+		return
+	}
+
+	key := string(span[:])
+
+	if t.spans[key] == nil {
 		return
 	}
 
@@ -77,14 +78,23 @@ func (t *memoryTrace) AddMetadata(md map[string]string) {
 		return
 	}
 
-	t.span.SetAttributes(attrs...)
+	t.spans[key].SetAttributes(attrs...)
 }
 
-func (t *memoryTrace) Finish() {
+func (t *memoryTrace) Finish(ctx context.Context) {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 
-	t.span.End()
+	span, found := tracev2.SpanFromContext(ctx)
+	if !found {
+		return
+	}
+
+	key := string(span[:])
+
+	t.spans[key].End()
+
+	delete(t.spans, key)
 }
 
 func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, error) {
@@ -127,6 +137,7 @@ func NewTrace(opts ...tracev2.TraceOption) tracev2.Trace {
 	t := &memoryTrace{
 		options: options,
 		tracer:  otel.Tracer(options.Name),
+		spans:   map[string]trace.Span{},
 		mtx:     sync.RWMutex{},
 	}
 

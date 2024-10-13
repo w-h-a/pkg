@@ -3,6 +3,7 @@ package tracev2
 import (
 	"context"
 
+	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
 
@@ -22,7 +23,11 @@ func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bo
 		return
 	}
 
+	log.Infof("TRACE ID", traceId)
+
 	copy(traceparent[:], traceId)
+
+	log.Infof("TRACE PARENT %+#v", traceparent)
 
 	return
 }

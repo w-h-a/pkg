@@ -1,14 +1,13 @@
-package memory
+package memoryutils
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/w-h-a/pkg/telemetry/buffer"
 )
 
 func TestMemoryBuffer(t *testing.T) {
-	b := NewBuffer(buffer.BufferWithSize(10))
+	b := NewBuffer(10)
 
 	b.Put("foo")
 
@@ -17,7 +16,7 @@ func TestMemoryBuffer(t *testing.T) {
 	val := entries[0].Value.(string)
 	require.Equal(t, "foo", val)
 
-	b = NewBuffer(buffer.BufferWithSize(10))
+	b = NewBuffer(10)
 
 	for i := 0; i < 10; i++ {
 		b.Put(i)

@@ -5,14 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/w-h-a/pkg/telemetry/buffer"
-	"github.com/w-h-a/pkg/telemetry/buffer/memory"
 	"github.com/w-h-a/pkg/telemetry/trace"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 type memoryTrace struct {
 	options trace.TraceOptions
-	buffer  buffer.Buffer
+	buffer  *memoryutils.Buffer
 }
 
 func (t *memoryTrace) Options() trace.TraceOptions {
@@ -61,12 +60,12 @@ func (t *memoryTrace) Finish(span *trace.Span) error {
 func (t *memoryTrace) Read(opts ...trace.ReadOption) ([]*trace.Span, error) {
 	options := trace.NewReadOptions(opts...)
 
-	var entries []*buffer.Entry
+	var entries []*memoryutils.Entry
 
 	if options.Count > 0 {
 		entries = t.buffer.Get(options.Count)
 	} else {
-		entries = t.buffer.Get(t.buffer.Options().Size)
+		entries = t.buffer.Get(t.buffer.Size)
 	}
 
 	spans := []*trace.Span{}
@@ -96,9 +95,9 @@ func NewTrace(opts ...trace.TraceOption) trace.Trace {
 	}
 
 	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
-		t.buffer = memory.NewBuffer(buffer.BufferWithSize(s))
+		t.buffer = memoryutils.NewBuffer(s)
 	} else {
-		t.buffer = memory.NewBuffer()
+		t.buffer = memoryutils.NewBuffer(1024)
 	}
 
 	return t

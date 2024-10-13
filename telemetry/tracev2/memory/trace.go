@@ -3,9 +3,9 @@ package memory
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/telemetry/buffer"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -13,7 +13,7 @@ import (
 type memoryTrace struct {
 	options tracev2.TraceOptions
 	tracer  trace.Tracer
-	buffer  buffer.Buffer
+	buffer  *memoryutils.Buffer
 }
 
 func (t *memoryTrace) Options() tracev2.TraceOptions {
@@ -65,12 +65,12 @@ func (t *memoryTrace) Finish(span tracev2.Span) {
 func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, error) {
 	options := tracev2.NewReadOptions(opts...)
 
-	var entries []*buffer.Entry
+	var entries []*memoryutils.Entry
 
 	if options.Count > 0 {
 		entries = t.buffer.Get(options.Count)
 	} else {
-		entries = t.buffer.Get(t.buffer.Options().Size)
+		entries = t.buffer.Get(t.buffer.Size)
 	}
 
 	spans := []*tracev2.SpanData{}

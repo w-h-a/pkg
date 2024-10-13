@@ -3,21 +3,21 @@ package memory
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/telemetry/buffer"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type bufferKey struct{}
 
-func TraceWithBuffer(b buffer.Buffer) tracev2.TraceOption {
+func TraceWithBuffer(b *memoryutils.Buffer) tracev2.TraceOption {
 	return func(o *tracev2.TraceOptions) {
 		o.Context = context.WithValue(o.Context, b, bufferKey{})
 	}
 }
 
-func GetBufferFromContext(ctx context.Context) (buffer.Buffer, bool) {
-	b, ok := ctx.Value(bufferKey{}).(buffer.Buffer)
+func GetBufferFromContext(ctx context.Context) (*memoryutils.Buffer, bool) {
+	b, ok := ctx.Value(bufferKey{}).(*memoryutils.Buffer)
 	return b, ok
 }
 

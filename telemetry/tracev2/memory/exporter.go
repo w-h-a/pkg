@@ -3,15 +3,15 @@ package memory
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/telemetry/buffer"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type memoryExporter struct {
-	buffer buffer.Buffer
+	buffer *memoryutils.Buffer
 }
 
 func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
@@ -58,6 +58,6 @@ func (e *memoryExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func NewExporter(buffer buffer.Buffer) sdktrace.SpanExporter {
+func NewExporter(buffer *memoryutils.Buffer) sdktrace.SpanExporter {
 	return &memoryExporter{buffer}
 }

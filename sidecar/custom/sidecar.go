@@ -13,8 +13,7 @@ import (
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
-	"github.com/w-h-a/pkg/telemetry/trace"
-	"github.com/w-h-a/pkg/telemetry/trace/memory"
+	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/datautils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -184,44 +183,37 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 }
 
 func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*sidecar.Secret, error) {
-	tracer := trace.GetTracer()
+	// TODO: make sure we have a tracer
 
-	if tracer == nil {
-		log.Error("setting default memory tracer")
-		tracer = memory.NewTrace()
-		trace.SetTracer(tracer)
-	}
-
-	_, span, err := tracer.Start(
-		ctx,
-		"customSidecar.ReadFromSecretStore",
-		map[string]string{
-			"secretStore": secretStore,
-			"name":        name,
-			"error":       "",
-		},
-	)
+	_, span, err := s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
 	if err != nil {
 		log.Errorf("failed to start span: %v", err)
-		return nil, trace.ErrStart
+		return nil, tracev2.ErrStart
 	}
+
+	s.options.Tracer.AddMetadata(span, map[string]string{
+		"secretStore": secretStore,
+		"name":        name,
+	})
 
 	sc, ok := s.options.Secrets[secretStore]
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
-		span.Metadata["error"] = fmt.Sprintf("secret store %s was not found", secretStore)
-		tracer.Finish(span)
+		// TODO: update status of span
+		s.options.Tracer.Finish(span)
 		return nil, sidecar.ErrComponentNotFound
 	}
 
 	mp, err := sc.GetSecret(name)
 	if err != nil {
-		span.Metadata["error"] = err.Error()
-		tracer.Finish(span)
+		// TODO: update status of span
+		s.options.Tracer.Finish(span)
 		return nil, err
 	}
 
-	tracer.Finish(span)
+	// TODO: update status of span
+
+	s.options.Tracer.Finish(span)
 
 	return &sidecar.Secret{
 		Data: mp,

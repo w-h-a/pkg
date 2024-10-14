@@ -192,19 +192,19 @@ func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore str
 	sc, ok := s.options.Secrets[secretStore]
 	if !ok {
 		log.Warnf("secret store %s was not found", secretStore)
-		// TODO: update status of span
+		s.options.Tracer.UpdateStatus(spanId, 400, fmt.Sprintf("secret store %s was not found", secretStore))
 		s.options.Tracer.Finish(spanId)
 		return nil, sidecar.ErrComponentNotFound
 	}
 
 	mp, err := sc.GetSecret(name)
 	if err != nil {
-		// TODO: update status of span
+		s.options.Tracer.UpdateStatus(spanId, 500, fmt.Sprintf("failed to get secret: %v", err))
 		s.options.Tracer.Finish(spanId)
 		return nil, err
 	}
 
-	// TODO: update status of span
+	s.options.Tracer.UpdateStatus(spanId, 200, "succeeded in retrieving secret")
 
 	s.options.Tracer.Finish(spanId)
 

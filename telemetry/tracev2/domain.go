@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// TODO: status
 type SpanData struct {
 	Name     string            `json:"name"`
 	Id       string            `json:"id"`
@@ -13,4 +12,10 @@ type SpanData struct {
 	Started  time.Time         `json:"started"`
 	Ended    time.Time         `json:"ended"`
 	Metadata map[string]string `json:"metadata"`
+	Status   Status            `json:"status"`
+}
+
+type Status struct {
+	Code        uint32
+	Description string
 }

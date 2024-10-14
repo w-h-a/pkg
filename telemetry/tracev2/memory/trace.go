@@ -9,6 +9,7 @@ import (
 	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -72,6 +73,17 @@ func (t *memoryTrace) AddMetadata(span string, md map[string]string) {
 	}
 
 	t.spans[span].SetAttributes(attrs...)
+}
+
+func (t *memoryTrace) UpdateStatus(span string, code uint32, description string) {
+	t.mtx.Lock()
+	defer t.mtx.Unlock()
+
+	if code >= 400 {
+		t.spans[span].SetStatus(codes.Error, description)
+	} else {
+		t.spans[span].SetStatus(codes.Ok, description)
+	}
 }
 
 func (t *memoryTrace) Finish(span string) {

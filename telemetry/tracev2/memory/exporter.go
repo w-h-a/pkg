@@ -33,6 +33,11 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 			metadata[string(attr.Key)] = attr.Value.AsString()
 		}
 
+		status := tracev2.Status{
+			Code:        uint32(s.Status().Code),
+			Description: s.Status().Description,
+		}
+
 		data := &tracev2.SpanData{
 			Name:     s.Name(),
 			Id:       s.SpanContext().SpanID().String(),
@@ -41,6 +46,7 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 			Started:  s.StartTime(),
 			Ended:    s.EndTime(),
 			Metadata: metadata,
+			Status:   status,
 		}
 
 		spanData = append(spanData, data)

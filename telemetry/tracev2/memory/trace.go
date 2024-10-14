@@ -79,10 +79,12 @@ func (t *memoryTrace) UpdateStatus(span string, code uint32, description string)
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 
-	if code >= 400 {
-		t.spans[span].SetStatus(codes.Error, description)
-	} else {
+	switch code {
+	case 2:
 		t.spans[span].SetStatus(codes.Ok, description)
+	case 1:
+		t.spans[span].SetStatus(codes.Error, description)
+	default:
 	}
 }
 

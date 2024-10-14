@@ -46,7 +46,7 @@ func (t *memoryTrace) Start(ctx context.Context, name string) (context.Context, 
 
 	t.spans[key] = span
 
-	newCtx, _ := tracev2.ContextWithSpan(ctx, span.SpanContext().SpanID())
+	newCtx, _ := tracev2.ContextWithSpanParent(ctx, span.SpanContext().SpanID())
 
 	return newCtx, key
 }

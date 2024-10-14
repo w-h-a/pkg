@@ -45,20 +45,3 @@ func SpanParentFromContext(ctx context.Context) (spanparent [8]byte, found bool)
 
 	return
 }
-
-func ContextWithSpan(ctx context.Context, span [8]byte) (context.Context, error) {
-	return metadatautils.MergeContext(ctx, map[string]string{
-		spanKey: string(span[:]),
-	}, true), nil
-}
-
-func SpanFromContext(ctx context.Context) (span [8]byte, found bool) {
-	spanId, found := metadatautils.GetContext(ctx, spanKey)
-	if !found {
-		return
-	}
-
-	copy(span[:], spanId)
-
-	return
-}

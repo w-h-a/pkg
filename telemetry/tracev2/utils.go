@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	traceParentKey = "traceparent"
-	spanParentKey  = "spanparent"
+	TraceParentKey = "traceparent"
+	SpanParentKey  = "spanparent"
 )
 
 func ContextWithTraceParent(ctx context.Context, traceparent [16]byte) (context.Context, error) {
 	return metadatautils.MergeContext(ctx, map[string]string{
-		traceParentKey: string(traceparent[:]),
+		TraceParentKey: string(traceparent[:]),
 	}, true), nil
 }
 
 func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bool) {
-	traceId, found := metadatautils.GetContext(ctx, traceParentKey)
+	traceId, found := metadatautils.GetContext(ctx, TraceParentKey)
 	if !found {
 		return
 	}
@@ -30,12 +30,12 @@ func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bo
 
 func ContextWithSpanParent(ctx context.Context, spanparent [8]byte) (context.Context, error) {
 	return metadatautils.MergeContext(ctx, map[string]string{
-		spanParentKey: string(spanparent[:]),
+		SpanParentKey: string(spanparent[:]),
 	}, true), nil
 }
 
 func SpanParentFromContext(ctx context.Context) (spanparent [8]byte, found bool) {
-	spanId, found := metadatautils.GetContext(ctx, spanParentKey)
+	spanId, found := metadatautils.GetContext(ctx, SpanParentKey)
 	if !found {
 		return
 	}

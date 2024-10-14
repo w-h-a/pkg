@@ -13,6 +13,7 @@ import (
 	"github.com/w-h-a/pkg/sidecar"
 	"github.com/w-h-a/pkg/store"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/datautils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -158,14 +159,21 @@ func (s *customSidecar) RemoveStateFromStore(ctx context.Context, storeId, key s
 }
 
 func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.Event) error {
-	_, spanId := s.options.Tracer.Start(ctx, "customSidecar.WriteEventToBroker")
+	newCtx, spanId := s.options.Tracer.Start(ctx, "customSidecar.WriteEventToBroker")
 	defer s.options.Tracer.Finish(spanId)
 
-	data, _ := json.Marshal(event.Data)
+	if traceparent, found := tracev2.TraceParentFromContext(newCtx); found {
+		if len(event.Payload.Metadata) == 0 {
+			event.Payload.Metadata = map[string]string{}
+		}
+		event.Payload.Metadata["traceparent"] = string(traceparent[:])
+	}
+
+	payload, _ := json.Marshal(event.Payload)
 
 	s.options.Tracer.AddMetadata(spanId, map[string]string{
 		"eventName": event.EventName,
-		"data":      string(data),
+		"data":      string(payload),
 	})
 
 	bk, ok := s.options.Brokers[event.EventName]
@@ -175,7 +183,7 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 		return sidecar.ErrComponentNotFound
 	}
 
-	if err := bk.Publish(event.Data, *bk.Options().PublishOptions); err != nil {
+	if err := bk.Publish(event.Payload, *bk.Options().PublishOptions); err != nil {
 		s.options.Tracer.UpdateStatus(spanId, 1, err.Error())
 		return err
 	}
@@ -213,22 +221,34 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 	s.mtx.RUnlock()
 
 	sub := bk.Subscribe(func(b []byte) error {
-		_, spanId := s.options.Tracer.Start(context.Background(), fmt.Sprintf("%s.Handler", brokerId))
-		defer s.options.Tracer.Finish(spanId)
-
-		s.options.Tracer.AddMetadata(spanId, map[string]string{
-			"data": string(b),
-		})
-
-		var body interface{}
-		if err := json.Unmarshal(b, &body); err != nil {
+		var payload sidecar.Payload
+		if err := json.Unmarshal(b, &payload); err != nil {
 			s.options.Tracer.UpdateStatus(spanId, 1, err.Error())
 			return err
 		}
 
+		var traceparent [16]byte
+
+		var spanId string
+
+		if len(payload.Metadata) > 0 && len(payload.Metadata[tracev2.TraceParentKey]) > 0 {
+			copy(traceparent[:], payload.Metadata[tracev2.TraceParentKey])
+			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
+			_, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))
+		} else {
+			_, spanId = s.options.Tracer.Start(context.Background(), fmt.Sprintf("%s.Handler", brokerId))
+		}
+
+		defer s.options.Tracer.Finish(spanId)
+
+		s.options.Tracer.AddMetadata(spanId, map[string]string{
+			"brokerId": brokerId,
+			"data": string(b),
+		})
+
 		event := &sidecar.Event{
 			EventName: brokerId,
-			Data:      body,
+			Payload:   payload,
 		}
 
 		s.options.Tracer.UpdateStatus(spanId, 2, "success")

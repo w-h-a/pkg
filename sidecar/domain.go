@@ -1,8 +1,13 @@
 package sidecar
 
 type Event struct {
-	EventName string      `json:"eventName,omitempty"`
-	Data      interface{} `json:"data,omitempty"`
+	EventName string  `json:"eventName,omitempty"`
+	Payload   Payload `json:"payload,omitempty"`
+}
+
+type Payload struct {
+	Metadata map[string]string `json:"metadata,omitempty"`
+	Data     interface{}       `json:"data,omitempty"`
 }
 
 type State struct {

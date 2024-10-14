@@ -8,7 +8,7 @@ import (
 )
 
 func SerializeEvent(event *Event) (*pb.Event, error) {
-	bs, err := json.Marshal(event.Payload)
+	bs, err := json.Marshal(event.Payload.Data)
 	if err != nil {
 		return nil, err
 	}

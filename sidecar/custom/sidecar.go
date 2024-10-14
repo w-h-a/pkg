@@ -243,7 +243,7 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		s.options.Tracer.AddMetadata(spanId, map[string]string{
 			"brokerId": brokerId,
-			"data": string(b),
+			"data":     string(b),
 		})
 
 		event := &sidecar.Event{

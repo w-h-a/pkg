@@ -34,7 +34,7 @@ func (l *memoryLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
 	if options.Count > 0 {
 		entries = l.buffer.Get(options.Count)
 	} else {
-		entries = l.buffer.Get(l.buffer.Size)
+		entries = l.buffer.Get(l.buffer.Options().Size)
 	}
 
 	records := []log.Record{}
@@ -63,9 +63,9 @@ func NewLog(opts ...log.LogOption) log.Log {
 	}
 
 	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
-		l.buffer = memoryutils.NewBuffer(s)
+		l.buffer = memoryutils.NewBuffer(memoryutils.BufferWithSize(s))
 	} else {
-		l.buffer = memoryutils.NewBuffer(1024)
+		l.buffer = memoryutils.NewBuffer()
 	}
 
 	return l

@@ -9,7 +9,6 @@ import (
 const (
 	traceParentKey = "traceparent"
 	spanParentKey  = "spanparent"
-	spanKey        = "span"
 )
 
 func ContextWithTraceParent(ctx context.Context, traceparent [16]byte) (context.Context, error) {

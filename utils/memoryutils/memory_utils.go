@@ -5,8 +5,12 @@ import (
 	"time"
 )
 
+var (
+	defaultSize = 1024
+)
+
 type Buffer struct {
-	Size    int
+	options BufferOptions
 	mtx     sync.RWMutex
 	entries []*Entry
 }
@@ -14,6 +18,10 @@ type Buffer struct {
 type Entry struct {
 	Value     interface{}
 	Timestamp time.Time
+}
+
+func (m *Buffer) Options() BufferOptions {
+	return m.options
 }
 
 func (m *Buffer) Put(v interface{}) {
@@ -31,7 +39,7 @@ func (m *Buffer) Put(v interface{}) {
 
 	// if the length of the entries is greater than the
 	// specified size, then trim down the buffer by 1
-	if len(m.entries) > m.Size {
+	if len(m.entries) > m.options.Size {
 		m.entries = m.entries[1:]
 	}
 }
@@ -51,9 +59,11 @@ func (m *Buffer) Get(n int) []*Entry {
 	return m.entries[delta:]
 }
 
-func NewBuffer(size int) *Buffer {
+func NewBuffer(opts ...BufferOption) *Buffer {
+	options := NewBufferOptions(opts...)
+
 	b := &Buffer{
-		Size:    size,
+		options: options,
 		mtx:     sync.RWMutex{},
 		entries: []*Entry{},
 	}

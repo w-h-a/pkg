@@ -7,7 +7,7 @@ import (
 )
 
 func TestMemoryBuffer(t *testing.T) {
-	b := NewBuffer(10)
+	b := NewBuffer(BufferWithSize(10))
 
 	b.Put("foo")
 
@@ -16,7 +16,7 @@ func TestMemoryBuffer(t *testing.T) {
 	val := entries[0].Value.(string)
 	require.Equal(t, "foo", val)
 
-	b = NewBuffer(10)
+	b = NewBuffer(BufferWithSize(10))
 
 	for i := 0; i < 10; i++ {
 		b.Put(i)

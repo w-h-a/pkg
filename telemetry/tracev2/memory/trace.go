@@ -93,7 +93,7 @@ func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, err
 	if options.Count > 0 {
 		entries = t.buffer.Get(options.Count)
 	} else {
-		entries = t.buffer.Get(t.buffer.Size)
+		entries = t.buffer.Get(t.buffer.Options().Size)
 	}
 
 	spans := []*tracev2.SpanData{}

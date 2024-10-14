@@ -65,7 +65,7 @@ func (t *memoryTrace) Read(opts ...trace.ReadOption) ([]*trace.Span, error) {
 	if options.Count > 0 {
 		entries = t.buffer.Get(options.Count)
 	} else {
-		entries = t.buffer.Get(t.buffer.Size)
+		entries = t.buffer.Get(t.buffer.Options().Size)
 	}
 
 	spans := []*trace.Span{}
@@ -95,9 +95,9 @@ func NewTrace(opts ...trace.TraceOption) trace.Trace {
 	}
 
 	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
-		t.buffer = memoryutils.NewBuffer(s)
+		t.buffer = memoryutils.NewBuffer(memoryutils.BufferWithSize(s))
 	} else {
-		t.buffer = memoryutils.NewBuffer(1024)
+		t.buffer = memoryutils.NewBuffer()
 	}
 
 	return t

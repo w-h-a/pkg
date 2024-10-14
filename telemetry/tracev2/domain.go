@@ -16,6 +16,6 @@ type SpanData struct {
 }
 
 type Status struct {
-	Code        uint32
-	Description string
+	Code        uint32 `json:"code"`
+	Description string `json:"description"`
 }

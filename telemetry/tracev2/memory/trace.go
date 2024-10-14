@@ -25,8 +25,6 @@ func (t *memoryTrace) Options() tracev2.TraceOptions {
 }
 
 func (t *memoryTrace) Start(ctx context.Context, name string) (context.Context, string) {
-	// TODO: make sure we're enabled
-
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
 

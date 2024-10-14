@@ -182,8 +182,6 @@ func (s *customSidecar) UnsubscribeFromBroker(brokerId string) error {
 }
 
 func (s *customSidecar) ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*sidecar.Secret, error) {
-	// TODO: make sure we have a tracer
-
 	_, spanId := s.options.Tracer.Start(ctx, "customSidecar.ReadFromSecretStore")
 
 	s.options.Tracer.AddMetadata(spanId, map[string]string{

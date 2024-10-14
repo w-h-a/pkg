@@ -62,10 +62,10 @@ func NewLog(opts ...log.LogOption) log.Log {
 		options: options,
 	}
 
-	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
-		l.buffer = memoryutils.NewBuffer(memoryutils.BufferWithSize(s))
+	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
+		l.buffer = b
 	} else {
-		l.buffer = memoryutils.NewBuffer()
+		log.Fatalf("no buffer was given")
 	}
 
 	return l

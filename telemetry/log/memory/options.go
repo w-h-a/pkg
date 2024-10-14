@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
-type sizeKey struct{}
+type bufferKey struct{}
 
-func LogWithSize(s int) log.LogOption {
+func LogWithBuffer(b *memoryutils.Buffer) log.LogOption {
 	return func(o *log.LogOptions) {
-		o.Context = context.WithValue(o.Context, sizeKey{}, s)
+		o.Context = context.WithValue(o.Context, bufferKey{}, b)
 	}
 }
 
-func GetSizeFromContext(ctx context.Context) (int, bool) {
-	s, ok := ctx.Value(sizeKey{}).(int)
-	return s, ok
+func GetBufferFromContext(ctx context.Context) (*memoryutils.Buffer, bool) {
+	b, ok := ctx.Value(bufferKey{}).(*memoryutils.Buffer)
+	return b, ok
 }

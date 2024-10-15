@@ -168,6 +168,10 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 		}
 	}
 
+	log.Infof("WHAT WE HAVE %+#v", event.Payload)
+
+	log.Infof("WHAT WE HAVE %+#v", event.Payload[tracev2.TraceParentKey])
+
 	payload, _ := json.Marshal(event.Payload)
 
 	s.options.Tracer.AddMetadata(spanId, map[string]string{

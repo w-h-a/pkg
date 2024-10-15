@@ -2,7 +2,9 @@ package tracev2
 
 import (
 	"context"
+	"encoding/hex"
 
+	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
 
@@ -23,7 +25,14 @@ func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bo
 		return
 	}
 
-	copy(traceparent[:], traceId)
+	decoded, err := hex.DecodeString(traceId)
+	if err == nil {
+		log.Infof("IT WAS A HEX %s", traceId)
+		copy(traceparent[:], decoded)
+	} else {
+		log.Infof("IT WAS NOT A HEX %s", traceId)
+		copy(traceparent[:], traceId)
+	}
 
 	return
 }
@@ -40,7 +49,12 @@ func SpanParentFromContext(ctx context.Context) (spanparent [8]byte, found bool)
 		return
 	}
 
-	copy(spanparent[:], spanId)
+	decoded, err := hex.DecodeString(spanId)
+	if err == nil {
+		copy(spanparent[:], decoded)
+	} else {
+		copy(spanparent[:], spanId)
+	}
 
 	return
 }

@@ -173,7 +173,7 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 
 	s.options.Tracer.AddMetadata(spanId, map[string]string{
 		"eventName": event.EventName,
-		"data":      string(payload),
+		"payload":   string(payload),
 	})
 
 	bk, ok := s.options.Brokers[event.EventName]
@@ -243,7 +243,7 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		s.options.Tracer.AddMetadata(spanId, map[string]string{
 			"brokerId": brokerId,
-			"data":     string(b),
+			"payload":  string(b),
 		})
 
 		event := &sidecar.Event{

@@ -163,10 +163,9 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 	defer s.options.Tracer.Finish(spanId)
 
 	if traceparent, found := tracev2.TraceParentFromContext(newCtx); found {
-		if len(event.Payload.Metadata) == 0 {
-			event.Payload.Metadata = map[string]string{}
+		if _, ok := event.Payload[tracev2.TraceParentKey].(string); !ok {
+			event.Payload[tracev2.TraceParentKey] = string(traceparent[:])
 		}
-		event.Payload.Metadata["traceparent"] = string(traceparent[:])
 	}
 
 	payload, _ := json.Marshal(event.Payload)
@@ -221,7 +220,8 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 	s.mtx.RUnlock()
 
 	sub := bk.Subscribe(func(b []byte) error {
-		var payload sidecar.Payload
+		var payload map[string]interface{}
+
 		if err := json.Unmarshal(b, &payload); err != nil {
 			s.options.Tracer.UpdateStatus(spanId, 1, err.Error())
 			return err
@@ -231,8 +231,8 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		var spanId string
 
-		if len(payload.Metadata) > 0 && len(payload.Metadata[tracev2.TraceParentKey]) > 0 {
-			copy(traceparent[:], payload.Metadata[tracev2.TraceParentKey])
+		if _, ok := payload[tracev2.TraceParentKey].(string); ok {
+			copy(traceparent[:], payload[tracev2.TraceParentKey].(string))
 			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
 			_, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))
 		} else {

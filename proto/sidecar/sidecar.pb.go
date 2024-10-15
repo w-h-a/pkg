@@ -27,8 +27,8 @@ type Event struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	EventName string   `protobuf:"bytes,1,opt,name=eventName,proto3" json:"eventName,omitempty"`
-	Payload   *Payload `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	EventName string    `protobuf:"bytes,1,opt,name=eventName,proto3" json:"eventName,omitempty"`
+	Payload   []*KeyVal `protobuf:"bytes,2,rep,name=payload,proto3" json:"payload,omitempty"`
 }
 
 func (x *Event) Reset() {
@@ -70,64 +70,9 @@ func (x *Event) GetEventName() string {
 	return ""
 }
 
-func (x *Event) GetPayload() *Payload {
+func (x *Event) GetPayload() []*KeyVal {
 	if x != nil {
 		return x.Payload
-	}
-	return nil
-}
-
-type Payload struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Metadata map[string]string `protobuf:"bytes,1,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Data     *anypb.Any        `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
-}
-
-func (x *Payload) Reset() {
-	*x = Payload{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Payload) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Payload) ProtoMessage() {}
-
-func (x *Payload) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Payload.ProtoReflect.Descriptor instead.
-func (*Payload) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Payload) GetMetadata() map[string]string {
-	if x != nil {
-		return x.Metadata
-	}
-	return nil
-}
-
-func (x *Payload) GetData() *anypb.Any {
-	if x != nil {
-		return x.Data
 	}
 	return nil
 }
@@ -144,7 +89,7 @@ type KeyVal struct {
 func (x *KeyVal) Reset() {
 	*x = KeyVal{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[2]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -157,7 +102,7 @@ func (x *KeyVal) String() string {
 func (*KeyVal) ProtoMessage() {}
 
 func (x *KeyVal) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[2]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -170,7 +115,7 @@ func (x *KeyVal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyVal.ProtoReflect.Descriptor instead.
 func (*KeyVal) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{2}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *KeyVal) GetKey() string {
@@ -198,7 +143,7 @@ type Secret struct {
 func (x *Secret) Reset() {
 	*x = Secret{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[3]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -211,7 +156,7 @@ func (x *Secret) String() string {
 func (*Secret) ProtoMessage() {}
 
 func (x *Secret) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[3]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -224,7 +169,7 @@ func (x *Secret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Secret.ProtoReflect.Descriptor instead.
 func (*Secret) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{3}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Secret) GetData() map[string]string {
@@ -247,7 +192,7 @@ type PostStateRequest struct {
 func (x *PostStateRequest) Reset() {
 	*x = PostStateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[4]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -260,7 +205,7 @@ func (x *PostStateRequest) String() string {
 func (*PostStateRequest) ProtoMessage() {}
 
 func (x *PostStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[4]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +218,7 @@ func (x *PostStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostStateRequest.ProtoReflect.Descriptor instead.
 func (*PostStateRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{4}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PostStateRequest) GetStoreId() string {
@@ -299,7 +244,7 @@ type PostStateResponse struct {
 func (x *PostStateResponse) Reset() {
 	*x = PostStateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[5]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -312,7 +257,7 @@ func (x *PostStateResponse) String() string {
 func (*PostStateResponse) ProtoMessage() {}
 
 func (x *PostStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[5]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -325,7 +270,7 @@ func (x *PostStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostStateResponse.ProtoReflect.Descriptor instead.
 func (*PostStateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{5}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{4}
 }
 
 // sidecar list state request/response
@@ -340,7 +285,7 @@ type ListStateRequest struct {
 func (x *ListStateRequest) Reset() {
 	*x = ListStateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[6]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -353,7 +298,7 @@ func (x *ListStateRequest) String() string {
 func (*ListStateRequest) ProtoMessage() {}
 
 func (x *ListStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[6]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +311,7 @@ func (x *ListStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListStateRequest.ProtoReflect.Descriptor instead.
 func (*ListStateRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{6}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListStateRequest) GetStoreId() string {
@@ -387,7 +332,7 @@ type ListStateResponse struct {
 func (x *ListStateResponse) Reset() {
 	*x = ListStateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[7]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -400,7 +345,7 @@ func (x *ListStateResponse) String() string {
 func (*ListStateResponse) ProtoMessage() {}
 
 func (x *ListStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[7]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -413,7 +358,7 @@ func (x *ListStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListStateResponse.ProtoReflect.Descriptor instead.
 func (*ListStateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{7}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListStateResponse) GetRecords() []*KeyVal {
@@ -436,7 +381,7 @@ type GetStateRequest struct {
 func (x *GetStateRequest) Reset() {
 	*x = GetStateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[8]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -449,7 +394,7 @@ func (x *GetStateRequest) String() string {
 func (*GetStateRequest) ProtoMessage() {}
 
 func (x *GetStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[8]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -462,7 +407,7 @@ func (x *GetStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStateRequest.ProtoReflect.Descriptor instead.
 func (*GetStateRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{8}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetStateRequest) GetStoreId() string {
@@ -490,7 +435,7 @@ type GetStateResponse struct {
 func (x *GetStateResponse) Reset() {
 	*x = GetStateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[9]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -503,7 +448,7 @@ func (x *GetStateResponse) String() string {
 func (*GetStateResponse) ProtoMessage() {}
 
 func (x *GetStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[9]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +461,7 @@ func (x *GetStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStateResponse.ProtoReflect.Descriptor instead.
 func (*GetStateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{9}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetStateResponse) GetRecords() []*KeyVal {
@@ -539,7 +484,7 @@ type DeleteStateRequest struct {
 func (x *DeleteStateRequest) Reset() {
 	*x = DeleteStateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[10]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -552,7 +497,7 @@ func (x *DeleteStateRequest) String() string {
 func (*DeleteStateRequest) ProtoMessage() {}
 
 func (x *DeleteStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[10]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +510,7 @@ func (x *DeleteStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteStateRequest.ProtoReflect.Descriptor instead.
 func (*DeleteStateRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{10}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteStateRequest) GetStoreId() string {
@@ -591,7 +536,7 @@ type DeleteStateResponse struct {
 func (x *DeleteStateResponse) Reset() {
 	*x = DeleteStateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[11]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -604,7 +549,7 @@ func (x *DeleteStateResponse) String() string {
 func (*DeleteStateResponse) ProtoMessage() {}
 
 func (x *DeleteStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[11]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -617,7 +562,7 @@ func (x *DeleteStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteStateResponse.ProtoReflect.Descriptor instead.
 func (*DeleteStateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{11}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{10}
 }
 
 // sidecar publish request/response
@@ -632,7 +577,7 @@ type PublishRequest struct {
 func (x *PublishRequest) Reset() {
 	*x = PublishRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[12]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -645,7 +590,7 @@ func (x *PublishRequest) String() string {
 func (*PublishRequest) ProtoMessage() {}
 
 func (x *PublishRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[12]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +603,7 @@ func (x *PublishRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishRequest.ProtoReflect.Descriptor instead.
 func (*PublishRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{12}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *PublishRequest) GetEvent() *Event {
@@ -677,7 +622,7 @@ type PublishResponse struct {
 func (x *PublishResponse) Reset() {
 	*x = PublishResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[13]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -690,7 +635,7 @@ func (x *PublishResponse) String() string {
 func (*PublishResponse) ProtoMessage() {}
 
 func (x *PublishResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[13]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -703,7 +648,7 @@ func (x *PublishResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishResponse.ProtoReflect.Descriptor instead.
 func (*PublishResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{13}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{12}
 }
 
 // sidecar get secret request/response
@@ -719,7 +664,7 @@ type GetSecretRequest struct {
 func (x *GetSecretRequest) Reset() {
 	*x = GetSecretRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[14]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -732,7 +677,7 @@ func (x *GetSecretRequest) String() string {
 func (*GetSecretRequest) ProtoMessage() {}
 
 func (x *GetSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[14]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -745,7 +690,7 @@ func (x *GetSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretRequest.ProtoReflect.Descriptor instead.
 func (*GetSecretRequest) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{14}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetSecretRequest) GetSecretId() string {
@@ -773,7 +718,7 @@ type GetSecretResponse struct {
 func (x *GetSecretResponse) Reset() {
 	*x = GetSecretResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_sidecar_sidecar_proto_msgTypes[15]
+		mi := &file_proto_sidecar_sidecar_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -786,7 +731,7 @@ func (x *GetSecretResponse) String() string {
 func (*GetSecretResponse) ProtoMessage() {}
 
 func (x *GetSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_sidecar_sidecar_proto_msgTypes[15]
+	mi := &file_proto_sidecar_sidecar_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -799,7 +744,7 @@ func (x *GetSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretResponse.ProtoReflect.Descriptor instead.
 func (*GetSecretResponse) Descriptor() ([]byte, []int) {
-	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{15}
+	return file_proto_sidecar_sidecar_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetSecretResponse) GetSecret() *Secret {
@@ -816,23 +761,12 @@ var file_proto_sidecar_sidecar_proto_rawDesc = []byte{
 	0x73, 0x69, 0x64, 0x65, 0x63, 0x61, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x07, 0x73,
 	0x69, 0x64, 0x65, 0x63, 0x61, 0x72, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x22, 0x51, 0x0a, 0x05, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x65, 0x76,
+	0x6f, 0x22, 0x50, 0x0a, 0x05, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x65, 0x76,
 	0x65, 0x6e, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x65,
-	0x76, 0x65, 0x6e, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2a, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c,
-	0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x73, 0x69, 0x64, 0x65,
-	0x63, 0x61, 0x72, 0x2e, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x07, 0x70, 0x61, 0x79,
-	0x6c, 0x6f, 0x61, 0x64, 0x22, 0xac, 0x01, 0x0a, 0x07, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64,
-	0x12, 0x3a, 0x0a, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x73, 0x69, 0x64, 0x65, 0x63, 0x61, 0x72, 0x2e, 0x50, 0x61, 0x79,
-	0x6c, 0x6f, 0x61, 0x64, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74,
-	0x72, 0x79, 0x52, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x12, 0x28, 0x0a, 0x04,
-	0x64, 0x61, 0x74, 0x61, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f,
-	0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79,
-	0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x1a, 0x3b, 0x0a, 0x0d, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61,
-	0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c,
-	0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a,
-	0x02, 0x38, 0x01, 0x22, 0x46, 0x0a, 0x06, 0x4b, 0x65, 0x79, 0x56, 0x61, 0x6c, 0x12, 0x10, 0x0a,
+	0x76, 0x65, 0x6e, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x29, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c,
+	0x6f, 0x61, 0x64, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x73, 0x69, 0x64, 0x65,
+	0x63, 0x61, 0x72, 0x2e, 0x4b, 0x65, 0x79, 0x56, 0x61, 0x6c, 0x52, 0x07, 0x70, 0x61, 0x79, 0x6c,
+	0x6f, 0x61, 0x64, 0x22, 0x46, 0x0a, 0x06, 0x4b, 0x65, 0x79, 0x56, 0x61, 0x6c, 0x12, 0x10, 0x0a,
 	0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12,
 	0x2a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14,
 	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
@@ -901,44 +835,40 @@ func file_proto_sidecar_sidecar_proto_rawDescGZIP() []byte {
 	return file_proto_sidecar_sidecar_proto_rawDescData
 }
 
-var file_proto_sidecar_sidecar_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_proto_sidecar_sidecar_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_proto_sidecar_sidecar_proto_goTypes = []interface{}{
 	(*Event)(nil),               // 0: sidecar.Event
-	(*Payload)(nil),             // 1: sidecar.Payload
-	(*KeyVal)(nil),              // 2: sidecar.KeyVal
-	(*Secret)(nil),              // 3: sidecar.Secret
-	(*PostStateRequest)(nil),    // 4: sidecar.PostStateRequest
-	(*PostStateResponse)(nil),   // 5: sidecar.PostStateResponse
-	(*ListStateRequest)(nil),    // 6: sidecar.ListStateRequest
-	(*ListStateResponse)(nil),   // 7: sidecar.ListStateResponse
-	(*GetStateRequest)(nil),     // 8: sidecar.GetStateRequest
-	(*GetStateResponse)(nil),    // 9: sidecar.GetStateResponse
-	(*DeleteStateRequest)(nil),  // 10: sidecar.DeleteStateRequest
-	(*DeleteStateResponse)(nil), // 11: sidecar.DeleteStateResponse
-	(*PublishRequest)(nil),      // 12: sidecar.PublishRequest
-	(*PublishResponse)(nil),     // 13: sidecar.PublishResponse
-	(*GetSecretRequest)(nil),    // 14: sidecar.GetSecretRequest
-	(*GetSecretResponse)(nil),   // 15: sidecar.GetSecretResponse
-	nil,                         // 16: sidecar.Payload.MetadataEntry
-	nil,                         // 17: sidecar.Secret.DataEntry
-	(*anypb.Any)(nil),           // 18: google.protobuf.Any
+	(*KeyVal)(nil),              // 1: sidecar.KeyVal
+	(*Secret)(nil),              // 2: sidecar.Secret
+	(*PostStateRequest)(nil),    // 3: sidecar.PostStateRequest
+	(*PostStateResponse)(nil),   // 4: sidecar.PostStateResponse
+	(*ListStateRequest)(nil),    // 5: sidecar.ListStateRequest
+	(*ListStateResponse)(nil),   // 6: sidecar.ListStateResponse
+	(*GetStateRequest)(nil),     // 7: sidecar.GetStateRequest
+	(*GetStateResponse)(nil),    // 8: sidecar.GetStateResponse
+	(*DeleteStateRequest)(nil),  // 9: sidecar.DeleteStateRequest
+	(*DeleteStateResponse)(nil), // 10: sidecar.DeleteStateResponse
+	(*PublishRequest)(nil),      // 11: sidecar.PublishRequest
+	(*PublishResponse)(nil),     // 12: sidecar.PublishResponse
+	(*GetSecretRequest)(nil),    // 13: sidecar.GetSecretRequest
+	(*GetSecretResponse)(nil),   // 14: sidecar.GetSecretResponse
+	nil,                         // 15: sidecar.Secret.DataEntry
+	(*anypb.Any)(nil),           // 16: google.protobuf.Any
 }
 var file_proto_sidecar_sidecar_proto_depIdxs = []int32{
-	1,  // 0: sidecar.Event.payload:type_name -> sidecar.Payload
-	16, // 1: sidecar.Payload.metadata:type_name -> sidecar.Payload.MetadataEntry
-	18, // 2: sidecar.Payload.data:type_name -> google.protobuf.Any
-	18, // 3: sidecar.KeyVal.value:type_name -> google.protobuf.Any
-	17, // 4: sidecar.Secret.data:type_name -> sidecar.Secret.DataEntry
-	2,  // 5: sidecar.PostStateRequest.records:type_name -> sidecar.KeyVal
-	2,  // 6: sidecar.ListStateResponse.records:type_name -> sidecar.KeyVal
-	2,  // 7: sidecar.GetStateResponse.records:type_name -> sidecar.KeyVal
-	0,  // 8: sidecar.PublishRequest.event:type_name -> sidecar.Event
-	3,  // 9: sidecar.GetSecretResponse.secret:type_name -> sidecar.Secret
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	1,  // 0: sidecar.Event.payload:type_name -> sidecar.KeyVal
+	16, // 1: sidecar.KeyVal.value:type_name -> google.protobuf.Any
+	15, // 2: sidecar.Secret.data:type_name -> sidecar.Secret.DataEntry
+	1,  // 3: sidecar.PostStateRequest.records:type_name -> sidecar.KeyVal
+	1,  // 4: sidecar.ListStateResponse.records:type_name -> sidecar.KeyVal
+	1,  // 5: sidecar.GetStateResponse.records:type_name -> sidecar.KeyVal
+	0,  // 6: sidecar.PublishRequest.event:type_name -> sidecar.Event
+	2,  // 7: sidecar.GetSecretResponse.secret:type_name -> sidecar.Secret
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_proto_sidecar_sidecar_proto_init() }
@@ -960,18 +890,6 @@ func file_proto_sidecar_sidecar_proto_init() {
 			}
 		}
 		file_proto_sidecar_sidecar_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Payload); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_proto_sidecar_sidecar_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*KeyVal); i {
 			case 0:
 				return &v.state
@@ -983,7 +901,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Secret); i {
 			case 0:
 				return &v.state
@@ -995,7 +913,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PostStateRequest); i {
 			case 0:
 				return &v.state
@@ -1007,7 +925,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PostStateResponse); i {
 			case 0:
 				return &v.state
@@ -1019,7 +937,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListStateRequest); i {
 			case 0:
 				return &v.state
@@ -1031,7 +949,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListStateResponse); i {
 			case 0:
 				return &v.state
@@ -1043,7 +961,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetStateRequest); i {
 			case 0:
 				return &v.state
@@ -1055,7 +973,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetStateResponse); i {
 			case 0:
 				return &v.state
@@ -1067,7 +985,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*DeleteStateRequest); i {
 			case 0:
 				return &v.state
@@ -1079,7 +997,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*DeleteStateResponse); i {
 			case 0:
 				return &v.state
@@ -1091,7 +1009,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PublishRequest); i {
 			case 0:
 				return &v.state
@@ -1103,7 +1021,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PublishResponse); i {
 			case 0:
 				return &v.state
@@ -1115,7 +1033,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetSecretRequest); i {
 			case 0:
 				return &v.state
@@ -1127,7 +1045,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 				return nil
 			}
 		}
-		file_proto_sidecar_sidecar_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_sidecar_sidecar_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetSecretResponse); i {
 			case 0:
 				return &v.state
@@ -1146,7 +1064,7 @@ func file_proto_sidecar_sidecar_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_sidecar_sidecar_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

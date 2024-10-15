@@ -9,12 +9,7 @@ import "google/protobuf/any.proto";
 // domain
 message Event {
     string eventName = 1;
-    Payload payload = 2;
-}
-
-message Payload {
-    map<string,string> metadata = 1;
-    google.protobuf.Any data = 2;
+    repeated KeyVal payload = 2;
 }
 
 message KeyVal {

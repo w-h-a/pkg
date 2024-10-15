@@ -8,15 +8,16 @@ import (
 )
 
 func SerializeEvent(event *Event) (*pb.Event, error) {
-	bs, _ := json.Marshal(event.Payload.Data)
+	kvs := []*pb.KeyVal{}
+
+	for k, v := range event.Payload {
+		bytes, _ := json.Marshal(v)
+		kv := &pb.KeyVal{Key: k, Value: &anypb.Any{Value: bytes}}
+		kvs = append(kvs, kv)
+	}
 
 	return &pb.Event{
 		EventName: event.EventName,
-		Payload: &pb.Payload{
-			Metadata: event.Payload.Metadata,
-			Data: &anypb.Any{
-				Value: bs,
-			},
-		},
+		Payload:   kvs,
 	}, nil
 }

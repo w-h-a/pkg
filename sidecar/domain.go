@@ -7,7 +7,7 @@ type Event struct {
 
 type Payload struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
-	Data     []byte            `json:"data,omitempty"`
+	Data     interface{}       `json:"data,omitempty"`
 }
 
 type State struct {

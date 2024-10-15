@@ -9,7 +9,7 @@ import "google/protobuf/any.proto";
 // domain
 message Event {
     string eventName = 1;
-    repeated KeyVal payload = 2;
+    bytes payload = 2;
 }
 
 message KeyVal {

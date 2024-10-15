@@ -14,7 +14,7 @@ message Event {
 
 message Payload {
     map<string,string> metadata = 1;
-    google.protobuf.Any data = 2;
+    bytes data = 2;
 }
 
 message KeyVal {

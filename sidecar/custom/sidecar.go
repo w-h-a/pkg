@@ -231,7 +231,12 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		var spanId string
 
+		log.Infof("WHAT WE HAVE %+#v", payload)
+
+		log.Infof("WHAT WE HAVE %+#v", payload[tracev2.TraceParentKey])
+
 		if _, ok := payload[tracev2.TraceParentKey].(string); ok {
+			log.Infof("WE HAVE A TRACE %s", payload[tracev2.TraceParentKey].(string))
 			copy(traceparent[:], payload[tracev2.TraceParentKey].(string))
 			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
 			_, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))

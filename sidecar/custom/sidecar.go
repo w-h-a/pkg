@@ -2,6 +2,7 @@ package custom
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -164,13 +165,9 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 
 	if traceparent, found := tracev2.TraceParentFromContext(newCtx); found {
 		if _, ok := event.Payload[tracev2.TraceParentKey].(string); !ok {
-			event.Payload[tracev2.TraceParentKey] = string(traceparent[:])
+			event.Payload[tracev2.TraceParentKey] = hex.EncodeToString(traceparent[:])
 		}
 	}
-
-	log.Infof("WHAT WE HAVE %+#v", event.Payload)
-
-	log.Infof("WHAT WE HAVE %+#v", event.Payload[tracev2.TraceParentKey])
 
 	payload, _ := json.Marshal(event.Payload)
 
@@ -235,12 +232,7 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		var spanId string
 
-		log.Infof("WHAT WE HAVE %+#v", payload)
-
-		log.Infof("WHAT WE HAVE %+#v", payload[tracev2.TraceParentKey])
-
 		if _, ok := payload[tracev2.TraceParentKey].(string); ok {
-			log.Infof("WE HAVE A TRACE %s", payload[tracev2.TraceParentKey].(string))
 			copy(traceparent[:], payload[tracev2.TraceParentKey].(string))
 			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
 			_, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))

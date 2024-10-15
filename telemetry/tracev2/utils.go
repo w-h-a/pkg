@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
 
@@ -27,10 +26,8 @@ func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bo
 
 	decoded, err := hex.DecodeString(traceId)
 	if err == nil {
-		log.Infof("IT WAS A HEX %s", traceId)
 		copy(traceparent[:], decoded)
 	} else {
-		log.Infof("IT WAS NOT A HEX %s", traceId)
 		copy(traceparent[:], traceId)
 	}
 

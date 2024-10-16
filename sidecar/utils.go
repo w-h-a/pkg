@@ -4,19 +4,13 @@ import (
 	"encoding/json"
 
 	pb "github.com/w-h-a/pkg/proto/sidecar"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 func SerializeEvent(event *Event) (*pb.Event, error) {
-	bs, err := json.Marshal(event.Data)
-	if err != nil {
-		return nil, err
-	}
+	bs, _ := json.Marshal(event.Payload)
 
 	return &pb.Event{
 		EventName: event.EventName,
-		Data: &anypb.Any{
-			Value: bs,
-		},
+		Payload:   bs,
 	}, nil
 }

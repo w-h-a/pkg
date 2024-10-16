@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	accountKey = "auth-account"
+	AccountKey = "auth-account"
 )
 
 func ContextWithAccount(ctx context.Context, account *Account) (context.Context, error) {
@@ -17,11 +17,11 @@ func ContextWithAccount(ctx context.Context, account *Account) (context.Context,
 		return ctx, err
 	}
 
-	return metadatautils.SetContext(ctx, accountKey, string(bytes)), nil
+	return metadatautils.SetContext(ctx, AccountKey, string(bytes)), nil
 }
 
 func AccountFromContext(ctx context.Context) (*Account, error) {
-	str, ok := metadatautils.GetContext(ctx, accountKey)
+	str, ok := metadatautils.GetContext(ctx, AccountKey)
 	if !ok {
 		return nil, nil
 	}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package trace;
+
+option go_package = "github.com/w-h-a/pkg/proto/trace";
+
+// domain
+message Span {
+    string name = 1;
+    string id = 2;
+    string parent = 3;
+    string trace = 4;
+    uint64 started = 5;
+    uint64 ended = 6;
+    map<string,string> metadata = 7;
+}
+
+// trace request/response
+message TraceRequest {
+    uint64 count = 1;
+}
+
+message TraceResponse {
+    repeated Span spans = 1;
+}

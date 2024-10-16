@@ -7,6 +7,7 @@ import (
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/security/secret"
 	"github.com/w-h-a/pkg/store"
+	"github.com/w-h-a/pkg/telemetry/tracev2"
 )
 
 type SidecarOption func(o *SidecarOptions)
@@ -20,6 +21,7 @@ type SidecarOptions struct {
 	Stores      map[string]store.Store
 	Brokers     map[string]broker.Broker
 	Secrets     map[string]secret.Secret
+	Tracer      tracev2.Trace
 	Context     context.Context
 }
 
@@ -73,6 +75,12 @@ func SidecarWithBrokers(b map[string]broker.Broker) SidecarOption {
 func SidecarWithSecrets(s map[string]secret.Secret) SidecarOption {
 	return func(o *SidecarOptions) {
 		o.Secrets = s
+	}
+}
+
+func SidecarWithTracer(tr tracev2.Trace) SidecarOption {
+	return func(o *SidecarOptions) {
+		o.Tracer = tr
 	}
 }
 

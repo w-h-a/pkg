@@ -3,14 +3,13 @@ package memory
 import (
 	golog "log"
 
-	"github.com/w-h-a/pkg/telemetry/buffer"
-	"github.com/w-h-a/pkg/telemetry/buffer/memory"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 type memoryLog struct {
 	options log.LogOptions
-	buffer  buffer.Buffer
+	buffer  *memoryutils.Buffer
 }
 
 func (l *memoryLog) Options() log.LogOptions {
@@ -30,10 +29,12 @@ func (l *memoryLog) Write(rec log.Record) error {
 func (l *memoryLog) Read(opts ...log.ReadOption) ([]log.Record, error) {
 	options := log.NewReadOptions(opts...)
 
-	entries := []*buffer.Entry{}
+	var entries []*memoryutils.Entry
 
 	if options.Count > 0 {
 		entries = l.buffer.Get(options.Count)
+	} else {
+		entries = l.buffer.Get(l.buffer.Options().Size)
 	}
 
 	records := []log.Record{}
@@ -61,10 +62,10 @@ func NewLog(opts ...log.LogOption) log.Log {
 		options: options,
 	}
 
-	if s, ok := GetSizeFromContext(options.Context); ok && s > 0 {
-		l.buffer = memory.NewBuffer(buffer.BufferWithSize(s))
+	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
+		l.buffer = b
 	} else {
-		l.buffer = memory.NewBuffer()
+		log.Fatalf("no buffer was given")
 	}
 
 	return l

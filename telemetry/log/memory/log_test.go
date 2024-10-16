@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 func TestLogger(t *testing.T) {
@@ -13,7 +14,7 @@ func TestLogger(t *testing.T) {
 
 	service := "service.namespace"
 
-	logger := NewLog(log.LogWithPrefix(service), log.LogWithLevel(log.LevelDebug), LogWithSize(size))
+	logger := NewLog(log.LogWithPrefix(service), log.LogWithLevel(log.LevelDebug), LogWithBuffer(memoryutils.NewBuffer(memoryutils.BufferWithSize(size))))
 	require.Equal(t, size, logger.(*memoryLog).buffer.Options().Size)
 
 	log.SetLogger(logger)

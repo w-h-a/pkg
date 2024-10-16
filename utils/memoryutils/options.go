@@ -1,24 +1,20 @@
-package buffer
-
-import "context"
+package memoryutils
 
 type BufferOption func(o *BufferOptions)
 
 type BufferOptions struct {
-	Size    int
-	Context context.Context
+	Size int
 }
 
-func BufferWithSize(s int) BufferOption {
+func BufferWithSize(size int) BufferOption {
 	return func(o *BufferOptions) {
-		o.Size = s
+		o.Size = size
 	}
 }
 
 func NewBufferOptions(opts ...BufferOption) BufferOptions {
 	options := BufferOptions{
-		Context: context.Background(),
-		Size:    defaultSize,
+		Size: defaultSize,
 	}
 
 	for _, fn := range opts {

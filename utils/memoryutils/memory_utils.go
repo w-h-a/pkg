@@ -1,28 +1,35 @@
-package memory
+package memoryutils
 
 import (
 	"sync"
 	"time"
-
-	"github.com/w-h-a/pkg/telemetry/buffer"
 )
 
-type memoryBuffer struct {
-	options buffer.BufferOptions
+var (
+	defaultSize = 1024
+)
+
+type Buffer struct {
+	options BufferOptions
 	mtx     sync.RWMutex
-	entries []*buffer.Entry
+	entries []*Entry
 }
 
-func (m *memoryBuffer) Options() buffer.BufferOptions {
+type Entry struct {
+	Value     interface{}
+	Timestamp time.Time
+}
+
+func (m *Buffer) Options() BufferOptions {
 	return m.options
 }
 
-func (m *memoryBuffer) Put(v interface{}) {
+func (m *Buffer) Put(v interface{}) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	// make the entry
-	entry := &buffer.Entry{
+	entry := &Entry{
 		Value:     v,
 		Timestamp: time.Now(),
 	}
@@ -37,7 +44,7 @@ func (m *memoryBuffer) Put(v interface{}) {
 	}
 }
 
-func (m *memoryBuffer) Get(n int) []*buffer.Entry {
+func (m *Buffer) Get(n int) []*Entry {
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -52,17 +59,13 @@ func (m *memoryBuffer) Get(n int) []*buffer.Entry {
 	return m.entries[delta:]
 }
 
-func (m *memoryBuffer) String() string {
-	return "memory"
-}
+func NewBuffer(opts ...BufferOption) *Buffer {
+	options := NewBufferOptions(opts...)
 
-func NewBuffer(opts ...buffer.BufferOption) buffer.Buffer {
-	options := buffer.NewBufferOptions(opts...)
-
-	b := &memoryBuffer{
+	b := &Buffer{
 		options: options,
 		mtx:     sync.RWMutex{},
-		entries: []*buffer.Entry{},
+		entries: []*Entry{},
 	}
 
 	return b

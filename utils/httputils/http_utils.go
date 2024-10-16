@@ -2,11 +2,14 @@ package httputils
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/w-h-a/pkg/utils/errorutils"
 )
 
 func HttpGetNTimes(url string, n int) ([]byte, error) {
@@ -62,4 +65,20 @@ func ExtractBody(r io.ReadCloser) ([]byte, error) {
 	r.Close()
 
 	return body, nil
+}
+
+func ErrResponse(w http.ResponseWriter, err error) {
+	internal := err.(*errorutils.Error)
+	Response(w, int(internal.Code), []byte(internal.Error()))
+}
+
+func OkResponse(w http.ResponseWriter, payload interface{}) {
+	bs, _ := json.Marshal(payload)
+	Response(w, 200, bs)
+}
+
+func Response(w http.ResponseWriter, code int, bs []byte) {
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(code)
+	w.Write(bs)
 }

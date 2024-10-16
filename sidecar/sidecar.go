@@ -1,6 +1,7 @@
 package sidecar
 
 import (
+	"context"
 	"errors"
 
 	"github.com/w-h-a/pkg/store"
@@ -13,13 +14,13 @@ var (
 
 type Sidecar interface {
 	Options() SidecarOptions
-	SaveStateToStore(state *State) error
-	ListStateFromStore(store string) ([]*store.Record, error)
-	SingleStateFromStore(store, key string) ([]*store.Record, error)
-	RemoveStateFromStore(store, key string) error
-	WriteEventToBroker(event *Event) error
-	ReadEventsFromBroker(broker string)
-	UnsubscribeFromBroker(broker string) error
-	ReadFromSecretStore(secretStore string, name string) (*Secret, error)
+	SaveStateToStore(ctx context.Context, state *State) error
+	ListStateFromStore(ctx context.Context, store string) ([]*store.Record, error)
+	SingleStateFromStore(ctx context.Context, store, key string) ([]*store.Record, error)
+	RemoveStateFromStore(ctx context.Context, store, key string) error
+	WriteEventToBroker(ctx context.Context, event *Event) error
+	ReadEventsFromBroker(ctx context.Context, broker string)
+	UnsubscribeFromBroker(ctx context.Context, broker string) error
+	ReadFromSecretStore(ctx context.Context, secretStore string, name string) (*Secret, error)
 	String() string
 }

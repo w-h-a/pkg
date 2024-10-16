@@ -84,8 +84,6 @@ func (s *server) Run() error {
 	}
 	s.mtx.RUnlock()
 
-	// TODO: init exporters here?
-
 	// TODO: tls
 	listener, err := net.Listen("tcp", s.options.Address)
 	if err != nil {

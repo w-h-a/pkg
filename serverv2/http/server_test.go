@@ -10,10 +10,11 @@ import (
 	"github.com/w-h-a/pkg/serverv2"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/log/memory"
+	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 func TestHttpServer(t *testing.T) {
-	logger := memory.NewLog()
+	logger := memory.NewLog(memory.LogWithBuffer(memoryutils.NewBuffer()))
 
 	log.SetLogger(logger)
 

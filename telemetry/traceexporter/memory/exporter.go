@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/w-h-a/pkg/telemetry/log"
-	"github.com/w-h-a/pkg/telemetry/tracev2"
+	"github.com/w-h-a/pkg/telemetry/traceexporter"
 	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -12,16 +12,16 @@ import (
 )
 
 type memoryExporter struct {
-	options tracev2.ExporterOptions
+	options traceexporter.ExporterOptions
 	buffer  *memoryutils.Buffer
 }
 
-func (e *memoryExporter) Options() tracev2.ExporterOptions {
+func (e *memoryExporter) Options() traceexporter.ExporterOptions {
 	return e.options
 }
 
 func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
-	spanData := []*tracev2.SpanData{}
+	spanData := []*traceexporter.SpanData{}
 
 	for _, s := range spans {
 		var parentSpanId trace.SpanID
@@ -39,12 +39,12 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 			metadata[string(attr.Key)] = attr.Value.AsString()
 		}
 
-		status := tracev2.Status{
+		status := traceexporter.Status{
 			Code:        uint32(s.Status().Code),
 			Description: s.Status().Description,
 		}
 
-		data := &tracev2.SpanData{
+		data := &traceexporter.SpanData{
 			Name:     s.Name(),
 			Id:       s.SpanContext().SpanID().String(),
 			Parent:   parentSpanId.String(),
@@ -74,8 +74,8 @@ func (e *memoryExporter) String() string {
 	return "memory"
 }
 
-func NewExporter(opts ...tracev2.ExporterOption) sdktrace.SpanExporter {
-	options := tracev2.NewExporterOptions(opts...)
+func NewExporter(opts ...traceexporter.ExporterOption) sdktrace.SpanExporter {
+	options := traceexporter.NewExporterOptions(opts...)
 
 	e := &memoryExporter{
 		options: options,

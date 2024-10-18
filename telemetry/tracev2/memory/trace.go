@@ -4,9 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
-	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -17,7 +15,6 @@ type memoryTrace struct {
 	options tracev2.TraceOptions
 	tracer  trace.Tracer
 	spans   map[string]trace.Span
-	buffer  *memoryutils.Buffer
 	mtx     sync.RWMutex
 }
 
@@ -119,12 +116,6 @@ func NewTrace(opts ...tracev2.TraceOption) tracev2.Trace {
 		tracer:  otel.Tracer(options.Name),
 		spans:   map[string]trace.Span{},
 		mtx:     sync.RWMutex{},
-	}
-
-	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
-		t.buffer = b
-	} else {
-		log.Fatalf("no buffer was given")
 	}
 
 	return t

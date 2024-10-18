@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 
+	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel/attribute"
@@ -11,7 +12,12 @@ import (
 )
 
 type memoryExporter struct {
-	buffer *memoryutils.Buffer
+	options tracev2.ExporterOptions
+	buffer  *memoryutils.Buffer
+}
+
+func (e *memoryExporter) Options() tracev2.ExporterOptions {
+	return e.options
 }
 
 func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
@@ -59,11 +65,27 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 	return nil
 }
 
-// TODO?
+// TODO: ?
 func (e *memoryExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func NewExporter(buffer *memoryutils.Buffer) sdktrace.SpanExporter {
-	return &memoryExporter{buffer}
+func (e *memoryExporter) String() string {
+	return "memory"
+}
+
+func NewExporter(opts ...tracev2.ExporterOption) sdktrace.SpanExporter {
+	options := tracev2.NewExporterOptions(opts...)
+
+	e := &memoryExporter{
+		options: options,
+	}
+
+	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
+		e.buffer = b
+	} else {
+		log.Fatalf("no buffer was given")
+	}
+
+	return e
 }

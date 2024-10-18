@@ -9,8 +9,8 @@ import (
 
 type bufferKey struct{}
 
-func TraceWithBuffer(b *memoryutils.Buffer) tracev2.TraceOption {
-	return func(o *tracev2.TraceOptions) {
+func ExporterWithBuffer(b *memoryutils.Buffer) tracev2.ExporterOption {
+	return func(o *tracev2.ExporterOptions) {
 		o.Context = context.WithValue(o.Context, bufferKey{}, b)
 	}
 }

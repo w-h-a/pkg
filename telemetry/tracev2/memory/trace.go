@@ -99,28 +99,6 @@ func (t *memoryTrace) Finish(span string) {
 	delete(t.spans, span)
 }
 
-func (t *memoryTrace) Read(opts ...tracev2.ReadOption) ([]*tracev2.SpanData, error) {
-	options := tracev2.NewReadOptions(opts...)
-
-	var entries []*memoryutils.Entry
-
-	if options.Count > 0 {
-		entries = t.buffer.Get(options.Count)
-	} else {
-		entries = t.buffer.Get(t.buffer.Options().Size)
-	}
-
-	spans := []*tracev2.SpanData{}
-
-	for _, entry := range entries {
-		span := entry.Value.(*tracev2.SpanData)
-
-		spans = append(spans, span)
-	}
-
-	return spans, nil
-}
-
 func (t *memoryTrace) String() string {
 	return "memory"
 }

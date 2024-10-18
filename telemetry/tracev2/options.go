@@ -26,28 +26,3 @@ func NewTraceOptions(opts ...TraceOption) TraceOptions {
 
 	return options
 }
-
-type ReadOption func(o *ReadOptions)
-
-type ReadOptions struct {
-	Count   int
-	Context context.Context
-}
-
-func ReadWithCount(c int) ReadOption {
-	return func(o *ReadOptions) {
-		o.Count = c
-	}
-}
-
-func NewReadOptions(opts ...ReadOption) ReadOptions {
-	options := ReadOptions{
-		Context: context.Background(),
-	}
-
-	for _, fn := range opts {
-		fn(&options)
-	}
-
-	return options
-}

@@ -3,14 +3,14 @@ package memory
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/telemetry/tracev2"
+	"github.com/w-h-a/pkg/telemetry/traceexporter"
 	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 type bufferKey struct{}
 
-func TraceWithBuffer(b *memoryutils.Buffer) tracev2.TraceOption {
-	return func(o *tracev2.TraceOptions) {
+func ExporterWithBuffer(b *memoryutils.Buffer) traceexporter.ExporterOption {
+	return func(o *traceexporter.ExporterOptions) {
 		o.Context = context.WithValue(o.Context, bufferKey{}, b)
 	}
 }

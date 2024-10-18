@@ -5,7 +5,6 @@ import (
 
 	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/telemetry/traceexporter"
-	"github.com/w-h-a/pkg/utils/memoryutils"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
@@ -13,7 +12,6 @@ import (
 
 type memoryExporter struct {
 	options traceexporter.ExporterOptions
-	buffer  *memoryutils.Buffer
 }
 
 func (e *memoryExporter) Options() traceexporter.ExporterOptions {
@@ -59,7 +57,7 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 	}
 
 	for _, d := range spanData {
-		e.buffer.Put(d)
+		e.options.Buffer.Put(d)
 	}
 
 	return nil
@@ -77,14 +75,12 @@ func (e *memoryExporter) String() string {
 func NewExporter(opts ...traceexporter.ExporterOption) sdktrace.SpanExporter {
 	options := traceexporter.NewExporterOptions(opts...)
 
-	e := &memoryExporter{
-		options: options,
+	if options.Buffer == nil {
+		log.Fatalf("no buffer was given")
 	}
 
-	if b, ok := GetBufferFromContext(options.Context); ok && b != nil {
-		e.buffer = b
-	} else {
-		log.Fatalf("no buffer was given")
+	e := &memoryExporter{
+		options: options,
 	}
 
 	return e

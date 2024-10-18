@@ -1,4 +1,4 @@
-package tracev2
+package traceexporter
 
 import (
 	"time"

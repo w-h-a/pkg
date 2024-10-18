@@ -3,19 +3,23 @@ package memory
 import (
 	"context"
 
-	"github.com/w-h-a/pkg/telemetry/tracev2"
-	"github.com/w-h-a/pkg/utils/memoryutils"
+	"github.com/w-h-a/pkg/telemetry/log"
+	"github.com/w-h-a/pkg/telemetry/traceexporter"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type memoryExporter struct {
-	buffer *memoryutils.Buffer
+	options traceexporter.ExporterOptions
+}
+
+func (e *memoryExporter) Options() traceexporter.ExporterOptions {
+	return e.options
 }
 
 func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
-	spanData := []*tracev2.SpanData{}
+	spanData := []*traceexporter.SpanData{}
 
 	for _, s := range spans {
 		var parentSpanId trace.SpanID
@@ -33,12 +37,12 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 			metadata[string(attr.Key)] = attr.Value.AsString()
 		}
 
-		status := tracev2.Status{
+		status := traceexporter.Status{
 			Code:        uint32(s.Status().Code),
 			Description: s.Status().Description,
 		}
 
-		data := &tracev2.SpanData{
+		data := &traceexporter.SpanData{
 			Name:     s.Name(),
 			Id:       s.SpanContext().SpanID().String(),
 			Parent:   parentSpanId.String(),
@@ -53,17 +57,31 @@ func (e *memoryExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadO
 	}
 
 	for _, d := range spanData {
-		e.buffer.Put(d)
+		e.options.Buffer.Put(d)
 	}
 
 	return nil
 }
 
-// TODO?
+// TODO: ?
 func (e *memoryExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func NewExporter(buffer *memoryutils.Buffer) sdktrace.SpanExporter {
-	return &memoryExporter{buffer}
+func (e *memoryExporter) String() string {
+	return "memory"
+}
+
+func NewExporter(opts ...traceexporter.ExporterOption) sdktrace.SpanExporter {
+	options := traceexporter.NewExporterOptions(opts...)
+
+	if options.Buffer == nil {
+		log.Fatalf("no buffer was given")
+	}
+
+	e := &memoryExporter{
+		options: options,
+	}
+
+	return e
 }

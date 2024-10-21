@@ -72,7 +72,7 @@ func (e *memoryExporter) String() string {
 	return "memory"
 }
 
-func NewExporter(opts ...traceexporter.ExporterOption) sdktrace.SpanExporter {
+func NewExporter(opts ...traceexporter.ExporterOption) traceexporter.TraceExporter {
 	options := traceexporter.NewExporterOptions(opts...)
 
 	if options.Buffer == nil {

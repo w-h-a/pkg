@@ -10,6 +10,5 @@ type Trace interface {
 	AddMetadata(span string, md map[string]string)
 	UpdateStatus(span string, code uint32, description string)
 	Finish(span string)
-	Read(opts ...ReadOption) ([]*SpanData, error)
 	String() string
 }

@@ -13,6 +13,7 @@ type ExporterOptions struct {
 	Nodes    []string
 	Protocol string
 	Secure   bool
+	Headers  map[string]string
 	Context  context.Context
 }
 
@@ -40,9 +41,16 @@ func ExporterWithSecure(secure bool) ExporterOption {
 	}
 }
 
+func ExporterWithHeaders(headers map[string]string) ExporterOption {
+	return func(o *ExporterOptions) {
+		o.Headers = headers
+	}
+}
+
 func NewExporterOptions(opts ...ExporterOption) ExporterOptions {
 	options := ExporterOptions{
 		Nodes:   []string{},
+		Headers: map[string]string{},
 		Context: context.Background(),
 	}
 

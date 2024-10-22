@@ -29,13 +29,18 @@ func (e *otelpExporter) configure() error {
 	var err error
 
 	if e.options.Protocol == "grpc" {
-		clientOpts := []otlptracegrpc.Option{otlptracegrpc.WithEndpoint(e.options.Nodes[0])}
+		clientOpts := []otlptracegrpc.Option{
+			otlptracegrpc.WithEndpoint(e.options.Nodes[0]),
+		}
 		if !e.options.Secure {
 			clientOpts = append(clientOpts, otlptracegrpc.WithInsecure())
 		}
 		client = otlptracegrpc.NewClient(clientOpts...)
 	} else {
-		clientOpts := []otlptracehttp.Option{otlptracehttp.WithEndpoint(e.options.Nodes[0])}
+		clientOpts := []otlptracehttp.Option{
+			otlptracehttp.WithEndpoint(e.options.Nodes[0]),
+			otlptracehttp.WithHeaders(e.options.Headers),
+		}
 		if !e.options.Secure {
 			clientOpts = append(clientOpts, otlptracehttp.WithInsecure())
 		}

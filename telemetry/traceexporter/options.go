@@ -35,9 +35,9 @@ func ExporterWithProtocol(p string) ExporterOption {
 	}
 }
 
-func ExporterWithSecure(secure bool) ExporterOption {
+func ExporterWithSecure() ExporterOption {
 	return func(o *ExporterOptions) {
-		o.Secure = secure
+		o.Secure = true
 	}
 }
 

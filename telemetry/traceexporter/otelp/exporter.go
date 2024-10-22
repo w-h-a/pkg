@@ -37,6 +37,8 @@ func (e *otelpExporter) configure() error {
 		}
 		client = otlptracegrpc.NewClient(clientOpts...)
 	} else {
+		log.Infof("MY HEADERS %+v", e.options.Headers)
+		log.Infof("MY SECURE %v", e.options.Secure)
 		clientOpts := []otlptracehttp.Option{
 			otlptracehttp.WithEndpoint(e.options.Nodes[0]),
 			otlptracehttp.WithHeaders(e.options.Headers),

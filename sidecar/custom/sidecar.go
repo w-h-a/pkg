@@ -232,13 +232,15 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		var spanId string
 
+		var newCtx context.Context
+
 		if encoded, ok := payload[tracev2.TraceParentKey].(string); ok {
 			decoded, _ := hex.DecodeString(encoded)
 			copy(traceparent[:], decoded)
-			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
-			_, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))
+			ctx, _ = tracev2.ContextWithTraceParent(context.Background(), traceparent)
+			newCtx, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))
 		} else {
-			_, spanId = s.options.Tracer.Start(context.Background(), fmt.Sprintf("%s.Handler", brokerId))
+			newCtx, spanId = s.options.Tracer.Start(context.Background(), fmt.Sprintf("%s.Handler", brokerId))
 		}
 
 		defer s.options.Tracer.Finish(spanId)
@@ -255,7 +257,7 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 
 		s.options.Tracer.UpdateStatus(spanId, 2, "success")
 
-		return s.sendEventToService(event)
+		return s.sendEventToService(newCtx, event)
 	}, *bk.Options().SubscribeOptions)
 
 	s.mtx.Lock()
@@ -333,7 +335,17 @@ func (s *customSidecar) String() string {
 	return "custom"
 }
 
-func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
+func (s *customSidecar) sendEventToService(ctx context.Context, event *sidecar.Event) error {
+	newCtx, spanId := s.options.Tracer.Start(ctx, "customSidecar.sendEventToService")
+	defer s.options.Tracer.Finish(spanId)
+
+	payload, _ := json.Marshal(event.Payload)
+
+	s.options.Tracer.AddMetadata(spanId, map[string]string{
+		"eventName": event.EventName,
+		"payload":   string(payload),
+	})
+
 	url := fmt.Sprintf("%s:%s", s.options.ServiceName, s.options.ServicePort.Port)
 
 	p, _ := strconv.Atoi(s.options.ServicePort.Port)
@@ -347,6 +359,7 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 	parts := strings.Split(event.EventName, "-")
 
 	if len(parts) != 2 {
+		s.options.Tracer.UpdateStatus(spanId, 1, fmt.Sprintf("%s is an invalid group name", event.EventName))
 		return sidecar.ErrInvalidGroupName
 	}
 
@@ -354,15 +367,16 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 		caser := cases.Title(language.English)
 		receiver := caser.String(parts[0])
 		method := caser.String(parts[1])
-		pbEvent, err := sidecar.SerializeEvent(event)
-		if err != nil {
-			return err
-		}
+		pbEvent, _ := sidecar.SerializeEvent(event)
 		opts = append(
 			opts,
 			client.RequestWithMethod(fmt.Sprintf("%s.%s", receiver, method)),
 			client.RequestWithUnmarshaledRequest(pbEvent),
 		)
+		s.options.Tracer.AddMetadata(spanId, map[string]string{
+			"receiver": receiver,
+			"method":   method,
+		})
 	} else {
 		receiver := strings.ToLower(parts[0])
 		method := strings.ToLower(parts[1])
@@ -371,15 +385,22 @@ func (s *customSidecar) sendEventToService(event *sidecar.Event) error {
 			client.RequestWithMethod(fmt.Sprintf("%s/%s", receiver, method)),
 			client.RequestWithUnmarshaledRequest(event),
 		)
+		s.options.Tracer.AddMetadata(spanId, map[string]string{
+			"receiver": receiver,
+			"method":   method,
+		})
 	}
 
 	req := s.options.Client.NewRequest(opts...)
 
 	var rsp interface{}
 
-	if err := s.options.Client.Call(context.Background(), req, rsp, client.CallWithAddress(url)); err != nil {
+	if err := s.options.Client.Call(newCtx, req, rsp, client.CallWithAddress(url)); err != nil {
+		s.options.Tracer.UpdateStatus(spanId, 1, fmt.Sprintf("failed to send event to service: %v", err))
 		return err
 	}
+
+	s.options.Tracer.UpdateStatus(spanId, 2, "success")
 
 	return nil
 }

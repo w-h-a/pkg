@@ -2,12 +2,14 @@ package grpcclient
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/runtime"
+	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
@@ -264,6 +266,10 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 		for k, v := range md {
 			header[k] = v
 		}
+	}
+
+	if traceparent, found := tracev2.TraceParentFromContext(ctx); found {
+		header[tracev2.TraceParentKey] = hex.EncodeToString(traceparent[:])
 	}
 
 	header["timeout"] = fmt.Sprintf("%d", options.RequestTimeout)

@@ -185,6 +185,10 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 		header.Set(tracev2.TraceParentKey, hex.EncodeToString(traceparent[:]))
 	}
 
+	if _, found := tracev2.SpanParentFromContext(ctx); found {
+		header.Del(tracev2.SpanParentKey)
+	}
+
 	header.Set("timeout", fmt.Sprintf("%d", options.RequestTimeout))
 
 	header.Set("content-type", req.ContentType())

@@ -272,6 +272,10 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 		header[tracev2.TraceParentKey] = hex.EncodeToString(traceparent[:])
 	}
 
+	if _, found := tracev2.SpanParentFromContext(ctx); found {
+		delete(header, tracev2.SpanParentKey)
+	}
+
 	header["timeout"] = fmt.Sprintf("%d", options.RequestTimeout)
 
 	header["content-type"] = req.ContentType()

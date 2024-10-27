@@ -181,12 +181,10 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 		}
 	}
 
-	if traceparent, found := tracev2.TraceParentFromContext(ctx); found {
-		header.Set(tracev2.TraceParentKey, hex.EncodeToString(traceparent[:]))
-	}
-
-	if _, found := tracev2.SpanParentFromContext(ctx); found {
-		header.Del(tracev2.SpanParentKey)
+	if traceId, foundTrace := tracev2.TraceIdFromContext(ctx); foundTrace {
+		if spanId, foundSpan := tracev2.SpanIdFromContext(ctx); foundSpan {
+			header.Set(tracev2.TraceParentKey, fmt.Sprintf("00-%s-%s-00", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:])))
+		}
 	}
 
 	header.Set("timeout", fmt.Sprintf("%d", options.RequestTimeout))

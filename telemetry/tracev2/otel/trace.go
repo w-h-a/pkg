@@ -2,6 +2,7 @@ package otel
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/w-h-a/pkg/telemetry/tracev2"
@@ -28,12 +29,12 @@ func (t *otelTrace) Start(ctx context.Context, name string) (context.Context, st
 
 	parentCtxCfg := trace.SpanContextConfig{}
 
-	if spanparent, ok := tracev2.SpanParentFromContext(ctx); ok {
-		parentCtxCfg.SpanID = spanparent
+	if spanId, ok := tracev2.SpanIdFromContext(ctx); ok {
+		parentCtxCfg.SpanID = spanId
 	}
 
-	if traceparent, ok := tracev2.TraceParentFromContext(ctx); ok {
-		parentCtxCfg.TraceID = traceparent
+	if traceId, ok := tracev2.TraceIdFromContext(ctx); ok {
+		parentCtxCfg.TraceID = traceId
 	}
 
 	ctx, span := t.start(ctx, name, parentCtxCfg)
@@ -42,9 +43,7 @@ func (t *otelTrace) Start(ctx context.Context, name string) (context.Context, st
 
 	t.spans[key] = span
 
-	intermediateCtx, _ := tracev2.ContextWithSpanParent(ctx, span.SpanContext().SpanID())
-
-	newCtx, _ := tracev2.ContextWithTraceParent(intermediateCtx, span.SpanContext().TraceID())
+	newCtx, _ := tracev2.ContextWithTraceParent(ctx, fmt.Sprintf("00-%s-%s-00", span.SpanContext().TraceID().String(), span.SpanContext().SpanID().String()))
 
 	return newCtx, key
 }

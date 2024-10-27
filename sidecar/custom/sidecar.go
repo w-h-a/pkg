@@ -163,9 +163,11 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 	newCtx, spanId := s.options.Tracer.Start(ctx, "customSidecar.WriteEventToBroker")
 	defer s.options.Tracer.Finish(spanId)
 
-	if traceparent, found := tracev2.TraceParentFromContext(newCtx); found {
-		if _, ok := event.Payload[tracev2.TraceParentKey].(string); !ok {
-			event.Payload[tracev2.TraceParentKey] = hex.EncodeToString(traceparent[:])
+	if traceId, foundTrace := tracev2.TraceIdFromContext(newCtx); foundTrace {
+		if spanId, foundSpan := tracev2.SpanIdFromContext(newCtx); foundSpan {
+			if _, ok := event.Payload[tracev2.TraceParentKey].(string); !ok {
+				event.Payload[tracev2.TraceParentKey] = fmt.Sprintf("00-%s-%s-00", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:]))
+			}
 		}
 	}
 
@@ -228,16 +230,12 @@ func (s *customSidecar) ReadEventsFromBroker(ctx context.Context, brokerId strin
 			return err
 		}
 
-		var traceparent [16]byte
-
 		var spanId string
 
 		var newCtx context.Context
 
 		if encoded, ok := payload[tracev2.TraceParentKey].(string); ok {
-			decoded, _ := hex.DecodeString(encoded)
-			copy(traceparent[:], decoded)
-			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), traceparent)
+			ctx, _ := tracev2.ContextWithTraceParent(context.Background(), encoded)
 			newCtx, spanId = s.options.Tracer.Start(ctx, fmt.Sprintf("%s.Handler", brokerId))
 		} else {
 			newCtx, spanId = s.options.Tracer.Start(context.Background(), fmt.Sprintf("%s.Handler", brokerId))

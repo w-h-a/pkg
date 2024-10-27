@@ -166,7 +166,7 @@ func (s *customSidecar) WriteEventToBroker(ctx context.Context, event *sidecar.E
 	if traceId, foundTrace := tracev2.TraceIdFromContext(newCtx); foundTrace {
 		if spanId, foundSpan := tracev2.SpanIdFromContext(newCtx); foundSpan {
 			if _, ok := event.Payload[tracev2.TraceParentKey].(string); !ok {
-				event.Payload[tracev2.TraceParentKey] = fmt.Sprintf("00-%s-%s-00", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:]))
+				event.Payload[tracev2.TraceParentKey] = fmt.Sprintf("00-%s-%s-01", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:]))
 			}
 		}
 	}

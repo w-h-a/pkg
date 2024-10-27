@@ -270,7 +270,7 @@ func (c *grpcClient) call(ctx context.Context, address string, req client.Reques
 
 	if traceId, foundTrace := tracev2.TraceIdFromContext(ctx); foundTrace {
 		if spanId, foundSpan := tracev2.SpanIdFromContext(ctx); foundSpan {
-			header[tracev2.TraceParentKey] = fmt.Sprintf("00-%s-%s-00", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:]))
+			header[tracev2.TraceParentKey] = fmt.Sprintf("00-%s-%s-01", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:]))
 		}
 	}
 

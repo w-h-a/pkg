@@ -43,7 +43,7 @@ func (t *otelTrace) Start(ctx context.Context, name string) (context.Context, st
 
 	t.spans[key] = span
 
-	newCtx, _ := tracev2.ContextWithTraceParent(ctx, fmt.Sprintf("00-%s-%s-00", span.SpanContext().TraceID().String(), span.SpanContext().SpanID().String()))
+	newCtx, _ := tracev2.ContextWithTraceParent(ctx, fmt.Sprintf("00-%s-%s-01", span.SpanContext().TraceID().String(), span.SpanContext().SpanID().String()))
 
 	return newCtx, key
 }

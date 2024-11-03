@@ -3,55 +3,59 @@ package tracev2
 import (
 	"context"
 	"encoding/hex"
+	"strings"
 
 	"github.com/w-h-a/pkg/utils/metadatautils"
 )
 
 const (
 	TraceParentKey = "traceparent"
-	SpanParentKey  = "spanparent"
 )
 
-func ContextWithTraceParent(ctx context.Context, traceparent [16]byte) (context.Context, error) {
+func ContextWithTraceParent(ctx context.Context, traceparent string) (context.Context, error) {
 	return metadatautils.MergeContext(ctx, map[string]string{
-		TraceParentKey: string(traceparent[:]),
+		TraceParentKey: traceparent,
 	}, true), nil
 }
 
-func TraceParentFromContext(ctx context.Context) (traceparent [16]byte, found bool) {
-	traceId, found := metadatautils.GetContext(ctx, TraceParentKey)
+func TraceIdFromContext(ctx context.Context) (traceId [16]byte, found bool) {
+	traceparent, found := metadatautils.GetContext(ctx, TraceParentKey)
 	if !found {
 		return
 	}
 
-	decoded, err := hex.DecodeString(traceId)
-	if err == nil {
-		copy(traceparent[:], decoded)
-	} else {
-		copy(traceparent[:], traceId)
+	parts := strings.Split(traceparent, "-")
+	if len(parts) != 4 {
+		return
 	}
+
+	decoded, err := hex.DecodeString(parts[1])
+	if err != nil {
+		return
+	}
+
+	copy(traceId[:], decoded)
 
 	return
 }
 
-func ContextWithSpanParent(ctx context.Context, spanparent [8]byte) (context.Context, error) {
-	return metadatautils.MergeContext(ctx, map[string]string{
-		SpanParentKey: string(spanparent[:]),
-	}, true), nil
-}
-
-func SpanParentFromContext(ctx context.Context) (spanparent [8]byte, found bool) {
-	spanId, found := metadatautils.GetContext(ctx, SpanParentKey)
+func SpanIdFromContext(ctx context.Context) (spanId [8]byte, found bool) {
+	traceparent, found := metadatautils.GetContext(ctx, TraceParentKey)
 	if !found {
 		return
 	}
 
-	decoded, err := hex.DecodeString(spanId)
-	if err == nil {
-		copy(spanparent[:], decoded)
-	} else {
-		copy(spanparent[:], spanId)
+	parts := strings.Split(traceparent, "-")
+	if len(parts) != 4 {
+		return
 	}
+
+	decoded, err := hex.DecodeString(parts[2])
+	if err != nil {
+		return
+	}
+
+	copy(spanId[:], decoded)
 
 	return
 }

@@ -36,7 +36,20 @@ func HttpGet(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	return ExtractBody(rsp.Body)
+	body, err := ExtractBody(rsp.Body)
+
+	return body, err
+}
+
+func HttpGetV2(url string) (int, http.Header, []byte, error) {
+	rsp, err := http.Get(SanitizeHttpUrl(url))
+	if err != nil {
+		return 0, nil, nil, err
+	}
+
+	body, err := ExtractBody(rsp.Body)
+
+	return rsp.StatusCode, rsp.Header, body, err
 }
 
 func HttpPost(url string, data []byte) ([]byte, error) {

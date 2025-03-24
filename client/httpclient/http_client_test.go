@@ -79,7 +79,7 @@ func TestHttpClient(t *testing.T) {
 
 		rsp := &Payload{}
 
-		err := c.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:3000"))
+		_, err := c.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:3000"))
 
 		require.NoError(t, err)
 

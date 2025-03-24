@@ -26,17 +26,17 @@ func (c *mockClient) NewRequest(opts ...client.RequestOption) client.Request {
 	return c.client.NewRequest(opts...)
 }
 
-func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) (int, error) {
 	c.mtx.RLock()
 	defer c.mtx.RUnlock()
 
 	mock, ok := c.responses[req.Service()+":"+req.Method()]
 	if !ok {
-		return errorutils.NotFound("mock.client", "service:method %s:%s not found in responses %+v", req.Service(), req.Method(), c.responses)
+		return 404, errorutils.NotFound("mock.client", "service:method %s:%s not found in responses %+v", req.Service(), req.Method(), c.responses)
 	}
 
 	if mock.Err != nil {
-		return mock.Err
+		return 500, mock.Err
 	}
 
 	val := reflect.ValueOf(rsp)
@@ -46,7 +46,7 @@ func (c *mockClient) Call(ctx context.Context, req client.Request, rsp interface
 
 	val.Set(reflect.ValueOf(response))
 
-	return nil
+	return 200, nil
 }
 
 func (c *mockClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {

@@ -35,16 +35,16 @@ func (c *httpClient) NewRequest(opts ...client.RequestOption) client.Request {
 	return NewRequest(opts...)
 }
 
-func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) (int, error) {
 	if req == nil {
-		return errorutils.InternalServerError("client", "req is nil")
+		return 500, errorutils.InternalServerError("client", "req is nil")
 	}
 
 	callOptions := client.NewCallOptions(&c.options.CallOptions, opts...)
 
 	next, err := c.next(req, callOptions)
 	if err != nil {
-		return err
+		return 500, err
 	}
 
 	// TODO: check if we already have a deadline
@@ -54,7 +54,7 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 
 	select {
 	case <-ctx.Done():
-		return errorutils.Timeout("client", fmt.Sprintf("%v", ctx.Err()))
+		return 408, errorutils.Timeout("client", fmt.Sprintf("%v", ctx.Err()))
 	default:
 	}
 
@@ -64,10 +64,10 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 		actualCall = callOptions.CallWrappers[i-1](actualCall)
 	}
 
-	call := func(i int) error {
+	call := func(i int) (int, error) {
 		duration, err := callOptions.Backoff(ctx, req, i)
 		if err != nil {
-			return errorutils.InternalServerError("client", err.Error())
+			return 500, errorutils.InternalServerError("client", err.Error())
 		}
 
 		if duration.Seconds() > 0 {
@@ -81,9 +81,9 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 		service, err := next()
 		if err != nil {
 			if err == client.ErrServiceNotFound {
-				return errorutils.InternalServerError("client", "failed to find %s.%s: %v", name, namespace, err)
+				return 500, errorutils.InternalServerError("client", "failed to find %s.%s: %v", name, namespace, err)
 			}
-			return errorutils.InternalServerError("client", "failed to select %s.%s: %v", name, namespace, err)
+			return 500, errorutils.InternalServerError("client", "failed to select %s.%s: %v", name, namespace, err)
 		}
 
 		// TODO: refactor this cruft
@@ -93,45 +93,49 @@ func (c *httpClient) Call(ctx context.Context, req client.Request, rsp interface
 			address = service.Address
 		}
 
-		err = actualCall(ctx, address, req, rsp, callOptions)
+		statusCode, err := actualCall(ctx, address, req, rsp, callOptions)
 		if e, ok := err.(*errorutils.Error); ok {
-			return e
+			return statusCode, e
 		}
 
-		return err
+		return statusCode, err
 	}
 
 	ch := make(chan error, callOptions.RetryCount+1)
 
+	var statusCode int
 	var e error
 
 	for i := 0; i <= callOptions.RetryCount; i++ {
+		var err error
+
 		go func(i int) {
-			ch <- call(i)
+			statusCode, err = call(i)
+			ch <- err
 		}(i)
 
 		select {
 		case <-ctx.Done():
-			return errorutils.Timeout("client", fmt.Sprintf("%v", ctx.Err()))
+			return 408, errorutils.Timeout("client", fmt.Sprintf("%v", ctx.Err()))
 		case err := <-ch:
 			if err == nil {
-				return nil
+				return statusCode, nil
 			}
 
 			shouldRetry, retryErr := callOptions.RetryCheck(ctx, req, i, err)
 			if retryErr != nil {
-				return retryErr
+				return 500, retryErr
 			}
 
 			if !shouldRetry {
-				return err
+				return statusCode, err
 			}
 
 			e = err
 		}
 	}
 
-	return e
+	return statusCode, e
 }
 
 func (c *httpClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
@@ -172,7 +176,7 @@ func (c *httpClient) next(request client.Request, options client.CallOptions) (f
 	return next, nil
 }
 
-func (c *httpClient) call(ctx context.Context, address string, req client.Request, rsp interface{}, options client.CallOptions) error {
+func (c *httpClient) call(ctx context.Context, address string, req client.Request, rsp interface{}, options client.CallOptions) (int, error) {
 	header := http.Header{}
 
 	if md, ok := metadatautils.FromContext(ctx); ok {
@@ -193,12 +197,12 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 
 	marshaler, err := c.newMarshaler(req.ContentType())
 	if err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
 	bs, err := marshaler.Marshal(req.Unmarshaled())
 	if err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
 	buf := &buffer{bytes.NewBuffer(bs)}
@@ -214,7 +218,7 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 
 	URL, err := url.Parse(rawurl)
 	if err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
 	httpReq := &http.Request{
@@ -228,21 +232,21 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 
 	httpRsp, err := http.DefaultClient.Do(httpReq.WithContext(ctx))
 	if err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
 	defer httpRsp.Body.Close()
 
 	bs, err = io.ReadAll(httpRsp.Body)
 	if err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
 	if err := marshaler.Unmarshal(bs, &rsp); err != nil {
-		return errorutils.InternalServerError("client", err.Error())
+		return 500, errorutils.InternalServerError("client", err.Error())
 	}
 
-	return nil
+	return httpRsp.StatusCode, nil
 }
 
 func (c *httpClient) newMarshaler(contentType string) (marshalutils.Marshaler, error) {

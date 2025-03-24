@@ -393,7 +393,7 @@ func (s *customSidecar) sendEventToService(ctx context.Context, event *sidecar.E
 
 	var rsp interface{}
 
-	if err := s.options.Client.Call(newCtx, req, rsp, client.CallWithAddress(url)); err != nil {
+	if _, err := s.options.Client.Call(newCtx, req, rsp, client.CallWithAddress(url)); err != nil {
 		s.options.Tracer.UpdateStatus(spanId, 1, fmt.Sprintf("failed to send event to service: %v", err))
 		return err
 	}

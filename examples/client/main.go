@@ -15,7 +15,7 @@ type clientWrapper struct {
 	headers metadatautils.Metadata
 }
 
-func (c *clientWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+func (c *clientWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) (int, error) {
 	newCtx := metadatautils.MergeContext(ctx, c.headers, false)
 
 	return c.Client.Call(newCtx, req, rsp, opts...)
@@ -31,7 +31,7 @@ type logWrapper struct {
 	client.Client
 }
 
-func (c *logWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+func (c *logWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) (int, error) {
 	log.Infof("making a call to %s of %s.%s", req.Method(), req.Service(), req.Namespace())
 	
 	return c.Client.Call(ctx, req, rsp, opts...)
@@ -66,7 +66,7 @@ func call() {
 
 	rsp := &proto.GreetResponse{}
 
-	if err := grpcClient.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:53116")); err != nil {
+	if _, err := grpcClient.Call(context.Background(), req, rsp, client.CallWithAddress("127.0.0.1:53116")); err != nil {
 		log.Fatalf("failed to make call: %v", err)
 	}
 

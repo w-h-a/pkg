@@ -21,7 +21,7 @@ var (
 type Client interface {
 	Options() ClientOptions
 	NewRequest(opts ...RequestOption) Request
-	Call(ctx context.Context, req Request, rsp interface{}, opts ...CallOption) error
+	Call(ctx context.Context, req Request, rsp interface{}, opts ...CallOption) (int, error)
 	Stream(ctx context.Context, req Request, opts ...CallOption) (Stream, error)
 	String() string
 }

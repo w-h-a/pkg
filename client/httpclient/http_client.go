@@ -3,7 +3,6 @@ package httpclient
 import (
 	"bytes"
 	"context"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,10 +12,10 @@ import (
 
 	"github.com/w-h-a/pkg/client"
 	"github.com/w-h-a/pkg/runtime"
-	"github.com/w-h-a/pkg/telemetry/tracev2"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -185,12 +184,6 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 		}
 	}
 
-	if traceId, foundTrace := tracev2.TraceIdFromContext(ctx); foundTrace {
-		if spanId, foundSpan := tracev2.SpanIdFromContext(ctx); foundSpan {
-			header.Set(tracev2.TraceParentKey, fmt.Sprintf("00-%s-%s-01", hex.EncodeToString(traceId[:]), hex.EncodeToString(spanId[:])))
-		}
-	}
-
 	header.Set("timeout", fmt.Sprintf("%d", options.RequestTimeout))
 
 	header.Set("content-type", req.ContentType())
@@ -230,7 +223,11 @@ func (c *httpClient) call(ctx context.Context, address string, req client.Reques
 		Host:          address,
 	}
 
-	httpRsp, err := http.DefaultClient.Do(httpReq.WithContext(ctx))
+	client := &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
+
+	httpRsp, err := client.Do(httpReq.WithContext(ctx))
 	if err != nil {
 		return 500, errorutils.InternalServerError("client", err.Error())
 	}

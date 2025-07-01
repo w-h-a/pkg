@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/w-h-a/pkg/serverv2"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type server struct {
@@ -55,8 +54,6 @@ func (s *server) Start() error {
 
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-	log.Infof("http server received signal %s", <-ch)
-
 	return s.Stop()
 }
 
@@ -77,8 +74,6 @@ func (s *server) Run() error {
 	s.mtx.Lock()
 	s.options.Address = listener.Addr().String()
 	s.mtx.Unlock()
-
-	log.Infof("http server is listening on %s", s.options.Address)
 
 	httpServer := &http.Server{
 		ReadHeaderTimeout: time.Second,

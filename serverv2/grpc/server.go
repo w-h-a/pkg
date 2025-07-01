@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/w-h-a/pkg/serverv2"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"github.com/w-h-a/pkg/utils/errorutils"
 	"github.com/w-h-a/pkg/utils/marshalutils"
 	"github.com/w-h-a/pkg/utils/metadatautils"
@@ -71,7 +70,7 @@ func (s *server) Start() error {
 
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-	log.Infof("grpc server received signal %s", <-ch)
+	<-ch
 
 	return s.Stop()
 }
@@ -93,8 +92,6 @@ func (s *server) Run() error {
 	s.mtx.Lock()
 	s.options.Address = listener.Addr().String()
 	s.mtx.Unlock()
-
-	log.Infof("grpc server is listening on %s", s.options.Address)
 
 	grpcServer := grpc.NewServer(grpc.UnknownServiceHandler(s.handle))
 
